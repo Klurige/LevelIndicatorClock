@@ -1,122 +1,80 @@
+import { css, html, LitElement } from 'lit';
 import { log } from "./log.js";
 
-export class LevelIndicatorClockCardEditor extends HTMLElement {
-    // private properties
+export class LevelIndicatorClockCardEditor extends LitElement {
     _tag = "LevelIndicatorClockCardEditor";
-    _config;
-    _hass;
-    _elements = {};
 
-    // lifecycle
-    constructor() {
-        super();
-        log(this._tag,"constructor()");
-        this.doEditor();
-        this.doStyle();
-        this.doAttach();
-        this.doQueryElements();
-        this.doListen();
+    static get properties() {
+        return {
+            _config: { state: true },
+        };
     }
 
     setConfig(config) {
-        log(this._tag,"setConfig()");
         this._config = config;
-        this.doUpdateConfig();
     }
 
-    set hass(hass) {
-        log(this._tag,"hass()");
-        this._hass = hass;
-        this.doUpdateHass();
+    static styles = css`
+    .table {
+        display: table;
+    }
+    .row {
+        display: table-row;
+    }
+    .cell {
+        display: table-cell;
+        padding: 0.5em;
+    }
+`;
+
+render() {
+    return html`
+        <form class="table">
+            <div class="row">
+                <label class="label cell" for="header">Header:</label>
+                <input
+                    @change="${this.handleChangedEvent}"
+                    class="value cell" id="header" value="${this._config.header}"></input>
+            </div>
+            <div class="row">
+                <label class="label cell" for="electricityprice">Electricity Price entity:</label>
+                <input
+                    @change="${this.handleChangedEvent}"
+                    class="value cell" id="electricityprice" value="${this._config.electricityprice}"></input>
+            </div>
+           <div class="row">
+                <label class="label cell" for="datetimeiso">Date and Time (ISO) entity:</label>
+                <input
+                    @change="${this.handleChangedEvent}"
+                    class="value cell" id="datetimeiso" value="${this._config.datetimeiso}"></input>
+            </div>
+        </form>
+    `;
+}
+
+handleChangedEvent(changedEvent) {
+    // this._config is readonly, copy needed
+    var newConfig = Object.assign({}, this._config);
+    switch (changedEvent.target.id) {
+        case "header":
+            newConfig.header = changedEvent.target.value;
+            break;
+        case "electricityprice":
+            newConfig.electricityprice = changedEvent.target.value;
+            break;
+        case "datetimeiso":
+            newConfig.datetimeiso = changedEvent.target.value;
+            break;
+        default:
+            log(this._tag,"handleChangedEvent() - unknown event target id");
     }
 
-    onChanged(event) {
-        log(this._tag,"onChanged()");
-        this.doMessageForUpdate(event);
-    }
+    const messageEvent = new CustomEvent("config-changed", {
+        detail: { config: newConfig },
+        bubbles: true,
+        composed: true,
+    });
+    this.dispatchEvent(messageEvent);
+}
 
-    // jobs
-    doEditor() {
-        this._elements.editor = document.createElement("form");
-        this._elements.editor.innerHTML = `
-            <div class="row"><label class="label" for="header">Rubrik:</label><input class="value" id="header"></input></div>
-            <div class="row"><label class="label" for="electricityprice">Elpris:</label><input class="value" id="electricityprice"></input></div>
-            <div class="row"><label class="label" for="datetimeiso">Tid:</label><input class="value" id="datetimeiso"></input></div>
-        `;
-    }
-
-    doStyle() {
-        this._elements.style = document.createElement("style");
-        this._elements.style.textContent = `
-            form {
-                display: table;
-            }
-            .row {
-                display: table-row;
-            }
-            .label, .value {
-                display: table-cell;
-                padding: 0.5em;
-            }
-        `;
-    }
-
-    doAttach() {
-        this.attachShadow({ mode: "open" });
-        this.shadowRoot.append(this._elements.style, this._elements.editor);
-    }
-
-    doQueryElements() {
-        this._elements.header = this._elements.editor.querySelector("#header");
-        this._elements.electricityprice = this._elements.editor.querySelector("#electricityprice");
-        this._elements.datetimeiso = this._elements.editor.querySelector("#datetimeiso");
-    }
-
-    doListen() {
-        this._elements.header.addEventListener(
-            "focusout",
-            this.onChanged.bind(this)
-        );
-        this._elements.electricityprice.addEventListener(
-            "focusout",
-            this.onChanged.bind(this)
-        );
-        this._elements.datetimeiso.addEventListener(
-            "focusout",
-            this.onChanged.bind(this)
-        );
-    }
-
-    doUpdateConfig() {
-        this._elements.header.value = this._config.header;
-        this._elements.electricityprice.value = this._config.electricityprice;
-        this._elements.datetimeiso.value = this._config.datetimeiso;
-    }
-
-    doUpdateHass() { }
-
-    doMessageForUpdate(changedEvent) {
-        // this._config is readonly, copy needed
-        const newConfig = Object.assign({}, this._config);
-        switch (changedEvent.target.id) {
-            case "header":
-                newConfig.header = changedEvent.target.value;
-                break;
-            case "electricityprice":
-                newConfig.electricityprice = changedEvent.target.value;
-                break;
-            case "datetimeiso":
-                newConfig.datetimeiso = changedEvent.target.value;
-                break;
-            default:
-                log(this._tag,"doMessageForUpdate() - unknown event target id");
-                return;
-        }
-        const messageEvent = new CustomEvent("config-changed", {
-            detail: { config: newConfig },
-            bubbles: true,
-            composed: true,
-        });
-        this.dispatchEvent(messageEvent);
-    }
 }

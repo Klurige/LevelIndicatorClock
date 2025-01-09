@@ -1,3 +1,9 @@
+import { css } from 'lit';
+
+export default css`
+    .error {
+        color: red;
+    }
 ha-card {
     display: flex;
     position: relative;
@@ -204,3 +210,4 @@ li {
     transform: translateX(-50%);
     border-radius: 1cap;
 }
+    `;
