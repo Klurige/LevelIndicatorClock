@@ -596,26 +596,174 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 }
 
 },{}],"gbMuj":[function(require,module,exports,__globalThis) {
-var _elprisklockaCardJs = require("./ElprisklockaCard.js");
-var _elprisklockaCardEditorJs = require("./ElprisklockaCardEditor.js");
-customElements.define("elprisklocka-card", (0, _elprisklockaCardJs.ElprisklockaCard));
-customElements.define("elprisklocka-card-editor", (0, _elprisklockaCardEditorJs.ElprisklockaCardEditor));
+var _levelIndicatorClockCardJs = require("./LevelIndicatorClockCard.js");
+var _levelIndicatorClockCardEditorJs = require("./LevelIndicatorClockCardEditor.js");
+customElements.define("level-indicator-clock", (0, _levelIndicatorClockCardJs.LevelIndicatorClockCard));
+customElements.define("level-indicator-clock-editor", (0, _levelIndicatorClockCardEditorJs.LevelIndicatorClockCardEditor));
 window.customCards = window.customCards || [];
 window.customCards.push({
-    type: "elprisklocka-card",
-    name: "Elprisklocka",
-    description: "Klocka med prisindikatorer"
+    type: "level-indicator-clock",
+    name: "LevelIndicatorClock",
+    description: "Clock with level indicators"
 });
 
-},{"./ElprisklockaCard.js":"ehpG6","./ElprisklockaCardEditor.js":"a9MjM"}],"ehpG6":[function(require,module,exports,__globalThis) {
+},{"./LevelIndicatorClockCardEditor.js":"i9cee","./LevelIndicatorClockCard.js":"2vFfd"}],"i9cee":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ElprisklockaCard", ()=>ElprisklockaCard);
+parcelHelpers.export(exports, "LevelIndicatorClockCardEditor", ()=>LevelIndicatorClockCardEditor);
+var _logJs = require("./log.js");
+class LevelIndicatorClockCardEditor extends HTMLElement {
+    // private properties
+    _tag = "LevelIndicatorClockCardEditor";
+    _config;
+    _hass;
+    _elements = {};
+    // lifecycle
+    constructor(){
+        super();
+        (0, _logJs.log)(this._tag, "constructor()");
+        this.doEditor();
+        this.doStyle();
+        this.doAttach();
+        this.doQueryElements();
+        this.doListen();
+    }
+    setConfig(config) {
+        (0, _logJs.log)(this._tag, "setConfig()");
+        this._config = config;
+        this.doUpdateConfig();
+    }
+    set hass(hass) {
+        (0, _logJs.log)(this._tag, "hass()");
+        this._hass = hass;
+        this.doUpdateHass();
+    }
+    onChanged(event) {
+        (0, _logJs.log)(this._tag, "onChanged()");
+        this.doMessageForUpdate(event);
+    }
+    // jobs
+    doEditor() {
+        this._elements.editor = document.createElement("form");
+        this._elements.editor.innerHTML = `
+            <div class="row"><label class="label" for="header">Rubrik:</label><input class="value" id="header"></input></div>
+            <div class="row"><label class="label" for="electricityprice">Elpris:</label><input class="value" id="electricityprice"></input></div>
+            <div class="row"><label class="label" for="datetimeiso">Tid:</label><input class="value" id="datetimeiso"></input></div>
+        `;
+    }
+    doStyle() {
+        this._elements.style = document.createElement("style");
+        this._elements.style.textContent = `
+            form {
+                display: table;
+            }
+            .row {
+                display: table-row;
+            }
+            .label, .value {
+                display: table-cell;
+                padding: 0.5em;
+            }
+        `;
+    }
+    doAttach() {
+        this.attachShadow({
+            mode: "open"
+        });
+        this.shadowRoot.append(this._elements.style, this._elements.editor);
+    }
+    doQueryElements() {
+        this._elements.header = this._elements.editor.querySelector("#header");
+        this._elements.electricityprice = this._elements.editor.querySelector("#electricityprice");
+        this._elements.datetimeiso = this._elements.editor.querySelector("#datetimeiso");
+    }
+    doListen() {
+        this._elements.header.addEventListener("focusout", this.onChanged.bind(this));
+        this._elements.electricityprice.addEventListener("focusout", this.onChanged.bind(this));
+        this._elements.datetimeiso.addEventListener("focusout", this.onChanged.bind(this));
+    }
+    doUpdateConfig() {
+        this._elements.header.value = this._config.header;
+        this._elements.electricityprice.value = this._config.electricityprice;
+        this._elements.datetimeiso.value = this._config.datetimeiso;
+    }
+    doUpdateHass() {}
+    doMessageForUpdate(changedEvent) {
+        // this._config is readonly, copy needed
+        const newConfig = Object.assign({}, this._config);
+        switch(changedEvent.target.id){
+            case "header":
+                newConfig.header = changedEvent.target.value;
+                break;
+            case "electricityprice":
+                newConfig.electricityprice = changedEvent.target.value;
+                break;
+            case "datetimeiso":
+                newConfig.datetimeiso = changedEvent.target.value;
+                break;
+            default:
+                (0, _logJs.log)(this._tag, "doMessageForUpdate() - unknown event target id");
+                return;
+        }
+        const messageEvent = new CustomEvent("config-changed", {
+            detail: {
+                config: newConfig
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(messageEvent);
+    }
+}
+
+},{"./log.js":"cpKom","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cpKom":[function(require,module,exports,__globalThis) {
+// A global log function. First parameter is a tag, second is message.
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "log", ()=>log);
+function log(tag, message) {
+    console.log(`[${tag}]: ${message}`);
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"2vFfd":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
 var _logJs = require("./log.js");
 var _stylesJs = require("./styles.js");
-class ElprisklockaCard extends HTMLElement {
+class LevelIndicatorClockCard extends HTMLElement {
     // private properties
-    tag = "elprisklocka-card";
+    tag = "LevelIndicatorClockCard";
     _config;
     _hass;
     _elements = {};
@@ -722,47 +870,54 @@ class ElprisklockaCard extends HTMLElement {
         this.setAngle("hour-hand", hrAngle);
         this.setAngle("minute-hand", minAngle);
     }
+    getCharForLevel(level) {
+        switch(level){
+            case "low":
+                return "G";
+            case "medium":
+                return "Y";
+            case "high":
+                return "R";
+            default:
+                return "W";
+        }
+    }
     doUpdatePriceLevels(currentPrice) {
         const attributes = currentPrice.attributes;
         const cost_today = attributes.cost_today;
         const cost_tomorrow = attributes.cost_tomorrow;
-        const changeHour = this._currentHour + 10;
-        const hourIndex = changeHour > 12 ? changeHour - 12 : changeHour;
-        (0, _logJs.log)(this.tag, `doUpdatePriceLevels: currentHour: ${this._currentHour} changeHour: ${changeHour} hourIndex: ${hourIndex}`);
-    /*
-        if(changeHour > 23)
-        log(this.tag, "doUpdatePriceLevels: cost_today: ");
-        cost_today.forEach((entry, index) => {
-            log(this.tag, `doUpdatePriceLevels: cost_today[${index}]: ${entry.start}`);
-        });
-
-
-
-        const gradientColors = cost_today.map(entry => {
-            switch (entry.level) {
-            case 'low':
-                return 'green';
-            case 'medium':
-                return 'yellow';
-            case 'high':
-                return 'red';
-            default:
-                return 'gray';
-            }
-        });
-
-        gradientColors.forEach((color, index) => {
-            log(this.tag, `doUpdatePriceLevels: color[${index}]: ${color}`);
-        });
-        const gradient = gradientColors.map((color, index) => {
+        const levels = [];
+        if (cost_today != null) for(let i = 0; i < cost_today.length; i++)levels.push(cost_today[i].level);
+        else for(let i = 0; i < 24; i++)levels.push("grey");
+        if (cost_tomorrow != null) for(let i = 0; i < cost_tomorrow.length; i++)levels.push(cost_tomorrow[i].level);
+        else for(let i = 0; i < 24; i++)levels.push("grey");
+        (0, _logJs.log)(this.tag, `doUpdatePriceLevels: currentHour: ${this._currentHour} Levels: ${levels}`);
+        for(let i = 0; i < 12; i++){
+            let changeHour = this._currentHour + i;
+            let hourIndex = changeHour > 11 ? changeHour - 12 : changeHour;
+            this._hourLevels[i].color = levels[i];
+        }
+        const gradient = this._hourLevels.map((level, index)=>{
             const startAngle = index * 30;
             const endAngle = startAngle + 30;
+            let color = "grey";
+            switch(level.color){
+                case "low":
+                    color = "green";
+                    break;
+                case "medium":
+                    color = "yellow";
+                    break;
+                case "high":
+                    color = "red";
+                    break;
+            }
             return `${color} ${startAngle}deg ${endAngle}deg`;
         }).join(', ');
         const card = this._elements.card;
         const clock = card.querySelector('.clock');
-clock.style.background = `conic-gradient(${gradient})`;
-*/ }
+        clock.style.background = `conic-gradient(${gradient})`;
+    }
     doUpdateTime(currentTime) {
         if (currentTime) this.setClock(currentTime.state);
         else (0, _logJs.log)(this.tag, "doUpdateTime: Current time: null");
@@ -780,7 +935,7 @@ clock.style.background = `conic-gradient(${gradient})`;
         });
     }
     static getConfigElement() {
-        return document.createElement("elprisklocka-card-editor");
+        return document.createElement("level-indicator-clock-editor");
     }
     static getStubConfig() {
         return {
@@ -791,46 +946,7 @@ clock.style.background = `conic-gradient(${gradient})`;
     }
 }
 
-},{"./log.js":"cpKom","./styles.js":"7add8","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cpKom":[function(require,module,exports,__globalThis) {
-// A global log function. First parameter is a tag, second is message.
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "log", ()=>log);
-function log(tag, message) {
-    console.log(`[${tag}]: ${message}`);
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"7add8":[function(require,module,exports,__globalThis) {
+},{"./log.js":"cpKom","./styles.js":"7add8","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7add8":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "css", ()=>css);
@@ -1038,115 +1154,6 @@ li {
 }
 `;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a9MjM":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ElprisklockaCardEditor", ()=>ElprisklockaCardEditor);
-var _logJs = require("./log.js");
-class ElprisklockaCardEditor extends HTMLElement {
-    // private properties
-    _tag = "elprisklocka-card-editor";
-    _config;
-    _hass;
-    _elements = {};
-    // lifecycle
-    constructor(){
-        super();
-        (0, _logJs.log)(this._tag, "constructor()");
-        this.doEditor();
-        this.doStyle();
-        this.doAttach();
-        this.doQueryElements();
-        this.doListen();
-    }
-    setConfig(config) {
-        (0, _logJs.log)(this._tag, "setConfig()");
-        this._config = config;
-        this.doUpdateConfig();
-    }
-    set hass(hass) {
-        (0, _logJs.log)(this._tag, "hass()");
-        this._hass = hass;
-        this.doUpdateHass();
-    }
-    onChanged(event) {
-        (0, _logJs.log)(this._tag, "onChanged()");
-        this.doMessageForUpdate(event);
-    }
-    // jobs
-    doEditor() {
-        this._elements.editor = document.createElement("form");
-        this._elements.editor.innerHTML = `
-            <div class="row"><label class="label" for="header">Rubrik:</label><input class="value" id="header"></input></div>
-            <div class="row"><label class="label" for="electricityprice">Elpris:</label><input class="value" id="electricityprice"></input></div>
-            <div class="row"><label class="label" for="datetimeiso">Tid:</label><input class="value" id="datetimeiso"></input></div>
-        `;
-    }
-    doStyle() {
-        this._elements.style = document.createElement("style");
-        this._elements.style.textContent = `
-            form {
-                display: table;
-            }
-            .row {
-                display: table-row;
-            }
-            .label, .value {
-                display: table-cell;
-                padding: 0.5em;
-            }
-        `;
-    }
-    doAttach() {
-        this.attachShadow({
-            mode: "open"
-        });
-        this.shadowRoot.append(this._elements.style, this._elements.editor);
-    }
-    doQueryElements() {
-        this._elements.header = this._elements.editor.querySelector("#header");
-        this._elements.electricityprice = this._elements.editor.querySelector("#electricityprice");
-        this._elements.datetimeiso = this._elements.editor.querySelector("#datetimeiso");
-    }
-    doListen() {
-        this._elements.header.addEventListener("focusout", this.onChanged.bind(this));
-        this._elements.electricityprice.addEventListener("focusout", this.onChanged.bind(this));
-        this._elements.datetimeiso.addEventListener("focusout", this.onChanged.bind(this));
-    }
-    doUpdateConfig() {
-        this._elements.header.value = this._config.header;
-        this._elements.electricityprice.value = this._config.electricityprice;
-        this._elements.datetimeiso.value = this._config.datetimeiso;
-    }
-    doUpdateHass() {}
-    doMessageForUpdate(changedEvent) {
-        // this._config is readonly, copy needed
-        const newConfig = Object.assign({}, this._config);
-        switch(changedEvent.target.id){
-            case "header":
-                newConfig.header = changedEvent.target.value;
-                break;
-            case "electricityprice":
-                newConfig.electricityprice = changedEvent.target.value;
-                break;
-            case "datetimeiso":
-                newConfig.datetimeiso = changedEvent.target.value;
-                break;
-            default:
-                (0, _logJs.log)(this._tag, "doMessageForUpdate() - unknown event target id");
-                return;
-        }
-        const messageEvent = new CustomEvent("config-changed", {
-            detail: {
-                config: newConfig
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(messageEvent);
-    }
-}
-
-},{"./log.js":"cpKom","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bJYXX","gbMuj"], "gbMuj", "parcelRequire94c2")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bJYXX","gbMuj"], "gbMuj", "parcelRequire94c2")
 
 //# sourceMappingURL=card.js.map

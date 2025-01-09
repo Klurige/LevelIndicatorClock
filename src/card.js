@@ -1,18 +1,18 @@
-import { ElprisklockaCard } from "./ElprisklockaCard.js";
-import { ElprisklockaCardEditor } from "./ElprisklockaCardEditor.js";
+import { LevelIndicatorClockCard } from "./LevelIndicatorClockCard.js";
+import { LevelIndicatorClockCardEditor } from "./LevelIndicatorClockCardEditor.js";
 
 customElements.define(
-    "elprisklocka-card",
-    ElprisklockaCard
+    "level-indicator-clock",
+    LevelIndicatorClockCard
 );
 customElements.define(
-    "elprisklocka-card-editor",
-    ElprisklockaCardEditor
+    "level-indicator-clock-editor",
+    LevelIndicatorClockCardEditor
 );
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-    type: "elprisklocka-card",
-    name: "Elprisklocka",
-    description: "Klocka med prisindikatorer",
+    type: "level-indicator-clock",
+    name: "LevelIndicatorClock",
+    description: "Clock with level indicators",
 });

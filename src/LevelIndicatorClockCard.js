@@ -1,9 +1,9 @@
 import { log } from "./log.js";
 import { css } from "./styles.js";
 
-export class ElprisklockaCard extends HTMLElement {
+export class LevelIndicatorClockCard extends HTMLElement {
     // private properties
-    tag = "elprisklocka-card";
+    tag = "LevelIndicatorClockCard";
     _config;
     _hass;
     _elements = {};
@@ -132,48 +132,71 @@ export class ElprisklockaCard extends HTMLElement {
         this.setAngle("minute-hand", minAngle);
     }
 
+    getCharForLevel(level) {
+        switch (level) {
+            case "low":
+                return "G";
+            case "medium":
+                return "Y";
+            case "high":
+                return "R";
+            default:
+                return "W";
+        }
+    }
+
     doUpdatePriceLevels(currentPrice) {
         const attributes = currentPrice.attributes;
         const cost_today = attributes.cost_today;
         const cost_tomorrow = attributes.cost_tomorrow;
 
-        const changeHour = this._currentHour + 10;
-        const hourIndex = changeHour > 12 ? changeHour - 12 : changeHour;
-        log(this.tag, `doUpdatePriceLevels: currentHour: ${this._currentHour} changeHour: ${changeHour} hourIndex: ${hourIndex}`);
-        /*
-        if(changeHour > 23)
-        log(this.tag, "doUpdatePriceLevels: cost_today: ");
-        cost_today.forEach((entry, index) => {
-            log(this.tag, `doUpdatePriceLevels: cost_today[${index}]: ${entry.start}`);
-        });
-
-
-
-        const gradientColors = cost_today.map(entry => {
-            switch (entry.level) {
-            case 'low':
-                return 'green';
-            case 'medium':
-                return 'yellow';
-            case 'high':
-                return 'red';
-            default:
-                return 'gray';
+        const levels = [];
+        if (cost_today != null) {
+            for (let i = 0; i < cost_today.length; i++) {
+                levels.push(cost_today[i].level);
             }
-        });
+        } else {
+            for (let i = 0; i < 24; i++) {
+                levels.push("grey");
+            }
+        }
 
-        gradientColors.forEach((color, index) => {
-            log(this.tag, `doUpdatePriceLevels: color[${index}]: ${color}`);
-        });
-        const gradient = gradientColors.map((color, index) => {
+        if (cost_tomorrow != null) {
+            for (let i = 0; i < cost_tomorrow.length; i++) {
+                levels.push(cost_tomorrow[i].level);
+            }
+        } else {
+            for (let i = 0; i < 24; i++) {
+                levels.push("grey");
+            }
+        }
+
+        log(this.tag, `doUpdatePriceLevels: currentHour: ${this._currentHour} Levels: ${levels}`);
+        for (let i = 0; i < 12; i++) {
+            let changeHour = this._currentHour + i;
+            let hourIndex = (changeHour > 11) ? changeHour - 12 : changeHour;
+            this._hourLevels[i].color = levels[i];
+        }
+        const gradient = this._hourLevels.map((level, index) => {
             const startAngle = index * 30;
             const endAngle = startAngle + 30;
+            let color = "grey";
+            switch (level.color) {
+                case "low":
+                    color = "green";
+                    break;
+                case "medium":
+                    color = "yellow";
+                    break;
+                case "high":
+                    color = "red";
+                    break;
+            }
             return `${color} ${startAngle}deg ${endAngle}deg`;
         }).join(', ');
         const card = this._elements.card;
         const clock = card.querySelector('.clock');
-clock.style.background = `conic-gradient(${gradient})`;
-*/
+        clock.style.background = `conic-gradient(${gradient})`;
     }
 
     doUpdateTime(currentTime) {
@@ -199,7 +222,7 @@ clock.style.background = `conic-gradient(${gradient})`;
 
 
     static getConfigElement() {
-        return document.createElement("elprisklocka-card-editor");
+        return document.createElement("level-indicator-clock-editor");
     }
 
     static getStubConfig() {

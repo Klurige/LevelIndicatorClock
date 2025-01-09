@@ -1,8 +1,8 @@
 import { log } from "./log.js";
 
-export class ElprisklockaCardEditor extends HTMLElement {
+export class LevelIndicatorClockCardEditor extends HTMLElement {
     // private properties
-    _tag = "elprisklocka-card-editor";
+    _tag = "LevelIndicatorClockCardEditor";
     _config;
     _hass;
     _elements = {};
