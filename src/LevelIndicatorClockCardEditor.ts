@@ -1,16 +1,14 @@
 import { css, html, LitElement } from 'lit';
+import { state } from "lit/decorators/state";
 import { log } from "./log.js";
+import { Config } from "./Config";
 
 export class LevelIndicatorClockCardEditor extends LitElement {
     _tag = "LevelIndicatorClockCardEditor";
 
-    static get properties() {
-        return {
-            _config: { state: true },
-        };
-    }
+    @state() _config;
 
-    setConfig(config) {
+    setConfig(config:Config) {
         this._config = config;
     }
 
@@ -34,28 +32,28 @@ render() {
                 <label class="label cell" for="header">Header:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="header" value="${this._config.header}"></input>
+                    class="value cell" id="header" value="${this._config.header}"/>
             </div>
             <div class="row">
                 <label class="label cell" for="electricityprice">Electricity Price entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="electricityprice" value="${this._config.electricityprice}"></input>
+                    class="value cell" id="electricityprice" value="${this._config.electricityprice}"/>
             </div>
            <div class="row">
                 <label class="label cell" for="datetimeiso">Date and Time (ISO) entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="datetimeiso" value="${this._config.datetimeiso}"></input>
+                    class="value cell" id="datetimeiso" value="${this._config.datetimeiso}"/>
             </div>
         </form>
     `;
 }
 
 handleChangedEvent(changedEvent) {
-    // this._config is readonly, copy needed
-    var newConfig = Object.assign({}, this._config);
-    switch (changedEvent.target.id) {
+    const target = changedEvent.target as HTMLInputElement;
+    const newConfig = Object.assign({}, this._config);
+    switch (target.id) {
         case "header":
             newConfig.header = changedEvent.target.value;
             break;

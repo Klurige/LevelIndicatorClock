@@ -1,6 +1,10 @@
 import {log} from "./log.js";
-import {html, LitElement, nothing} from 'lit';
+import { html, LitElement, nothing } from "lit";
+import { state } from "lit/decorators/state";
 import styles from './levelindicatorclockcard.styles';
+import { HassEntity } from "home-assistant-js-websocket";
+import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";
+import { Config } from "./Config";
 
 export class LevelIndicatorClockCard extends LitElement {
     tag = "LevelIndicatorClockCard";
@@ -9,22 +13,25 @@ export class LevelIndicatorClockCard extends LitElement {
 
     _currentHour = 0;
     _currentMinute = 0;
-    _hourLevels = new Array(12).fill("uninitialized");
+    _hourLevels: string[] = new Array(12).fill("uninitialized");
+
+    @state() private _header: string | typeof nothing;
+    @state() private _datetimeiso: string;
+    @state() private _electricityprice: string;
+    @state() private _timestamp: HassEntity;
+    @state() private _prices: HassEntity;
 
     static get properties() {
         return {
             _header: {state: true},
-            _entity: {state: true},
             _datetimeiso: {state: true},
             _electricityprice: {state: true},
-            _name: {state: true},
             _timestamp: {state: true},
             _prices: {state: true},
-            _status: {state: true}
         };
     }
 
-    setConfig(config) {
+    setConfig(config:Config) {
         this._header = config.header === "" ? nothing : config.header;
         this._datetimeiso = config.datetimeiso;
         this._electricityprice = config.electricityprice;
@@ -33,7 +40,7 @@ export class LevelIndicatorClockCard extends LitElement {
         }
     }
 
-    set hass(hass) {
+    set hass(hass:HomeAssistant) {
         this._hass = hass;
         this._timestamp = hass.states[this._datetimeiso];
         this._prices = hass.states[this._electricityprice];
@@ -81,23 +88,21 @@ export class LevelIndicatorClockCard extends LitElement {
                 }
             }
 
-            let currentHour = parseInt(this._currentHour);
-
             if (this._hourLevels.every(level => level === "uninitialized")) {
                 for (let i = 0; i < 12; i++) {
-                    const updateHour = (currentHour - 2 + i) % 12;
-                    this._hourLevels[updateHour] = levels[currentHour - 2 + i];
+                    const updateHour = (this._currentHour - 2 + i) % 12;
+                    this._hourLevels[updateHour] = levels[this._currentHour - 2 + i];
                 }
             }
 
-            let startHour = currentHour + 12 - 2;
+            let startHour = this._currentHour + 12 - 2;
             let updateHour = startHour % 12;
             this._hourLevels[updateHour] = levels[startHour];
 
             const gradient = this._hourLevels.map((level, index) => {
                 const startAngle = index * 30;
                 const endAngle = startAngle + 30;
-                let color = "grey";
+                let color: string;
                 switch (level) {
                     case "low":
                         color = "green";
@@ -113,18 +118,18 @@ export class LevelIndicatorClockCard extends LitElement {
                 }
                 return `${color} ${startAngle}deg ${endAngle}deg`;
             }).join(', ');
-            clock.style.background = `conic-gradient(${gradient})`;
+            (clock as HTMLElement).style.background = `conic-gradient(${gradient})`;
         }
     }
 
     _setAngle(hand, angle) {
-        this.shadowRoot.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
+        (this.shadowRoot.querySelector("." + hand) as HTMLElement).style.transform = "rotate(" + angle + "deg)";
     }
 
     _setClock(currentTime) {
         const time = currentTime.split("T")[1].split(":");
-        this._currentHour = time[0];
-        this._currentMinute = time[1];
+        this._currentHour = parseInt(time[0]);
+        this._currentMinute = parseInt(time[1]);
         const hrAngle = this._currentHour * 30 + (this._currentMinute * 6 / 12);
         const minAngle = this._currentMinute * 6;
         this._setAngle("hour-hand", hrAngle);
@@ -132,7 +137,7 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     render() {
-        let content;
+        let content: ReturnType<typeof html>;
         if (!this._timestamp || !this._prices) {
             content = html`
                 <div class="error">

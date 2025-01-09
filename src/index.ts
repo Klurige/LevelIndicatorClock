@@ -1,6 +1,11 @@
 import { LevelIndicatorClockCard } from "./LevelIndicatorClockCard.js";
 import { LevelIndicatorClockCardEditor } from "./LevelIndicatorClockCardEditor.js";
 
+declare global {
+    interface Window {
+        customCards: Array<Object>;
+    }
+}
 customElements.define(
     "level-indicator-clock",
     LevelIndicatorClockCard
