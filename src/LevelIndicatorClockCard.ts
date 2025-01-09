@@ -6,6 +6,17 @@ import { HassEntity } from "home-assistant-js-websocket";
 import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";
 import { Config } from "./Config";
 
+interface Timestamp {
+    state: string;
+}
+
+interface Prices {
+    attributes: {
+        cost_today: { level: string }[];
+        cost_tomorrow: { level: string }[];
+    };
+}
+
 export class LevelIndicatorClockCard extends LitElement {
     tag = "LevelIndicatorClockCard";
 
@@ -18,8 +29,8 @@ export class LevelIndicatorClockCard extends LitElement {
     @state() private _header: string | typeof nothing;
     @state() private _datetimeiso: string;
     @state() private _electricityprice: string;
-    @state() private _timestamp: HassEntity;
-    @state() private _prices: HassEntity;
+    @state() private _timestamp: Timestamp;
+    @state() private _prices: Prices;
 
     static get properties() {
         return {
