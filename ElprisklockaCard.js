@@ -77,9 +77,9 @@ export class ElprisklockaCard extends HTMLElement {
     </ul>
 
     <div class="gradient-cover"></div>
-    <div class='hr'></div>
-    <div class='min'></div>
-
+        <div class='hr'></div>
+        <div class='min'></div>
+    <div class="center-cover"></div>
 
             </div>
         </div>
@@ -170,39 +170,58 @@ export class ElprisklockaCard extends HTMLElement {
             transform: translate(-50%, -50%);
             z-index: 1;
         }
-
-        .hr {
+        .center-cover {
+            background: white;
+            border-radius: 50%;
             position: absolute;
-            bottom: 47.5%;
-            border-radius: 1cap;
-            transform-origin: 50% 100%;
-            background: red;
-            left: 47.5%;
-            width: 5%;
-            height: 33%;
-            animation: rotateHand 10s linear infinite;
-            z-index: 2;
+            width: 2px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
         }
 
-        .min {
-            position: absolute;
-            bottom: 48.5%;
-            border-radius: 1cap;
-            transform-origin: 50% 100%;
-            background: blue;
-            left: 48.5%;
-            width: 3%;
-            height: 39%;
-            animation: rotateHand 10s linear infinite;
-            z-index: 2;
-        }
-        @keyframes rotateHand {
-            to {
-                transform: rotate(1turn);
-            }
-        }
+.hr {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    z-index: 2;
+}
 
-         `;
+.hr::before {
+    content: '';
+    position: absolute;
+    bottom: 47.5%;
+    left: 50%;
+    width: 5%;
+    height: 33%;
+    background: red;
+    transform: translateX(-50%);
+    border-radius: 1cap;
+}
+
+.min {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    z-index: 2;
+}
+
+.min::before {
+    content: '';
+    position: absolute;
+    bottom: 48.5%;
+    left: 50%;
+    width: 3%;
+    height: 39%;
+    background: blue;
+    transform: translateX(-50%);
+    border-radius: 1cap;
+}
+`;
     }
 
     doAttach() {
@@ -228,26 +247,20 @@ export class ElprisklockaCard extends HTMLElement {
         card.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
     }
 
-    _hr = 0;
-    _min = 0;
-    _sec = 0;
     setClock(currentTime) {
-        this._sec++;
-        if (this._sec === 60) {
-            this._sec = 0;
-            this._min++;
-            if (this._min === 60) {
-                this._min = 0;
-                this._hr++;
-                if (this._hr === 12) {
-                    this._hr = 0;
-                }
-            }
-        }
-        log(this.tag, "setClock: " + this._hr + ":" + this._min + ":" + this._sec);
-
-
+        const time = currentTime.split("T")[1].split(":");
+        const hr = time[0];
+        const min = time[1];
+        const sec = 0;
+        const hrAngle = hr * 30 + (min * 6 / 12);
+        const minAngle = min * 6 + (sec * 6 / 60);
+        this.setAngle("hr", hrAngle);
+        this.setAngle("min", minAngle);
+        log(this.tag, "setClock: Angles: hr=" + hrAngle + ", min=" + minAngle);
     }
+
+    _hr = 0;
+    _min = -1;
 
     doUpdateHass() {
         const currentPrice = this.getCurrentPrice();
@@ -268,19 +281,30 @@ export class ElprisklockaCard extends HTMLElement {
         }
         if (currentTime) {
             log(this.tag, "doUpdateHass: Current time: " + currentTime.state);
-            if (!this._isStarted) {
-                setInterval(() => this.setClock(currentTime.state), 1000);
-                this._isStarted = true;
+            if (true) {
+                this.setClock(currentTime.state);
+            } else {
+                const datetime = currentTime.state.split("T");
+                if (!this._isStarted) {
+                    const datetime = currentTime.state.split("T");
+                    const date = datetime[0];
+                    setInterval(() => {
+                        this._min++;
+                        if (this._min === 60) {
+                            this._min = 0;
+                            this._hr++;
+                            if (this._hr === 12) {
+                                this._hr = 0;
+                            }
+                        }
+
+                        const dt = date + "T" + this._hr + ":" + this._min + ":00";
+                        log(this.tag, "Interval: Current time: " + dt);
+                        this.setClock(dt)
+                    }, 100);
+                    this._isStarted = true;
+                }
             }
-//            // Current time: 2025-01-06T08:24:00
-//            const time = currentTime.state.split("T")[1].split(":");
-//            const hr = parseInt(time[0]);
-//            const min = parseInt(time[1]);
-//            const sec = parseInt(time[2]);
-//            const hrAngle = hr * 30 + (min * 6 / 12),
-//            minAngle = min * 6 + (sec * 6 / 60);
-//            this.setAngle("hr", hrAngle);
-//            this.setAngle("min", minAngle);
         } else {
             log(this.tag, "doUpdateHass: Current time: null");
         }
