@@ -6,6 +6,7 @@ export class ElprisklockaCard extends HTMLElement {
     _config;
     _hass;
     _elements = {};
+    _isStarted = false;
 
     // lifecycle
     constructor() {
