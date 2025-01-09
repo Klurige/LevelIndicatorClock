@@ -142,14 +142,14 @@
       this[globalName] = mainExports;
     }
   }
-})({"bJYXX":[function(require,module,exports,__globalThis) {
+})({"9mu7C":[function(require,module,exports,__globalThis) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
-module.bundle.HMR_BUNDLE_ID = "1e577c119bd7e52c";
+module.bundle.HMR_BUNDLE_ID = "890e741a975ef6c8";
 "use strict";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, HMR_USE_SSE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
 import type {
@@ -595,7 +595,7 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
     }
 }
 
-},{}],"gbMuj":[function(require,module,exports,__globalThis) {
+},{}],"8lqZg":[function(require,module,exports,__globalThis) {
 var _levelIndicatorClockCardJs = require("./LevelIndicatorClockCard.js");
 var _levelIndicatorClockCardEditorJs = require("./LevelIndicatorClockCardEditor.js");
 customElements.define("level-indicator-clock", (0, _levelIndicatorClockCardJs.LevelIndicatorClockCard));
@@ -607,7 +607,193 @@ window.customCards.push({
     description: "Clock with level indicators"
 });
 
-},{"./LevelIndicatorClockCardEditor.js":"i9cee","./LevelIndicatorClockCard.js":"2vFfd"}],"i9cee":[function(require,module,exports,__globalThis) {
+},{"./LevelIndicatorClockCard.js":"2vFfd","./LevelIndicatorClockCardEditor.js":"i9cee"}],"2vFfd":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
+var _logJs = require("./log.js");
+var _levelindicatorclockcardCss = require("bundle-text:./levelindicatorclockcard.css");
+var _levelindicatorclockcardCssDefault = parcelHelpers.interopDefault(_levelindicatorclockcardCss);
+var _levelindicatorclockcardHtml = require("bundle-text:./levelindicatorclockcard.html");
+var _levelindicatorclockcardHtmlDefault = parcelHelpers.interopDefault(_levelindicatorclockcardHtml);
+class LevelIndicatorClockCard extends HTMLElement {
+    // private properties
+    tag = "LevelIndicatorClockCard";
+    _config;
+    _hass;
+    _elements = {};
+    _currentHour = 0;
+    _currentMinute = 0;
+    _hourLevels = [];
+    // lifecycle
+    constructor(){
+        super();
+        this.doHtml();
+        this._elements.style = document.createElement("style");
+        this._elements.style.textContent = (0, _levelindicatorclockcardCssDefault.default);
+        this.attachShadow({
+            mode: "open"
+        });
+        this.shadowRoot.append(this._elements.style, this._elements.card);
+        this.doQueryElements();
+    }
+    setConfig(config) {
+        this._config = config;
+        if (!this._config.electricityprice) throw new Error("Please define electricity price!");
+        if (!this._config.datetimeiso) throw new Error("Please define datetime iso!");
+        if (this._config.header) this._elements.card.setAttribute("header", this._config.header);
+        else this._elements.card.removeAttribute("header");
+    }
+    _isStarted = false;
+    _hr = 0;
+    _min = 0;
+    set hass(hass) {
+        this._hass = hass;
+        const currentPrice = this._hass.states[this._config.electricityprice];
+        const currentTime = this._hass.states[this._config.datetimeiso];
+        if (!currentPrice || !currentTime) {
+            let errorMessage = "";
+            if (!currentPrice) errorMessage += `[${this._config.electricityprice} is unavailable.]`;
+            if (!currentTime) errorMessage += `[${this._config.datetimeiso} is unavailable.]`;
+            this._elements.error.textContent = errorMessage;
+            this._elements.error.classList.remove("hidden");
+        } else {
+            this._elements.error.textContent = "";
+            this._elements.error.classList.add("hidden");
+            this.doUpdatePriceLevels(currentPrice);
+            this.doUpdateTime(currentTime);
+        }
+    }
+    getCurrentPrice() {
+        return this._hass.states[this._config.electricityprice];
+    }
+    getAttributes() {
+        return this.getCurrentPrice().attributes;
+    }
+    doHtml() {
+        const importBox = document.createElement("div");
+        importBox.innerHTML = (0, _levelindicatorclockcardHtmlDefault.default);
+        this._elements.card = importBox.firstElementChild;
+    }
+    doQueryElements() {
+        const card = this._elements.card;
+        this._elements.error = card.querySelector(".error");
+    }
+    setAngle(hand, angle) {
+        const card = this._elements.card;
+        card.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
+    }
+    setClock(currentTime) {
+        const time = currentTime.split("T")[1].split(":");
+        this._currentHour = time[0];
+        this._currentMinute = time[1];
+        const hrAngle = this._currentHour * 30 + this._currentMinute * 6 / 12;
+        const minAngle = this._currentMinute * 6;
+        this.setAngle("hour-hand", hrAngle);
+        this.setAngle("minute-hand", minAngle);
+    }
+    doUpdatePriceLevels(currentPrice) {
+        const attributes = currentPrice.attributes;
+        const cost_today = attributes.cost_today;
+        const cost_tomorrow = attributes.cost_tomorrow;
+        const levels = [];
+        if (cost_today != null) for(let i = 0; i < cost_today.length; i++)levels.push(cost_today[i].level);
+        else for(let i = 0; i < 24; i++)levels.push("unknown");
+        if (cost_tomorrow != null) for(let i = 0; i < cost_tomorrow.length; i++)levels.push(cost_tomorrow[i].level);
+        else for(let i = 0; i < 24; i++)levels.push("unknown");
+        let currentHour = parseInt(this._currentHour);
+        if (this._hourLevels.length == 0) {
+            (0, _logJs.log)(this.tag, "doUpdatePriceLevels: Initializing hour levels");
+            for(let i = 0; i < 12; i++)this._hourLevels.push(levels[currentHour + i]);
+        }
+        let startHour = currentHour + 10;
+        let updateHour = startHour % 12;
+        this._hourLevels[updateHour] = levels[startHour];
+        const gradient = this._hourLevels.map((level, index)=>{
+            const startAngle = index * 30;
+            const endAngle = startAngle + 30;
+            let color = "grey";
+            switch(level){
+                case "low":
+                    color = "green";
+                    break;
+                case "medium":
+                    color = "yellow";
+                    break;
+                case "high":
+                    color = "red";
+                    break;
+                default:
+                    color = "grey";
+            }
+            return `${color} ${startAngle}deg ${endAngle}deg`;
+        }).join(', ');
+        const card = this._elements.card;
+        const clock = card.querySelector('.clock');
+        clock.style.background = `conic-gradient(${gradient})`;
+    }
+    doUpdateTime(currentTime) {
+        if (currentTime) this.setClock(currentTime.state);
+        else (0, _logJs.log)(this.tag, "doUpdateTime: Current time: null");
+    }
+    static getConfigElement() {
+        return document.createElement("level-indicator-clock-editor");
+    }
+    static getStubConfig() {
+        return {
+            electricityprice: "sensor.elpris",
+            datetimeiso: "sensor.date_time_iso",
+            header: ""
+        };
+    }
+}
+
+},{"./log.js":"cpKom","bundle-text:./levelindicatorclockcard.css":"cJNqC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","bundle-text:./levelindicatorclockcard.html":"kFnfW"}],"cpKom":[function(require,module,exports,__globalThis) {
+// A global log function. First parameter is a tag, second is message.
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "log", ()=>log);
+function log(tag, message) {
+    console.log(`[${tag}]: ${message}`);
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"cJNqC":[function(require,module,exports,__globalThis) {
+module.exports = "ha-card {\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  height: 0;\n  padding-bottom: 100%;\n  font-family: Helvetica, sans-serif;\n  display: flex;\n  position: relative;\n}\n\nul {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\nli {\n  transform-origin: center;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.hours {\n  color: #000;\n  z-index: 2;\n  font-size: 30px;\n}\n\n.hours li {\n  justify-content: center;\n  align-items: center;\n  display: flex;\n}\n\n.hours span {\n  display: block;\n  transform: translate(-50%, -50%);\n}\n\n.hours li:first-of-type {\n  transform: rotate(30deg)translate(0, -45%);\n}\n\n.hours li:first-of-type span {\n  transform: rotate(-30deg);\n}\n\n.hours li:nth-of-type(2) {\n  transform: rotate(60deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(2) span {\n  transform: rotate(-60deg);\n}\n\n.hours li:nth-of-type(3) {\n  transform: rotate(90deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(3) span {\n  transform: rotate(-90deg);\n}\n\n.hours li:nth-of-type(4) {\n  transform: rotate(120deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(4) span {\n  transform: rotate(-120deg);\n}\n\n.hours li:nth-of-type(5) {\n  transform: rotate(150deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(5) span {\n  transform: rotate(-150deg);\n}\n\n.hours li:nth-of-type(6) {\n  transform: rotate(180deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(6) span {\n  transform: rotate(-180deg);\n}\n\n.hours li:nth-of-type(7) {\n  transform: rotate(210deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(7) span {\n  transform: rotate(-210deg);\n}\n\n.hours li:nth-of-type(8) {\n  transform: rotate(240deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(8) span {\n  transform: rotate(-240deg);\n}\n\n.hours li:nth-of-type(9) {\n  transform: rotate(270deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(9) span {\n  transform: rotate(-270deg);\n}\n\n.hours li:nth-of-type(10) {\n  transform: rotate(300deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(10) span {\n  transform: rotate(-300deg);\n}\n\n.hours li:nth-of-type(11) {\n  transform: rotate(330deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(11) span {\n  transform: rotate(-330deg);\n}\n\n.hours li:nth-of-type(12) {\n  transform: rotate(360deg)translate(0, -45%);\n}\n\n.hours li:nth-of-type(12) span {\n  transform: rotate(-360deg);\n}\n\n.clock {\n  background-color: gray;\n  border: .5em solid #000;\n  border-radius: 50%;\n  width: 90%;\n  height: 90%;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.gradient-cover {\n  z-index: 1;\n  background: #fff;\n  border-radius: 50%;\n  width: 80%;\n  height: 80%;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n\n.hour-hand {\n  transform-origin: center;\n  z-index: 2;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.hour-hand:before {\n  content: \"\";\n  background: #000;\n  border-radius: 1cap;\n  width: 5%;\n  height: 33%;\n  position: absolute;\n  bottom: 47.5%;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.minute-hand {\n  transform-origin: center;\n  z-index: 2;\n  width: 100%;\n  height: 100%;\n  position: absolute;\n}\n\n.minute-hand:before {\n  content: \"\";\n  background: #000;\n  border-radius: 1cap;\n  width: 3%;\n  height: 39%;\n  position: absolute;\n  bottom: 48.5%;\n  left: 50%;\n  transform: translateX(-50%);\n}\n";
+
+},{}],"kFnfW":[function(require,module,exports,__globalThis) {
+module.exports = "<ha-card>\n    <div class=\"card-content\">\n        <p class=\"error error hidden\">\n        </p><div class=\"clock\">\n            <ul class=\"hours\">\n                <li><span>1</span></li>\n                <li><span>2</span></li>\n                <li><span>3</span></li>\n                <li><span>4</span></li>\n                <li><span>5</span></li>\n                <li><span>6</span></li>\n                <li><span>7</span></li>\n                <li><span>8</span></li>\n                <li><span>9</span></li>\n                <li><span>10</span></li>\n                <li><span>11</span></li>\n                <li><span>12</span></li>\n            </ul>\n            <div class=\"gradient-cover\"></div>\n            <div class=\"hour-hand\"></div>\n            <div class=\"minute-hand\"></div>\n        </div>\n    </div>\n</ha-card><script src=\"/levelindicatorclockcard.dee72524.js\"></script>";
+
+},{}],"i9cee":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "LevelIndicatorClockCardEditor", ()=>LevelIndicatorClockCardEditor);
@@ -716,444 +902,6 @@ class LevelIndicatorClockCardEditor extends HTMLElement {
     }
 }
 
-},{"./log.js":"cpKom","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cpKom":[function(require,module,exports,__globalThis) {
-// A global log function. First parameter is a tag, second is message.
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "log", ()=>log);
-function log(tag, message) {
-    console.log(`[${tag}]: ${message}`);
-}
+},{"./log.js":"cpKom","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["9mu7C","8lqZg"], "8lqZg", "parcelRequire94c2")
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"2vFfd":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
-var _logJs = require("./log.js");
-var _stylesJs = require("./styles.js");
-class LevelIndicatorClockCard extends HTMLElement {
-    // private properties
-    tag = "LevelIndicatorClockCard";
-    _config;
-    _hass;
-    _elements = {};
-    _currentHour = 0;
-    _currentMinute = 0;
-    _hourLevels = [];
-    // lifecycle
-    constructor(){
-        super();
-        for(let i = 0; i < 12; i++)this._hourLevels.push({
-            color: "grey"
-        });
-        this.doCard();
-        this._elements.style = document.createElement("style");
-        this._elements.style.textContent = (0, _stylesJs.css);
-        this.attachShadow({
-            mode: "open"
-        });
-        this.shadowRoot.append(this._elements.style, this._elements.card);
-        this.doQueryElements();
-        this.updateSizes();
-        window.addEventListener('resize', ()=>this.updateSizes());
-    }
-    setConfig(config) {
-        this._config = config;
-        if (!this._config.electricityprice) throw new Error("Please define electricity price!");
-        if (!this._config.datetimeiso) throw new Error("Please define datetime iso!");
-        if (this._config.header) this._elements.card.setAttribute("header", this._config.header);
-        else this._elements.card.removeAttribute("header");
-        this.updateSizes();
-    }
-    _isStarted = false;
-    set hass(hass) {
-        this._hass = hass;
-        this.updateSizes();
-        const currentPrice = this._hass.states[this._config.electricityprice];
-        const currentTime = this._hass.states[this._config.datetimeiso];
-        if (!currentPrice || !currentTime) {
-            let errorMessage = "";
-            if (!currentPrice) errorMessage += `[${this._config.electricityprice} is unavailable.]`;
-            if (!currentTime) errorMessage += `[${this._config.datetimeiso} is unavailable.]`;
-            this._elements.error.textContent = errorMessage;
-            this._elements.error.classList.remove("hidden");
-        } else {
-            this._elements.error.textContent = "";
-            this._elements.error.classList.add("hidden");
-            if (!this._isStarted) {
-                this._isStarted = true;
-                setInterval(()=>{
-                    this.doUpdatePriceLevels(currentPrice);
-                    this.doUpdateTime(currentTime);
-                }, 1000);
-            }
-        }
-    }
-    getCurrentPrice() {
-        return this._hass.states[this._config.electricityprice];
-    }
-    getAttributes() {
-        return this.getCurrentPrice().attributes;
-    }
-    doCard() {
-        this._elements.card = document.createElement("ha-card");
-        this._elements.card.innerHTML = `
-        <div class="card-content">
-            <p class="error error hidden">
-            <div class="clock">
-                <ul class='hours'>
-                    <li><span>1</span></li>
-                    <li><span>2</span></li>
-                    <li><span>3</span></li>
-                    <li><span>4</span></li>
-                    <li><span>5</span></li>
-                    <li><span>6</span></li>
-                    <li><span>7</span></li>
-                    <li><span>8</span></li>
-                    <li><span>9</span></li>
-                    <li><span>10</span></li>
-                    <li><span>11</span></li>
-                    <li><span>12</span></li>
-                </ul>
-                <div class="gradient-cover"></div>
-                <div class='hour-hand'></div>
-                <div class='minute-hand'></div>
-            </div>
-        </div>
-        `;
-    }
-    doQueryElements() {
-        const card = this._elements.card;
-        this._elements.error = card.querySelector(".error");
-    }
-    setAngle(hand, angle) {
-        const card = this._elements.card;
-        card.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
-    }
-    setClock(currentTime) {
-        const time = currentTime.split("T")[1].split(":");
-        this._currentHour = time[0];
-        this._currentMinute = time[1];
-        const sec = 0;
-        const hrAngle = this._currentHour * 30 + this._currentMinute * 6 / 12;
-        const minAngle = this._currentMinute * 6;
-        this.setAngle("hour-hand", hrAngle);
-        this.setAngle("minute-hand", minAngle);
-    }
-    getCharForLevel(level) {
-        switch(level){
-            case "low":
-                return "G";
-            case "medium":
-                return "Y";
-            case "high":
-                return "R";
-            default:
-                return "W";
-        }
-    }
-    doUpdatePriceLevels(currentPrice) {
-        const attributes = currentPrice.attributes;
-        const cost_today = attributes.cost_today;
-        const cost_tomorrow = attributes.cost_tomorrow;
-        const levels = [];
-        if (cost_today != null) for(let i = 0; i < cost_today.length; i++)levels.push(cost_today[i].level);
-        else for(let i = 0; i < 24; i++)levels.push("grey");
-        if (cost_tomorrow != null) for(let i = 0; i < cost_tomorrow.length; i++)levels.push(cost_tomorrow[i].level);
-        else for(let i = 0; i < 24; i++)levels.push("grey");
-        (0, _logJs.log)(this.tag, `doUpdatePriceLevels: currentHour: ${this._currentHour} Levels: ${levels}`);
-        for(let i = 0; i < 12; i++){
-            let changeHour = this._currentHour + i;
-            let hourIndex = changeHour > 11 ? changeHour - 12 : changeHour;
-            this._hourLevels[i].color = levels[i];
-        }
-        const gradient = this._hourLevels.map((level, index)=>{
-            const startAngle = index * 30;
-            const endAngle = startAngle + 30;
-            let color = "grey";
-            switch(level.color){
-                case "low":
-                    color = "green";
-                    break;
-                case "medium":
-                    color = "yellow";
-                    break;
-                case "high":
-                    color = "red";
-                    break;
-            }
-            return `${color} ${startAngle}deg ${endAngle}deg`;
-        }).join(', ');
-        const card = this._elements.card;
-        const clock = card.querySelector('.clock');
-        clock.style.background = `conic-gradient(${gradient})`;
-    }
-    doUpdateTime(currentTime) {
-        if (currentTime) this.setClock(currentTime.state);
-        else (0, _logJs.log)(this.tag, "doUpdateTime: Current time: null");
-    }
-    updateSizes() {
-        requestAnimationFrame(()=>{
-            const card = this._elements.card;
-            const clock = card.querySelector('.clock');
-            const width = card.offsetWidth;
-            if (width > 0) {
-                card.style.height = `${width}px`;
-                clock.style.width = `${width * 0.8}px`;
-                clock.style.height = `${width * 0.8}px`;
-            }
-        });
-    }
-    static getConfigElement() {
-        return document.createElement("level-indicator-clock-editor");
-    }
-    static getStubConfig() {
-        return {
-            electricityprice: "sensor.elpris",
-            datetimeiso: "sensor.date_time_iso",
-            header: ""
-        };
-    }
-}
-
-},{"./log.js":"cpKom","./styles.js":"7add8","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7add8":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "css", ()=>css);
-const css = `ha-card {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    align-items: center;
-    font-family: Helvetica, sans-serif;
-}
-
-ul {
-    list-style: none;
-    top: 50%;
-    left: 50%;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-}
-
-li {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-}
-
-.hours {
-    font-size: 2vw;
-    color: black;
-    letter-spacing: -0.1vw;
-    line-height: 1.5vw;
-    z-index: 2;
-}
-
-.hours li {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hours span {
-    display: block;
-    transform: translate(-50%, -50%);
-}
-
-.hours li:nth-of-type(1) {
-    transform: rotate(30deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(1) span {
-    transform: rotate(-30deg);
-}
-
-.hours li:nth-of-type(2) {
-    transform: rotate(60deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(2) span {
-    transform: rotate(-60deg);
-}
-
-.hours li:nth-of-type(3) {
-    transform: rotate(90deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(3) span {
-    transform: rotate(-90deg);
-}
-
-.hours li:nth-of-type(4) {
-    transform: rotate(120deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(4) span {
-    transform: rotate(-120deg);
-}
-
-.hours li:nth-of-type(5) {
-    transform: rotate(150deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(5) span {
-    transform: rotate(-150deg);
-}
-
-.hours li:nth-of-type(6) {
-    transform: rotate(180deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(6) span {
-    transform: rotate(-180deg);
-}
-
-.hours li:nth-of-type(7) {
-    transform: rotate(210deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(7) span {
-    transform: rotate(-210deg);
-}
-
-.hours li:nth-of-type(8) {
-    transform: rotate(240deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(8) span {
-    transform: rotate(-240deg);
-}
-
-.hours li:nth-of-type(9) {
-    transform: rotate(270deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(9) span {
-    transform: rotate(-270deg);
-}
-
-.hours li:nth-of-type(10) {
-    transform: rotate(300deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(10) span {
-    transform: rotate(-300deg);
-}
-
-.hours li:nth-of-type(11) {
-    transform: rotate(330deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(11) span {
-    transform: rotate(-330deg);
-}
-
-.hours li:nth-of-type(12) {
-    transform: rotate(360deg) translate(0, -45%);
-}
-
-.hours li:nth-of-type(12) span {
-    transform: rotate(-360deg);
-}
-
-.clock {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background-color: grey;
-    border: 0.5vw solid black;
-}
-
-.gradient-cover {
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    width: 70%;
-    height: 70%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-}
-
-.hour-hand {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-    z-index: 2;
-}
-
-.hour-hand::before {
-    content: '';
-    position: absolute;
-    bottom: 47.5%;
-    left: 50%;
-    width: 5%;
-    height: 33%;
-    background: black;
-    transform: translateX(-50%);
-    border-radius: 1cap;
-}
-
-.minute-hand {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-    z-index: 2;
-}
-
-.minute-hand::before {
-    content: '';
-    position: absolute;
-    bottom: 48.5%;
-    left: 50%;
-    width: 3%;
-    height: 39%;
-    background: black;
-    transform: translateX(-50%);
-    border-radius: 1cap;
-}
-`;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bJYXX","gbMuj"], "gbMuj", "parcelRequire94c2")
-
-//# sourceMappingURL=card.js.map
+//# sourceMappingURL=index.js.map
