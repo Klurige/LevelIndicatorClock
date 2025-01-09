@@ -2,5 +2,5 @@
     "name": "Elprisklocka",
     "render_readme": true,
     "filename": "card.js",
-    "content_in_root": true
+    "content_in_root": false
   }
