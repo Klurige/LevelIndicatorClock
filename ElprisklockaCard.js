@@ -31,12 +31,16 @@ export class ElprisklockaCard extends HTMLElement {
         this.updateSizes();
     }
 
-    getState() {
+    getCurrentPrice() {
         return this._hass.states[this._config.electricityprice];
     }
 
+    getCurrentTime() {
+        return this._hass.states[this._config.datetimeiso];
+    }
+
     getAttributes() {
-        return this.getState().attributes;
+        return this.getCurrentPrice().attributes;
     }
 
     getName() {
@@ -165,39 +169,30 @@ export class ElprisklockaCard extends HTMLElement {
             transform: translate(-50%, -50%);
             z-index: 1;
         }
-        .center-cover {
-            background: grey;
-            border-radius: 50%;
-            position: absolute;
-            width: 15%;
-            height: 15%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-        }
+
         .hr {
-            position: relative;
+            position: absolute;
+            bottom: 47.5%;
             border-radius: 1cap;
             transform-origin: 50% 100%;
-            background: #222;
-            left: 48.5%;
-            width: 4%;
+            background: red;
+            left: 47.5%;
+            width: 5%;
             height: 33%;
-            animation: rotateHand 43200s linear infinite;
+            animation: rotateHand 10s linear infinite;
             z-index: 2;
         }
 
         .min {
-            position: relative;
-            bottom: 50%;
+            position: absolute;
+            bottom: 48.5%;
             border-radius: 1cap;
             transform-origin: 50% 100%;
-            background: #222;
-            left: 49%;
+            background: blue;
+            left: 48.5%;
             width: 3%;
             height: 39%;
-            animation: rotateHand 3600s linear infinite;
+            animation: rotateHand 10s linear infinite;
             z-index: 2;
         }
         @keyframes rotateHand {
@@ -227,14 +222,68 @@ export class ElprisklockaCard extends HTMLElement {
         }
     }
 
+    setAngle(hand, angle) {
+        const card = this._elements.card;
+        card.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
+    }
+
+    _hr = 0;
+    _min = 0;
+    _sec = 0;
+    setClock(currentTime) {
+        this._sec++;
+        if (this._sec === 60) {
+            this._sec = 0;
+            this._min++;
+            if (this._min === 60) {
+                this._min = 0;
+                this._hr++;
+                if (this._hr === 12) {
+                    this._hr = 0;
+                }
+            }
+        }
+        log(this.tag, "setClock: " + this._hr + ":" + this._min + ":" + this._sec);
+
+
+    }
+
     doUpdateHass() {
-        if (!this.getState()) {
-            this._elements.error.textContent = `${this._config.electricityprice} is unavailable.`;
+        const currentPrice = this.getCurrentPrice();
+        const currentTime = this.getCurrentTime();
+        if (!currentPrice || !currentTime) {
+            let errorMessage = "";
+            if (!currentPrice) {
+                errorMessage += `[${this._config.electricityprice} is unavailable.]`;
+            }
+            if (!currentTime) {
+                errorMessage += `[${this._config.datetimeiso} is unavailable.]`;
+            }
+            this._elements.error.textContent = errorMessage;
             this._elements.error.classList.remove("hidden");
         } else {
             this._elements.error.textContent = "";
             this._elements.error.classList.add("hidden");
         }
+        if (currentTime) {
+            log(this.tag, "doUpdateHass: Current time: " + currentTime.state);
+            if (!this._isStarted) {
+                setInterval(() => this.setClock(currentTime.state), 1000);
+                this._isStarted = true;
+            }
+//            // Current time: 2025-01-06T08:24:00
+//            const time = currentTime.state.split("T")[1].split(":");
+//            const hr = parseInt(time[0]);
+//            const min = parseInt(time[1]);
+//            const sec = parseInt(time[2]);
+//            const hrAngle = hr * 30 + (min * 6 / 12),
+//            minAngle = min * 6 + (sec * 6 / 60);
+//            this.setAngle("hr", hrAngle);
+//            this.setAngle("min", minAngle);
+        } else {
+            log(this.tag, "doUpdateHass: Current time: null");
+        }
+        this.getCurrentTime()
     }
 
     updateSizes() {
@@ -259,7 +308,7 @@ export class ElprisklockaCard extends HTMLElement {
     static getStubConfig() {
         return {
             electricityprice: "sensor.elpris",
-            datetimeiso: "sensor.datetimeiso",
+            datetimeiso: "sensor.date_time_iso",
             header: "",
         };
     }

@@ -40,8 +40,8 @@ export class ElprisklockaCardEditor extends HTMLElement {
         this._elements.editor = document.createElement("form");
         this._elements.editor.innerHTML = `
             <div class="row"><label class="label" for="header">Rubrik:</label><input class="value" id="header"></input></div>
-            <div class="row"><label class="label" for="electricityprice">Elpris:</label><input class="value" id="elpris"></input></div>
-            <div class="row"><label class="label" for="datetimeiso">Tid:</label><input class="value" id="Datum och Tid (iso)"></input></div>
+            <div class="row"><label class="label" for="electricityprice">Elpris:</label><input class="value" id="electricityprice"></input></div>
+            <div class="row"><label class="label" for="datetimeiso">Tid:</label><input class="value" id="datetimeiso"></input></div>
         `;
     }
 
@@ -68,8 +68,8 @@ export class ElprisklockaCardEditor extends HTMLElement {
 
     doQueryElements() {
         this._elements.header = this._elements.editor.querySelector("#header");
-        this._elements.entity = this._elements.editor.querySelector("#electricityprice");
-        this._elements.entity = this._elements.editor.querySelector("#datetimeiso");
+        this._elements.electricityprice = this._elements.editor.querySelector("#electricityprice");
+        this._elements.datetimeiso = this._elements.editor.querySelector("#datetimeiso");
     }
 
     doListen() {
