@@ -1,6 +1,5 @@
 import { css, html, LitElement } from 'lit';
 import { state } from "lit/decorators/state";
-import { log } from "./log.js";
 import { Config } from "./Config";
 
 export class LevelIndicatorClockCardEditor extends LitElement {
@@ -64,7 +63,7 @@ handleChangedEvent(changedEvent) {
             newConfig.datetimeiso = changedEvent.target.value;
             break;
         default:
-            log(this._tag,"handleChangedEvent() - unknown event target id");
+            console.log(this._tag,"handleChangedEvent() - unknown event target id");
     }
 
     const messageEvent = new CustomEvent("config-changed", {

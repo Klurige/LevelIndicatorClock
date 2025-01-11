@@ -1,51 +1,55 @@
-import {log} from "./log.js";
 import { html, LitElement, nothing } from "lit";
 import { state } from "lit/decorators/state";
 import styles from './levelindicatorclockcard.styles';
-import { HassEntity } from "home-assistant-js-websocket";
-import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";
+import { HomeAssistant } from "custom-card-helpers";
 import { Config } from "./Config";
 
 interface Timestamp {
     state: string;
 }
 
+interface costEntry {
+    start: Date,
+    level:string
+}
+
 interface Prices {
     attributes: {
-        cost_today: { level: string }[];
-        cost_tomorrow: { level: string }[];
+        cost_today: { start: string, level: string, value:Number }[];
+        cost_tomorrow: { start: string, level: string, value:Number }[];
     };
 }
 
 export class LevelIndicatorClockCard extends LitElement {
-    tag = "LevelIndicatorClockCard";
+    private tag = "LevelIndicatorClockCard";
 
-    _hass;
+    private _hass: HomeAssistant;
 
-    _currentHour = 0;
-    _currentMinute = 0;
-    _hourLevels: string[] = new Array(12).fill("uninitialized");
+    private readonly NUMBER_OF_LEVELS = 60
+    private readonly degreesPerLevel = 360 / this.NUMBER_OF_LEVELS;
+    private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
+    private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized");
 
-    @state() private _header: string | typeof nothing;
-    @state() private _datetimeiso: string;
-    @state() private _electricityprice: string;
-    @state() private _timestamp: Timestamp;
-    @state() private _prices: Prices;
+    @state() private header: string | typeof nothing;
+    @state() private datetimeiso: string;
+    @state() private electricityprice: string;
+    @state() private timestamp: Timestamp;
+    @state() private prices: Prices;
 
     static get properties() {
         return {
-            _header: {state: true},
-            _datetimeiso: {state: true},
-            _electricityprice: {state: true},
-            _timestamp: {state: true},
-            _prices: {state: true},
+            header: {state: true},
+            datetimeiso: {state: true},
+            electricityprice: {state: true},
+            timestamp: {state: true},
+            prices: {state: true},
         };
     }
 
     setConfig(config:Config) {
-        this._header = config.header === "" ? nothing : config.header;
-        this._datetimeiso = config.datetimeiso;
-        this._electricityprice = config.electricityprice;
+        this.header = config.header === "" ? nothing : config.header;
+        this.datetimeiso = config.datetimeiso;
+        this.electricityprice = config.electricityprice;
         if (this._hass) {
             this.hass = this._hass
         }
@@ -53,66 +57,79 @@ export class LevelIndicatorClockCard extends LitElement {
 
     set hass(hass:HomeAssistant) {
         this._hass = hass;
-        this._timestamp = hass.states[this._datetimeiso];
-        this._prices = hass.states[this._electricityprice];
+        this.timestamp = hass.states[this.datetimeiso];
+        this.prices = hass.states[this.electricityprice] as unknown as Prices;
     }
 
     static styles = styles;
 
+    private intervalId: number | undefined;
+    private startSimulation() {
+        const fakeTime = new Date();
+
+        this.intervalId = window.setInterval(() => {
+            console.log(this.tag, "Simulating time...");
+            fakeTime.setMinutes(fakeTime.getMinutes() + 1);
+
+            this.setClock(fakeTime);
+            this.updatePrices(fakeTime);
+        }, 1000); // Adjust the interval as needed
+    }
+
+
     updated(changedProperties) {
         super.updated(changedProperties);
-        if (changedProperties.has('_timestamp')) {
-            const timestamp = this._timestamp.state;
-            this._setClock(timestamp);
-        }
+        if (changedProperties.has('timestamp')) {
+            const currentTime = new Date(this.timestamp.state);
+            // Comment these two lines and uncomment the if statement below to start the simulation.
+            this.setClock(currentTime);
+            this.updatePrices(currentTime);
+//            if (!this.intervalId) {
+//                this.startSimulation();
+//            }
 
-        if (changedProperties.has('_prices')) {
-            const currentPrice = this._prices.attributes;
-            this._updatePrices(currentPrice);
         }
     }
 
-    _updatePrices(currentPrice) {
+    private updatePrices(currentTime: Date) {
         const clock = this.shadowRoot.querySelector('.clock');
-        if (clock) {
-            const cost_today = currentPrice.cost_today;
-            const cost_tomorrow = currentPrice.cost_tomorrow;
+        if (clock && currentTime && this.prices) {
+            const cost_today = this.prices.attributes.cost_today;
+            const cost_tomorrow = this.prices.attributes.cost_tomorrow;
 
-            const levels = [];
-            if (cost_today != null) {
-                for (let i = 0; i < cost_today.length; i++) {
-                    levels.push(cost_today[i].level);
+            const all_costs:costEntry[] = [
+                ...(cost_today ? cost_today.map((entry: { start: string | number | Date; level: any; value: any; }): costEntry => {
+                    return { start: new Date(entry.start), level: entry.level }
+                }) : []),
+                ...(cost_tomorrow ? cost_tomorrow.map((entry: { start: string | number | Date; level: any; value: any; }): costEntry => {
+                    return { start: new Date(entry.start), level: entry.level }
+                }) : [])
+            ];
+
+            const midnight = new Date(currentTime);
+            midnight.setHours(0, 0, 0, 0);
+            const levelsSinceMidnight = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            const startLevel = (levelsSinceMidnight > 10) ? levelsSinceMidnight - 10 : levelsSinceMidnight;
+            const startSeconds = startLevel * this.secondsPerLevel;
+            const costTime = new Date(midnight.getTime() + startSeconds * 1000);
+
+            if (this.levels.every(level => level === "uninitialized")) {
+                for (let i = 0; i < this.levels.length; i++) {
+                    const levelIndex = (startLevel + i) % this.levels.length;
+                    costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+                    const costIndex = all_costs.findIndex(entry => entry.start >= currentTime);
+                    this.levels[levelIndex] = all_costs[costIndex].level;
                 }
             } else {
-                for (let i = 0; i < 24; i++) {
-                    levels.push("unknown");
-                }
+                const levelIndex = (startLevel) % this.levels.length;
+                costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+                const costIndex = all_costs.findIndex(entry => entry.start >= currentTime);
+                this.levels[levelIndex] = all_costs[costIndex].level;
             }
 
-            if (cost_tomorrow != null) {
-                for (let i = 0; i < cost_tomorrow.length; i++) {
-                    levels.push(cost_tomorrow[i].level);
-                }
-            } else {
-                for (let i = 0; i < 24; i++) {
-                    levels.push("unknown");
-                }
-            }
-
-            if (this._hourLevels.every(level => level === "uninitialized")) {
-                for (let i = 0; i < 12; i++) {
-                    const updateHour = (this._currentHour - 2 + i) % 12;
-                    this._hourLevels[updateHour] = levels[this._currentHour - 2 + i];
-                }
-            }
-
-            let startHour = this._currentHour + 12 - 2;
-            let updateHour = startHour % 12;
-            this._hourLevels[updateHour] = levels[startHour];
-
-            const gradient = this._hourLevels.map((level, index) => {
-                const startAngle = index * 30;
-                const endAngle = startAngle + 30;
+            const gradient = this.levels.map((level, index) => {
+                const startAngle = index * this.degreesPerLevel;
+                const endAngle = startAngle + this.degreesPerLevel;
                 let color: string;
                 switch (level) {
                     case "low":
@@ -133,27 +150,26 @@ export class LevelIndicatorClockCard extends LitElement {
         }
     }
 
-    _setAngle(hand, angle) {
+    private setAngle(hand, angle) {
         (this.shadowRoot.querySelector("." + hand) as HTMLElement).style.transform = "rotate(" + angle + "deg)";
     }
 
-    _setClock(currentTime) {
-        const time = currentTime.split("T")[1].split(":");
-        this._currentHour = parseInt(time[0]);
-        this._currentMinute = parseInt(time[1]);
-        const hrAngle = this._currentHour * 30 + (this._currentMinute * 6 / 12);
-        const minAngle = this._currentMinute * 6;
-        this._setAngle("hour-hand", hrAngle);
-        this._setAngle("minute-hand", minAngle);
+    private setClock(currentTime: Date) {
+        const currentHour = currentTime.getHours();
+        const currentMinute = currentTime.getMinutes();
+        const hrAngle = currentHour * 30 + (currentMinute * 6 / 12);
+        const minAngle = currentMinute * 6;
+        this.setAngle("hour-hand", hrAngle);
+        this.setAngle("minute-hand", minAngle);
     }
 
     render() {
         let content: ReturnType<typeof html>;
-        if (!this._timestamp || !this._prices) {
+        if (!this.timestamp || !this.prices) {
             content = html`
                 <div class="error">
-                    <p>${!this._timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this._prices ? 'electricityprices is unavailable.' : ''}</p>
+                    <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
+                    <p>${!this.prices ? 'electricityprices is unavailable.' : ''}</p>
                 </div>
             `;
         } else {
@@ -180,7 +196,7 @@ export class LevelIndicatorClockCard extends LitElement {
             `;
         }
         return html`
-            <ha-card header="${this._header}">
+            <ha-card header="${this.header}">
                 <div class="card-content">
                     ${content}
                 </div>

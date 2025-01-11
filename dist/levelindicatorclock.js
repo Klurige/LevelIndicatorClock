@@ -619,68 +619,98 @@ var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_leveli
 class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     static get properties() {
         return {
-            _header: {
+            header: {
                 state: true
             },
-            _datetimeiso: {
+            datetimeiso: {
                 state: true
             },
-            _electricityprice: {
+            electricityprice: {
                 state: true
             },
-            _timestamp: {
+            timestamp: {
                 state: true
             },
-            _prices: {
+            prices: {
                 state: true
             }
         };
     }
     setConfig(config) {
-        this._header = config.header === "" ? (0, _lit.nothing) : config.header;
-        this._datetimeiso = config.datetimeiso;
-        this._electricityprice = config.electricityprice;
+        this.header = config.header === "" ? (0, _lit.nothing) : config.header;
+        this.datetimeiso = config.datetimeiso;
+        this.electricityprice = config.electricityprice;
         if (this._hass) this.hass = this._hass;
     }
     set hass(hass) {
         this._hass = hass;
-        this._timestamp = hass.states[this._datetimeiso];
-        this._prices = hass.states[this._electricityprice];
+        this.timestamp = hass.states[this.datetimeiso];
+        this.prices = hass.states[this.electricityprice];
     }
     static{
         this.styles = (0, _levelindicatorclockcardStylesDefault.default);
     }
+    startSimulation() {
+        const fakeTime = new Date();
+        this.intervalId = window.setInterval(()=>{
+            console.log(this.tag, "Simulating time...");
+            fakeTime.setMinutes(fakeTime.getMinutes() + 1);
+            this.setClock(fakeTime);
+            this.updatePrices(fakeTime);
+        }, 1000); // Adjust the interval as needed
+    }
     updated(changedProperties) {
         super.updated(changedProperties);
-        if (changedProperties.has('_timestamp')) {
-            const timestamp = this._timestamp.state;
-            this._setClock(timestamp);
-        }
-        if (changedProperties.has('_prices')) {
-            const currentPrice = this._prices.attributes;
-            this._updatePrices(currentPrice);
+        if (changedProperties.has('timestamp')) {
+            const currentTime = new Date(this.timestamp.state);
+            // Comment these two lines and uncomment the if statement below to start the simulation.
+            this.setClock(currentTime);
+            this.updatePrices(currentTime);
+        //            if (!this.intervalId) {
+        //                this.startSimulation();
+        //            }
         }
     }
-    _updatePrices(currentPrice) {
+    updatePrices(currentTime) {
         const clock = this.shadowRoot.querySelector('.clock');
-        if (clock) {
-            const cost_today = currentPrice.cost_today;
-            const cost_tomorrow = currentPrice.cost_tomorrow;
-            const levels = [];
-            if (cost_today != null) for(let i = 0; i < cost_today.length; i++)levels.push(cost_today[i].level);
-            else for(let i = 0; i < 24; i++)levels.push("unknown");
-            if (cost_tomorrow != null) for(let i = 0; i < cost_tomorrow.length; i++)levels.push(cost_tomorrow[i].level);
-            else for(let i = 0; i < 24; i++)levels.push("unknown");
-            if (this._hourLevels.every((level)=>level === "uninitialized")) for(let i = 0; i < 12; i++){
-                const updateHour = (this._currentHour - 2 + i) % 12;
-                this._hourLevels[updateHour] = levels[this._currentHour - 2 + i];
+        if (clock && currentTime && this.prices) {
+            const cost_today = this.prices.attributes.cost_today;
+            const cost_tomorrow = this.prices.attributes.cost_tomorrow;
+            const all_costs = [
+                ...cost_today ? cost_today.map((entry)=>{
+                    return {
+                        start: new Date(entry.start),
+                        level: entry.level
+                    };
+                }) : [],
+                ...cost_tomorrow ? cost_tomorrow.map((entry)=>{
+                    return {
+                        start: new Date(entry.start),
+                        level: entry.level
+                    };
+                }) : []
+            ];
+            const midnight = new Date(currentTime);
+            midnight.setHours(0, 0, 0, 0);
+            const levelsSinceMidnight = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            const startLevel = levelsSinceMidnight > 10 ? levelsSinceMidnight - 10 : levelsSinceMidnight;
+            const startSeconds = startLevel * this.secondsPerLevel;
+            const costTime = new Date(midnight.getTime() + startSeconds * 1000);
+            if (this.levels.every((level)=>level === "uninitialized")) for(let i = 0; i < this.levels.length; i++){
+                const levelIndex = (startLevel + i) % this.levels.length;
+                costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+                const costIndex = all_costs.findIndex((entry)=>entry.start >= currentTime);
+                this.levels[levelIndex] = all_costs[costIndex].level;
             }
-            let startHour = this._currentHour + 12 - 2;
-            let updateHour = startHour % 12;
-            this._hourLevels[updateHour] = levels[startHour];
-            const gradient = this._hourLevels.map((level, index)=>{
-                const startAngle = index * 30;
-                const endAngle = startAngle + 30;
+            else {
+                const levelIndex = startLevel % this.levels.length;
+                costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+                const costIndex = all_costs.findIndex((entry)=>entry.start >= currentTime);
+                this.levels[levelIndex] = all_costs[costIndex].level;
+            }
+            const gradient = this.levels.map((level, index)=>{
+                const startAngle = index * this.degreesPerLevel;
+                const endAngle = startAngle + this.degreesPerLevel;
                 let color;
                 switch(level){
                     case "low":
@@ -700,24 +730,23 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             clock.style.background = `conic-gradient(${gradient})`;
         }
     }
-    _setAngle(hand, angle) {
+    setAngle(hand, angle) {
         this.shadowRoot.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
     }
-    _setClock(currentTime) {
-        const time = currentTime.split("T")[1].split(":");
-        this._currentHour = parseInt(time[0]);
-        this._currentMinute = parseInt(time[1]);
-        const hrAngle = this._currentHour * 30 + this._currentMinute * 6 / 12;
-        const minAngle = this._currentMinute * 6;
-        this._setAngle("hour-hand", hrAngle);
-        this._setAngle("minute-hand", minAngle);
+    setClock(currentTime) {
+        const currentHour = currentTime.getHours();
+        const currentMinute = currentTime.getMinutes();
+        const hrAngle = currentHour * 30 + currentMinute * 6 / 12;
+        const minAngle = currentMinute * 6;
+        this.setAngle("hour-hand", hrAngle);
+        this.setAngle("minute-hand", minAngle);
     }
     render() {
         let content;
-        if (!this._timestamp || !this._prices) content = (0, _lit.html)`
+        if (!this.timestamp || !this.prices) content = (0, _lit.html)`
                 <div class="error">
-                    <p>${!this._timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this._prices ? 'electricityprices is unavailable.' : ''}</p>
+                    <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
+                    <p>${!this.prices ? 'electricityprices is unavailable.' : ''}</p>
                 </div>
             `;
         else content = (0, _lit.html)`
@@ -742,7 +771,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                 </div>
             `;
         return (0, _lit.html)`
-            <ha-card header="${this._header}">
+            <ha-card header="${this.header}">
                 <div class="card-content">
                     ${content}
                 </div>
@@ -760,24 +789,24 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         };
     }
     constructor(...args){
-        super(...args), this.tag = "LevelIndicatorClockCard", this._currentHour = 0, this._currentMinute = 0, this._hourLevels = new Array(12).fill("uninitialized");
+        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized");
     }
 }
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "_header", void 0);
+], LevelIndicatorClockCard.prototype, "header", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "_datetimeiso", void 0);
+], LevelIndicatorClockCard.prototype, "datetimeiso", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "_electricityprice", void 0);
+], LevelIndicatorClockCard.prototype, "electricityprice", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "_timestamp", void 0);
+], LevelIndicatorClockCard.prototype, "timestamp", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "_prices", void 0);
+], LevelIndicatorClockCard.prototype, "prices", void 0);
 
 },{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","lit/decorators/state":"5Z7m1","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lX6TJ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2341,7 +2370,6 @@ parcelHelpers.export(exports, "LevelIndicatorClockCardEditor", ()=>LevelIndicato
 var _tsDecorate = require("@swc/helpers/_/_ts_decorate");
 var _lit = require("lit");
 var _state = require("lit/decorators/state");
-var _logJs = require("./log.js");
 class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
     setConfig(config) {
         this._config = config;
@@ -2398,7 +2426,7 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
                 newConfig.datetimeiso = changedEvent.target.value;
                 break;
             default:
-                (0, _logJs.log)(this._tag, "handleChangedEvent() - unknown event target id");
+                console.log(this._tag, "handleChangedEvent() - unknown event target id");
         }
         const messageEvent = new CustomEvent("config-changed", {
             detail: {
@@ -2417,15 +2445,6 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
     (0, _state.state)()
 ], LevelIndicatorClockCardEditor.prototype, "_config", void 0);
 
-},{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","lit/decorators/state":"5Z7m1","./log.js":"2r2Y2","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2r2Y2":[function(require,module,exports,__globalThis) {
-// A global log function. First parameter is a tag, second is message.
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "log", ()=>log);
-function log(tag, message) {
-    console.log(`[${tag}]: ${message}`);
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
+},{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","lit/decorators/state":"5Z7m1","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=levelindicatorclock.js.map
