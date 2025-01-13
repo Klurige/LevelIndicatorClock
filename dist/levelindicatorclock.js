@@ -652,12 +652,12 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     startSimulation() {
         const fakeTime = new Date();
+        fakeTime.setHours(0, 0, 0, 0);
         this.intervalId = window.setInterval(()=>{
-            console.log(this.tag, "Simulating time...");
             fakeTime.setMinutes(fakeTime.getMinutes() + 1);
             this.setClock(fakeTime);
             this.updatePrices(fakeTime);
-        }, 1000); // Adjust the interval as needed
+        }, 100); // Adjust the interval as needed
     }
     updated(changedProperties) {
         super.updated(changedProperties);
@@ -674,39 +674,64 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     updatePrices(currentTime) {
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && currentTime && this.prices) {
+            // Comment these two lines and uncomment the following two lines to use fake prices.
             const cost_today = this.prices.attributes.cost_today;
             const cost_tomorrow = this.prices.attributes.cost_tomorrow;
+            //            const cost_today = this.fakePrices.attributes.cost_today;
+            //            const cost_tomorrow = this.fakePrices.attributes.cost_tomorrow;
             const all_costs = [
-                ...cost_today ? cost_today.map((entry)=>{
+                ...cost_today ? cost_today.map((entry, index)=>{
+                    let end = new Date(cost_today[0].start);
+                    if (cost_today[index + 1]) {
+                        end = new Date(cost_today[index + 1].start);
+                        end.setMinutes(end.getMinutes() - 1);
+                        end.setSeconds(59);
+                        end.setMilliseconds(999);
+                    } else end.setHours(23, 59, 59, 999);
                     return {
                         start: new Date(entry.start),
+                        end: end,
                         level: entry.level
                     };
                 }) : [],
-                ...cost_tomorrow ? cost_tomorrow.map((entry)=>{
+                ...cost_tomorrow ? cost_tomorrow.map((entry, index)=>{
+                    let end = new Date(cost_tomorrow[0].start);
+                    if (cost_tomorrow[index + 1]) {
+                        end = new Date(cost_tomorrow[index + 1].start);
+                        end.setMinutes(end.getMinutes() - 1);
+                        end.setSeconds(59);
+                        end.setMilliseconds(999);
+                    } else end.setHours(23, 59, 59, 999);
                     return {
                         start: new Date(entry.start),
+                        end: end,
                         level: entry.level
                     };
                 }) : []
             ];
             const midnight = new Date(currentTime);
             midnight.setHours(0, 0, 0, 0);
-            const levelsSinceMidnight = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
-            const startLevel = levelsSinceMidnight > 10 ? levelsSinceMidnight - 10 : levelsSinceMidnight;
-            const startSeconds = startLevel * this.secondsPerLevel;
-            const costTime = new Date(midnight.getTime() + startSeconds * 1000);
-            if (this.levels.every((level)=>level === "uninitialized")) for(let i = 0; i < this.levels.length; i++){
-                const levelIndex = (startLevel + i) % this.levels.length;
-                costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
-                const costIndex = all_costs.findIndex((entry)=>entry.start >= currentTime);
-                this.levels[levelIndex] = all_costs[costIndex].level;
-            }
-            else {
+            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            if (this.levels.every((level)=>level === "uninitialized")) {
+                const startLevel = currentLevel > 5 ? currentLevel - 5 : currentLevel;
+                const startSeconds = startLevel * this.secondsPerLevel;
+                const costTime = new Date(midnight.getTime() + startSeconds * 1000);
+                for(let i = 0; i < this.levels.length; i++){
+                    const levelIndex = (startLevel + i) % this.levels.length;
+                    const costIndex = all_costs.findIndex((entry)=>entry.start <= costTime && entry.end >= costTime);
+                    if (costIndex === -1) this.levels[levelIndex] = "unknown";
+                    else this.levels[levelIndex] = all_costs[costIndex].level;
+                    costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+                }
+            } else {
+                const startLevel = currentLevel + this.NUMBER_OF_LEVELS - 6;
+                const startSeconds = startLevel * this.secondsPerLevel;
+                const costTime = new Date(midnight.getTime() + startSeconds * 1000);
                 const levelIndex = startLevel % this.levels.length;
-                costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
-                const costIndex = all_costs.findIndex((entry)=>entry.start >= currentTime);
-                this.levels[levelIndex] = all_costs[costIndex].level;
+                const costIndex = all_costs.findIndex((entry)=>entry.start <= costTime && entry.end >= costTime);
+                if (costIndex === -1) this.levels[levelIndex] = "unknown";
+                else this.levels[levelIndex] = all_costs[costIndex].level;
+                this.levels[(levelIndex + 1) % this.levels.length] = "empty";
             }
             const gradient = this.levels.map((level, index)=>{
                 const startAngle = index * this.degreesPerLevel;
@@ -722,6 +747,13 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                     case "high":
                         color = "red";
                         break;
+                    case "unknown":
+                        color = "magenta";
+                        break;
+                    case "solar":
+                        color = "blue";
+                        break;
+                    case "empty":
                     default:
                         color = "grey";
                 }
@@ -789,7 +821,270 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         };
     }
     constructor(...args){
-        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized");
+        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized"), this.fakePrices = {
+            "entity_id": "sensor.elpris",
+            "state": "1.36285",
+            "attributes": {
+                "cost_now": 1.36285,
+                "credit_now": 0.50218,
+                "cost_today": [
+                    {
+                        "start": "2025-01-13T00:00:00+0100",
+                        "value": 1.39291,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-13T01:00:00+0100",
+                        "value": 1.35364,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T02:00:00+0100",
+                        "value": 1.35771,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T03:00:00+0100",
+                        "value": 1.34169,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T04:00:00+0100",
+                        "value": 1.33474,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T05:00:00+0100",
+                        "value": 1.3207,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T06:00:00+0100",
+                        "value": 1.33641,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T07:00:00+0100",
+                        "value": 1.82361,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T08:00:00+0100",
+                        "value": 2.31655,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T09:00:00+0100",
+                        "value": 1.62556,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T10:00:00+0100",
+                        "value": 1.36285,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T11:00:00+0100",
+                        "value": 1.34518,
+                        "level": "high"
+                    },
+                    {
+                        "start": "2025-01-13T12:00:00+0100",
+                        "value": 1.33505,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T13:00:00+0100",
+                        "value": 1.32493,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T14:00:00+0100",
+                        "value": 1.30484,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T15:00:00+0100",
+                        "value": 1.29003,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T16:00:00+0100",
+                        "value": 1.29426,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T17:00:00+0100",
+                        "value": 1.29351,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T18:00:00+0100",
+                        "value": 1.2639,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T19:00:00+0100",
+                        "value": 1.2225,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T20:00:00+0100",
+                        "value": 0.85359,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T21:00:00+0100",
+                        "value": 0.79665,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T22:00:00+0100",
+                        "value": 0.7903,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-13T23:00:00+0100",
+                        "value": 0.76612,
+                        "level": "low"
+                    }
+                ],
+                "cost_tomorrow": [
+                    {
+                        "start": "2025-01-14T00:00:00+0100",
+                        "value": 1.39291,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T01:00:00+0100",
+                        "value": 1.35364,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T02:00:00+0100",
+                        "value": 1.35771,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T03:00:00+0100",
+                        "value": 1.34169,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T04:00:00+0100",
+                        "value": 1.33474,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T05:00:00+0100",
+                        "value": 1.3207,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T06:00:00+0100",
+                        "value": 1.33641,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T07:00:00+0100",
+                        "value": 1.82361,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T08:00:00+0100",
+                        "value": 2.31655,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T09:00:00+0100",
+                        "value": 1.62556,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T10:00:00+0100",
+                        "value": 1.36285,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T11:00:00+0100",
+                        "value": 1.34518,
+                        "level": "medium"
+                    },
+                    {
+                        "start": "2025-01-14T12:00:00+0100",
+                        "value": 1.33505,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T13:00:00+0100",
+                        "value": 1.32493,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T14:00:00+0100",
+                        "value": 1.30484,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T15:00:00+0100",
+                        "value": 1.29003,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T16:00:00+0100",
+                        "value": 1.29426,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T17:00:00+0100",
+                        "value": 1.29351,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T18:00:00+0100",
+                        "value": 1.2639,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T19:00:00+0100",
+                        "value": 1.2225,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T20:00:00+0100",
+                        "value": 0.85359,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T21:00:00+0100",
+                        "value": 0.79665,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T22:00:00+0100",
+                        "value": 0.7903,
+                        "level": "low"
+                    },
+                    {
+                        "start": "2025-01-14T23:00:00+0100",
+                        "value": 0.76612,
+                        "level": "low"
+                    }
+                ],
+                "credit_today": null,
+                "credit_tomorrow": null,
+                "unit_of_measurement": "kr/kWh",
+                "device_class": "monetary",
+                "friendly_name": "Elpris"
+            },
+            "context": {
+                "id": "01JHFECYT0QYN8742KKJ8E6SGG",
+                "parent_id": null,
+                "user_id": null
+            },
+            "last_changed": "2025-01-13T09:02:30.720Z",
+            "last_updated": "2025-01-13T09:02:30.720Z"
+        };
     }
 }
 (0, _tsDecorate._)([
