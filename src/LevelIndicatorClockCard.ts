@@ -125,19 +125,19 @@ export class LevelIndicatorClockCard extends LitElement {
                     }
                     costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
                 }
-            } else {
-                const startLevel = currentLevel + this.NUMBER_OF_LEVELS - 6;
-                const startSeconds = startLevel * this.secondsPerLevel;
-                const costTime = new Date(midnight.getTime() + startSeconds * 1000);
-                const levelIndex = (startLevel) % this.levels.length;
-                const costIndex = all_costs.findIndex(entry => entry.start <= costTime && entry.end >= costTime);
-                if(costIndex === -1) {
-                    this.levels[levelIndex] = "unknown";
-                } else {
-                    this.levels[levelIndex] = all_costs[costIndex].level;
-                }
-                this.levels[(levelIndex+1)%this.levels.length] = "empty";
             }
+
+            const startLevel = currentLevel + this.NUMBER_OF_LEVELS - 6;
+            const startSeconds = startLevel * this.secondsPerLevel;
+            const costTime = new Date(midnight.getTime() + startSeconds * 1000);
+            const levelIndex = (startLevel) % this.levels.length;
+            const costIndex = all_costs.findIndex(entry => entry.start <= costTime && entry.end >= costTime);
+            if(costIndex === -1) {
+                this.levels[levelIndex] = "unknown";
+            } else {
+                this.levels[levelIndex] = all_costs[costIndex].level;
+            }
+            this.levels[(levelIndex+1)%this.levels.length] = "empty";
 
             const gradient = this.levels.map((level, index) => {
                 const startAngle = index * this.degreesPerLevel;
