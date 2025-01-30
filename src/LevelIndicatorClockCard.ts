@@ -31,16 +31,16 @@ export class LevelIndicatorClockCard extends LitElement {
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized");
 
     @state() private header: string | typeof nothing;
-    @state() private datetimeiso: string;
-    @state() private electricityprice: string;
+    @state() private iso_formatted_time: string;
+    @state() private electricity_price: string;
     @state() private timestamp: Timestamp;
     @state() private prices: Prices;
 
     static get properties() {
         return {
             header: {state: true},
-            datetimeiso: {state: true},
-            electricityprice: {state: true},
+            iso_formatted_time: {state: true},
+            electricity_price: {state: true},
             timestamp: {state: true},
             prices: {state: true},
         };
@@ -48,8 +48,8 @@ export class LevelIndicatorClockCard extends LitElement {
 
     setConfig(config:Config) {
         this.header = config.header === "" ? nothing : config.header;
-        this.datetimeiso = config.datetimeiso;
-        this.electricityprice = config.electricityprice;
+        this.iso_formatted_time = config.datetimeiso;
+        this.electricity_price = config.electricityprice;
         if (this._hass) {
             this.hass = this._hass
         }
@@ -57,8 +57,8 @@ export class LevelIndicatorClockCard extends LitElement {
 
     set hass(hass:HomeAssistant) {
         this._hass = hass;
-        this.timestamp = hass.states[this.datetimeiso];
-        this.prices = hass.states[this.electricityprice] as unknown as Prices;
+        this.timestamp = hass.states[this.iso_formatted_time];
+        this.prices = hass.states[this.electricity_price] as unknown as Prices;
     }
 
     static styles = styles;
@@ -202,7 +202,7 @@ export class LevelIndicatorClockCard extends LitElement {
             content = html`
                 <div class="error">
                     <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this.prices ? 'electricityprices is unavailable.' : ''}</p>
+                    <p>${!this.prices ? 'electricity_price is unavailable.' : ''}</p>
                 </div>
             `;
         } else {
@@ -243,8 +243,8 @@ export class LevelIndicatorClockCard extends LitElement {
 
     static getStubConfig() {
         return {
-            electricityprice: "sensor.elpris",
-            datetimeiso: "sensor.date_time_iso",
+            electricity_price: "sensor.electricity_price",
+            iso_formatted_time: "sensor.iso_formatted_time",
             header: "",
         };
     }

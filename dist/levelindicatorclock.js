@@ -622,10 +622,10 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             header: {
                 state: true
             },
-            datetimeiso: {
+            iso_formatted_time: {
                 state: true
             },
-            electricityprice: {
+            electricity_price: {
                 state: true
             },
             timestamp: {
@@ -638,14 +638,14 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     setConfig(config) {
         this.header = config.header === "" ? (0, _lit.nothing) : config.header;
-        this.datetimeiso = config.datetimeiso;
-        this.electricityprice = config.electricityprice;
+        this.iso_formatted_time = config.datetimeiso;
+        this.electricity_price = config.electricityprice;
         if (this._hass) this.hass = this._hass;
     }
     set hass(hass) {
         this._hass = hass;
-        this.timestamp = hass.states[this.datetimeiso];
-        this.prices = hass.states[this.electricityprice];
+        this.timestamp = hass.states[this.iso_formatted_time];
+        this.prices = hass.states[this.electricity_price];
     }
     static{
         this.styles = (0, _levelindicatorclockcardStylesDefault.default);
@@ -773,7 +773,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         if (!this.timestamp || !this.prices) content = (0, _lit.html)`
                 <div class="error">
                     <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this.prices ? 'electricityprices is unavailable.' : ''}</p>
+                    <p>${!this.prices ? 'electricity_price is unavailable.' : ''}</p>
                 </div>
             `;
         else content = (0, _lit.html)`
@@ -810,8 +810,8 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     static getStubConfig() {
         return {
-            electricityprice: "sensor.elpris",
-            datetimeiso: "sensor.date_time_iso",
+            electricity_price: "sensor.electricity_price",
+            iso_formatted_time: "sensor.iso_formatted_time",
             header: ""
         };
     }
@@ -824,10 +824,10 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
 ], LevelIndicatorClockCard.prototype, "header", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "datetimeiso", void 0);
+], LevelIndicatorClockCard.prototype, "iso_formatted_time", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "electricityprice", void 0);
+], LevelIndicatorClockCard.prototype, "electricity_price", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "timestamp", void 0);
@@ -2425,16 +2425,16 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
                     class="value cell" id="header" value="${this._config.header}"/>
             </div>
             <div class="row">
-                <label class="label cell" for="electricityprice">Electricity Price entity:</label>
+                <label class="label cell" for="electricity_price">Electricity Price entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="electricityprice" value="${this._config.electricityprice}"/>
+                    class="value cell" id="electricity_price" value="${this._config.electricity_price}"/>
             </div>
            <div class="row">
-                <label class="label cell" for="datetimeiso">Date and Time (ISO) entity:</label>
+                <label class="label cell" for="iso_formatted_time">Date and Time (ISO) entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="datetimeiso" value="${this._config.datetimeiso}"/>
+                    class="value cell" id="iso_formatted_time" value="${this._config.datetimeiso}"/>
             </div>
         </form>
     `;
@@ -2446,11 +2446,11 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
             case "header":
                 newConfig.header = changedEvent.target.value;
                 break;
-            case "electricityprice":
-                newConfig.electricityprice = changedEvent.target.value;
+            case "electricity_price":
+                newConfig.electricity_price = changedEvent.target.value;
                 break;
-            case "datetimeiso":
-                newConfig.datetimeiso = changedEvent.target.value;
+            case "iso_formatted_time":
+                newConfig.iso_formatted_time = changedEvent.target.value;
                 break;
             default:
                 console.log(this._tag, "handleChangedEvent() - unknown event target id");

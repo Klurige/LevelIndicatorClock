@@ -34,16 +34,16 @@ render() {
                     class="value cell" id="header" value="${this._config.header}"/>
             </div>
             <div class="row">
-                <label class="label cell" for="electricityprice">Electricity Price entity:</label>
+                <label class="label cell" for="electricity_price">Electricity Price entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="electricityprice" value="${this._config.electricityprice}"/>
+                    class="value cell" id="electricity_price" value="${this._config.electricity_price}"/>
             </div>
            <div class="row">
-                <label class="label cell" for="datetimeiso">Date and Time (ISO) entity:</label>
+                <label class="label cell" for="iso_formatted_time">Date and Time (ISO) entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="datetimeiso" value="${this._config.datetimeiso}"/>
+                    class="value cell" id="iso_formatted_time" value="${this._config.datetimeiso}"/>
             </div>
         </form>
     `;
@@ -56,11 +56,11 @@ handleChangedEvent(changedEvent) {
         case "header":
             newConfig.header = changedEvent.target.value;
             break;
-        case "electricityprice":
-            newConfig.electricityprice = changedEvent.target.value;
+        case "electricity_price":
+            newConfig.electricity_price = changedEvent.target.value;
             break;
-        case "datetimeiso":
-            newConfig.datetimeiso = changedEvent.target.value;
+        case "iso_formatted_time":
+            newConfig.iso_formatted_time = changedEvent.target.value;
             break;
         default:
             console.log(this._tag,"handleChangedEvent() - unknown event target id");
