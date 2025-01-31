@@ -6,12 +6,9 @@ import { Config } from "./Config";
 
 interface Timestamp {
     state: string;
-}
-
-interface costEntry {
-    start: Date,
-    end: Date,
-    level:string
+    attributes: {
+        level_clock_pattern: string;
+    }
 }
 
 interface Prices {
@@ -26,9 +23,10 @@ export class LevelIndicatorClockCard extends LitElement {
     private _hass: HomeAssistant;
 
     private readonly NUMBER_OF_LEVELS = 60
+    private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12);
     private readonly degreesPerLevel = 360 / this.NUMBER_OF_LEVELS;
     private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
-    private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill("uninitialized");
+    private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
     @state() private header: string | typeof nothing;
     @state() private iso_formatted_time: string;
@@ -66,23 +64,29 @@ export class LevelIndicatorClockCard extends LitElement {
     private intervalId: number | undefined;
     private startSimulation() {
         const fakeTime = new Date();
-        fakeTime.setHours(0, 0, 0, 0);
+        //let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
+        let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+        fakeTime.setHours(23, 50, 0, 0);
 
         this.intervalId = window.setInterval(() => {
             fakeTime.setMinutes(fakeTime.getMinutes() + 1);
+            if (fakeTime.getHours() === 0 && fakeTime.getMinutes() === 0) {
+                fakeLevels = fakeLevels.slice(fakeLevels.length / 2);
+            }
 
             this.setClock(fakeTime);
-            this.updatePrices(fakeTime);
-        }, 100); // Adjust the interval as needed
+            this.updateLevels(fakeLevels, fakeTime);
+        }, 1000); // Adjust the interval as needed
     }
 
     updated(changedProperties) {
         super.updated(changedProperties);
         if (changedProperties.has('timestamp')) {
             const currentTime = new Date(this.timestamp.state);
+            const priceLevels = this.timestamp.attributes.level_clock_pattern
             // Comment these two lines and uncomment the if statement below to start the simulation.
-            this.setClock(currentTime);
-            this.updatePrices(currentTime);
+           this.setClock(currentTime)
+           this.updateLevels(priceLevels, currentTime);
 //            if (!this.intervalId) {
 //                this.startSimulation();
 //            }
@@ -90,88 +94,57 @@ export class LevelIndicatorClockCard extends LitElement {
         }
     }
 
-    private updatePrices(currentTime: Date) {
+    private updateLevels(priceLevels: string, currentTime: Date) {
+        // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
+        console.log(`priceLevels: ${priceLevels}`);
+        console.log(`currentTime: ${currentTime}`);
         const clock = this.shadowRoot.querySelector('.clock');
-        if (clock && currentTime && this.prices) {
-            const rates = this.prices.attributes.rates
-            const last = new Date(rates[rates.length - 1].start);
-            last.setHours(23, 59, 59, 999);
-            const all_costs:costEntry[] = [
-                ...(rates ? rates.map((entry: { start: string | number | Date; cost: Number; credit: Number; level: string; rank: Number; }, index): costEntry => {
-                    let end = last;
-                    if(rates[index + 1]) {
-                        end = new Date(rates[index + 1].start);
-                        end.setMilliseconds(end.getMilliseconds()-1);
-                    }
-                    return { start: new Date(entry.start), end: end, level: entry.level }
-                }) : [])
-            ];
+        if (clock && priceLevels.length > 0) {
+            let currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
 
-            const midnight = new Date(currentTime);
-            midnight.setHours(0, 0, 0, 0);
-            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
-
-            if (this.levels.every(level => level === "uninitialized")) {
-                const startLevel = (currentLevel > 5) ? currentLevel - 5 : currentLevel;
-                const startSeconds = startLevel * this.secondsPerLevel;
-                const costTime = new Date(midnight.getTime() + startSeconds * 1000);
-                for (let i = 0; i < this.levels.length; i++) {
-                    const levelIndex = (startLevel + i) % this.levels.length;
-                    const costIndex = all_costs.findIndex(entry => entry.start <= costTime && entry.end >= costTime);
-                    if(costIndex === -1) {
-                        this.levels[levelIndex] = "unknown";
-                    } else {
-                        this.levels[levelIndex] = all_costs[costIndex].level;
-                    }
-                    costTime.setSeconds(costTime.getSeconds() + this.secondsPerLevel);
+            if (this.levels.every(level => level === 'U')) {
+                let levelIndex= (currentLevel >= this.HISTORY) ? currentLevel - this.HISTORY : currentLevel;
+                let slotIndex = levelIndex % this.NUMBER_OF_LEVELS;
+                for(let i = 0; i < this.NUMBER_OF_LEVELS; i++) {
+                    slotIndex = (levelIndex) % this.NUMBER_OF_LEVELS;
+                    this.levels[slotIndex] = priceLevels[levelIndex];
+                    levelIndex++;
                 }
+
             }
 
-            const startLevel = currentLevel + this.NUMBER_OF_LEVELS - 6;
-            const startSeconds = startLevel * this.secondsPerLevel;
-            const costTime = new Date(midnight.getTime() + startSeconds * 1000);
-            const levelIndex = (startLevel) % this.levels.length;
-            const costIndex = all_costs.findIndex(entry => entry.start <= costTime && entry.end >= costTime);
-            if(costIndex === -1) {
-                this.levels[levelIndex] = "unknown";
-            } else {
-                this.levels[levelIndex] = all_costs[costIndex].level;
+            let levelIndex= currentLevel - this.HISTORY + this.NUMBER_OF_LEVELS;
+            let slotIndex = levelIndex % this.NUMBER_OF_LEVELS;
+            console.log(`currentLevel: ${currentLevel}, levelIndex: ${levelIndex}, slotIndex: ${slotIndex} level: ${priceLevels[levelIndex]}`);
+            this.levels[slotIndex] = priceLevels[levelIndex];
+            let markerInd = slotIndex + 1;
+            if(markerInd >= this.NUMBER_OF_LEVELS) {
+                markerInd -= this.NUMBER_OF_LEVELS;
             }
-            this.levels[(levelIndex+1)%this.levels.length] = "empty";
+            this.levels[markerInd] = 'E';
+
 
             const gradient = this.levels.map((level, index) => {
                 const startAngle = index * this.degreesPerLevel;
                 const endAngle = startAngle + this.degreesPerLevel;
                 let color: string;
                 switch (level) {
-                    case "low":
-                    case "Low":
-                    case "LOW":
+                    case "L":
                         color = "green";
                         break;
-                    case "medium":
-                    case "Medium":
-                    case "MEDIUM":
+                    case "M":
                         color = "yellow";
                         break;
-                    case "high":
-                    case "High":
-                    case "HIGH":
+                    case "H":
                         color = "red";
                         break;
-                    case "unknown":
-                    case "Unknown":
-                    case "UNKNOWN":
+                    case "U":
                         color = "magenta";
                         break;
-                    case "solar":
-                    case "Solar":
-                    case "SOLAR":
+                    case "S":
                         color = "blue";
                         break;
-                    case "empty":
-                    case "Empty":
-                    case "EMPTY":
+                    case "E":
                         color = "white";
                         break;
                     default:
