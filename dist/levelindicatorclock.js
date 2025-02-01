@@ -619,33 +619,21 @@ var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_leveli
 class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     static get properties() {
         return {
-            header: {
-                state: true
-            },
             iso_formatted_time: {
                 state: true
             },
-            electricity_price: {
-                state: true
-            },
             timestamp: {
-                state: true
-            },
-            prices: {
                 state: true
             }
         };
     }
     setConfig(config) {
-        this.header = config.header === "" ? (0, _lit.nothing) : config.header;
-        this.iso_formatted_time = config.datetimeiso;
-        this.electricity_price = config.electricityprice;
+        this.iso_formatted_time = config.iso_formatted_time;
         if (this._hass) this.hass = this._hass;
     }
     set hass(hass) {
         this._hass = hass;
         this.timestamp = hass.states[this.iso_formatted_time];
-        this.prices = hass.states[this.electricity_price];
     }
     static{
         this.styles = (0, _levelindicatorclockcardStylesDefault.default);
@@ -742,10 +730,9 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     render() {
         let content;
-        if (!this.timestamp || !this.prices) content = (0, _lit.html)`
+        if (!this.timestamp) content = (0, _lit.html)`
                 <div class="error">
-                    <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this.prices ? 'electricity_price is unavailable.' : ''}</p>
+                    <p>${!this.timestamp ? 'iso_formatted_time is unavailable.' : ''}</p>
                 </div>
             `;
         else content = (0, _lit.html)`
@@ -770,7 +757,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                 </div>
             `;
         return (0, _lit.html)`
-            <ha-card header="${this.header}">
+            <ha-card">
                 <div class="card-content">
                     ${content}
                 </div>
@@ -782,9 +769,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     static getStubConfig() {
         return {
-            electricity_price: "sensor.electricity_price",
-            iso_formatted_time: "sensor.iso_formatted_time",
-            header: ""
+            iso_formatted_time: "sensor.iso_formatted_time"
         };
     }
     constructor(...args){
@@ -793,19 +778,10 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
 }
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "header", void 0);
-(0, _tsDecorate._)([
-    (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "iso_formatted_time", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "electricity_price", void 0);
-(0, _tsDecorate._)([
-    (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "timestamp", void 0);
-(0, _tsDecorate._)([
-    (0, _state.state)()
-], LevelIndicatorClockCard.prototype, "prices", void 0);
 
 },{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","lit/decorators/state":"5Z7m1","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lX6TJ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2391,22 +2367,10 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
         return (0, _lit.html)`
         <form class="table">
             <div class="row">
-                <label class="label cell" for="header">Header:</label>
-                <input
-                    @change="${this.handleChangedEvent}"
-                    class="value cell" id="header" value="${this._config.header}"/>
-            </div>
-            <div class="row">
-                <label class="label cell" for="electricity_price">Electricity Price entity:</label>
-                <input
-                    @change="${this.handleChangedEvent}"
-                    class="value cell" id="electricity_price" value="${this._config.electricity_price}"/>
-            </div>
-           <div class="row">
                 <label class="label cell" for="iso_formatted_time">Date and Time (ISO) entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="iso_formatted_time" value="${this._config.datetimeiso}"/>
+                    class="value cell" id="iso_formatted_time" value="${this._config.iso_formatted_time}"/>
             </div>
         </form>
     `;
@@ -2415,12 +2379,6 @@ class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
         const target = changedEvent.target;
         const newConfig = Object.assign({}, this._config);
         switch(target.id){
-            case "header":
-                newConfig.header = changedEvent.target.value;
-                break;
-            case "electricity_price":
-                newConfig.electricity_price = changedEvent.target.value;
-                break;
             case "iso_formatted_time":
                 newConfig.iso_formatted_time = changedEvent.target.value;
                 break;
