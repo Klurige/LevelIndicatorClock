@@ -28,26 +28,18 @@ export class LevelIndicatorClockCard extends LitElement {
     private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
-    @state() private header: string | typeof nothing;
     @state() private iso_formatted_time: string;
-    @state() private electricity_price: string;
     @state() private timestamp: Timestamp;
-    @state() private prices: Prices;
 
     static get properties() {
         return {
-            header: {state: true},
             iso_formatted_time: {state: true},
-            electricity_price: {state: true},
             timestamp: {state: true},
-            prices: {state: true},
         };
     }
 
     setConfig(config:Config) {
-        this.header = config.header === "" ? nothing : config.header;
-        this.iso_formatted_time = config.datetimeiso;
-        this.electricity_price = config.electricityprice;
+        this.iso_formatted_time = config.iso_formatted_time;
         if (this._hass) {
             this.hass = this._hass
         }
@@ -56,7 +48,6 @@ export class LevelIndicatorClockCard extends LitElement {
     set hass(hass:HomeAssistant) {
         this._hass = hass;
         this.timestamp = hass.states[this.iso_formatted_time];
-        this.prices = hass.states[this.electricity_price] as unknown as Prices;
     }
 
     static styles = styles;
@@ -171,11 +162,10 @@ export class LevelIndicatorClockCard extends LitElement {
 
     render() {
         let content: ReturnType<typeof html>;
-        if (!this.timestamp || !this.prices) {
+        if (!this.timestamp) {
             content = html`
                 <div class="error">
-                    <p>${!this.timestamp ? 'timedateiso is unavailable.' : ''}</p>
-                    <p>${!this.prices ? 'electricity_price is unavailable.' : ''}</p>
+                    <p>${!this.timestamp ? 'iso_formatted_time is unavailable.' : ''}</p>
                 </div>
             `;
         } else {
@@ -202,7 +192,7 @@ export class LevelIndicatorClockCard extends LitElement {
             `;
         }
         return html`
-            <ha-card header="${this.header}">
+            <ha-card">
                 <div class="card-content">
                     ${content}
                 </div>
@@ -216,9 +206,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     static getStubConfig() {
         return {
-            electricity_price: "sensor.electricity_price",
             iso_formatted_time: "sensor.iso_formatted_time",
-            header: "",
         };
     }
 }
