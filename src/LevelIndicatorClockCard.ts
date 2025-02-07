@@ -23,7 +23,7 @@ export class LevelIndicatorClockCard extends LitElement {
     private _hass: HomeAssistant;
 
     private readonly NUMBER_OF_LEVELS = 60
-    private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12);
+    private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12) - 1;
     private readonly degreesPerLevel = 360 / this.NUMBER_OF_LEVELS;
     private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
@@ -87,33 +87,20 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private updateLevels(priceLevels: string, currentTime: Date) {
         // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
-        console.log(`priceLevels: ${priceLevels}`);
         console.log(`currentTime: ${currentTime}`);
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && priceLevels.length > 0) {
-            let currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
-
-            if (this.levels.every(level => level === 'U')) {
-                let levelIndex= (currentLevel >= this.HISTORY) ? currentLevel - this.HISTORY : currentLevel;
-                let slotIndex = levelIndex % this.NUMBER_OF_LEVELS;
-                for(let i = 0; i < this.NUMBER_OF_LEVELS; i++) {
-                    slotIndex = (levelIndex) % this.NUMBER_OF_LEVELS;
-                    this.levels[slotIndex] = priceLevels[levelIndex];
-                    levelIndex++;
-                }
-
+            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            let startIndex = currentLevel - this.HISTORY;
+            let endIndex = startIndex + this.NUMBER_OF_LEVELS - 1;
+            if(startIndex < 0) {
+                startIndex = 0;
             }
-
-            let levelIndex= currentLevel - this.HISTORY + this.NUMBER_OF_LEVELS;
-            let slotIndex = levelIndex % this.NUMBER_OF_LEVELS;
-            console.log(`currentLevel: ${currentLevel}, levelIndex: ${levelIndex}, slotIndex: ${slotIndex} level: ${priceLevels[levelIndex]}`);
-            this.levels[slotIndex] = priceLevels[levelIndex];
-            let markerInd = slotIndex + 1;
-            if(markerInd >= this.NUMBER_OF_LEVELS) {
-                markerInd -= this.NUMBER_OF_LEVELS;
+            for(let i = startIndex; i < endIndex; i++) {
+                const slotIndex = i % this.NUMBER_OF_LEVELS;
+                this.levels[slotIndex] = priceLevels[i];
             }
-            this.levels[markerInd] = 'E';
-
+            this.levels[endIndex % this.NUMBER_OF_LEVELS] = 'E';
 
             const gradient = this.levels.map((level, index) => {
                 const startAngle = index * this.degreesPerLevel;
