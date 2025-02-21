@@ -638,6 +638,16 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     static{
         this.styles = (0, _levelindicatorclockcardStylesDefault.default);
     }
+    getLayoutOptions() {
+        return {
+            grid_rows: 8,
+            grid_columns: 12,
+            grid_min_rows: 8,
+            grid_max_rows: 8,
+            grid_min_columns: 12,
+            grid_max_columns: 12
+        };
+    }
     startSimulation() {
         const fakeTime = new Date();
         //let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";

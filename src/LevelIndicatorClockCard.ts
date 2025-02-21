@@ -52,6 +52,17 @@ export class LevelIndicatorClockCard extends LitElement {
 
     static styles = styles;
 
+    public getLayoutOptions() {
+        return {
+            grid_rows: 8,
+            grid_columns: 12,
+            grid_min_rows: 8,
+            grid_max_rows: 8,
+            grid_min_columns: 12,
+            grid_max_columns: 12,
+        };
+    }
+
     private intervalId: number | undefined;
     private startSimulation() {
         const fakeTime = new Date();
