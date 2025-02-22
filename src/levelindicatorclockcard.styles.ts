@@ -4,15 +4,14 @@ export default css`
     .error {
         color: red;
     }
-ha-card {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    align-items: center;
-    font-family: Helvetica, sans-serif;
-    width: 100%;
-    height: 0;
-    padding-bottom: 100%;
+    
+    ha-card {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        font-family: Helvetica, sans-serif;
+        aspect-ratio: 1 / 1;
 }
 
 ul {

@@ -641,16 +641,11 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     getLayoutOptions() {
         return {
             grid_rows: 8,
-            grid_columns: 12,
-            grid_min_rows: 8,
-            grid_max_rows: 8,
-            grid_min_columns: 12,
-            grid_max_columns: 12
+            grid_columns: 12
         };
     }
     startSimulation() {
         const fakeTime = new Date();
-        //let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
         let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
         fakeTime.setHours(23, 50, 0, 0);
         this.intervalId = window.setInterval(()=>{
@@ -675,7 +670,6 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     updateLevels(priceLevels, currentTime) {
         // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
-        console.log(`currentTime: ${currentTime}`);
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && priceLevels.length > 0) {
             const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
@@ -758,7 +752,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                 </div>
             `;
         return (0, _lit.html)`
-            <ha-card">
+            <ha-card>
                 <div class="card-content">
                     ${content}
                 </div>
@@ -772,6 +766,39 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         return {
             iso_formatted_time: "sensor.iso_formatted_time"
         };
+    }
+    firstUpdated() {
+        this.updateHoursFontSize();
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', this.updateHoursFontSize.bind(this));
+    }
+    disconnectedCallback() {
+        window.removeEventListener('resize', this.updateHoursFontSize.bind(this));
+        super.disconnectedCallback();
+    }
+    updateHoursFontSize() {
+        const cover = this.shadowRoot.querySelector('.gradient-cover');
+        const clock = this.shadowRoot.querySelector('.clock');
+        const hours = this.shadowRoot.querySelector('.hours');
+        if (cover && clock && hours) {
+            const clockWidth = clock.getBoundingClientRect().width;
+            const coverWidth = cover.getBoundingClientRect().width;
+            const sizeDiff = clockWidth - coverWidth;
+            if (sizeDiff > 0) {
+                const minFontSize = 8;
+                const maxFontSize = 30;
+                const minSizeDiff = 40;
+                const maxSizeDiff = 100;
+                if (sizeDiff > maxSizeDiff) hours.style.fontSize = `${maxFontSize}px`;
+                else if (sizeDiff < minSizeDiff) hours.style.fontSize = `${minFontSize}px`;
+                else {
+                    const fontSize = minFontSize + (sizeDiff - minSizeDiff) * (maxFontSize - minFontSize) / (maxSizeDiff - minSizeDiff);
+                    hours.style.fontSize = `${fontSize}px`;
+                }
+            }
+        }
     }
     constructor(...args){
         super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.HISTORY = this.NUMBER_OF_LEVELS / 12 - 1, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill('U');
@@ -2131,15 +2158,14 @@ exports.default = (0, _lit.css)`
     .error {
         color: red;
     }
-ha-card {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    align-items: center;
-    font-family: Helvetica, sans-serif;
-    width: 100%;
-    height: 0;
-    padding-bottom: 100%;
+    
+    ha-card {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        font-family: Helvetica, sans-serif;
+        aspect-ratio: 1 / 1;
 }
 
 ul {

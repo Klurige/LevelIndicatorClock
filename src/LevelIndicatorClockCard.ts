@@ -1,8 +1,8 @@
-import { html, LitElement, nothing } from "lit";
-import { state } from "lit/decorators/state";
+import {html, LitElement} from "lit";
+import {state} from "lit/decorators/state";
 import styles from './levelindicatorclockcard.styles';
-import { HomeAssistant } from "custom-card-helpers";
-import { Config } from "./Config";
+import {HomeAssistant} from "custom-card-helpers";
+import {Config} from "./Config";
 
 interface Timestamp {
     state: string;
@@ -13,7 +13,7 @@ interface Timestamp {
 
 interface Prices {
     attributes: {
-        rates: { start: string, cost: Number, credit:Number, level: string, rank: Number }[];
+        rates: { start: string, cost: Number, credit: Number, level: string, rank: Number }[];
     };
 }
 
@@ -38,14 +38,14 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
-    setConfig(config:Config) {
+    setConfig(config: Config) {
         this.iso_formatted_time = config.iso_formatted_time;
         if (this._hass) {
             this.hass = this._hass
         }
     }
 
-    set hass(hass:HomeAssistant) {
+    set hass(hass: HomeAssistant) {
         this._hass = hass;
         this.timestamp = hass.states[this.iso_formatted_time];
     }
@@ -56,17 +56,13 @@ export class LevelIndicatorClockCard extends LitElement {
         return {
             grid_rows: 8,
             grid_columns: 12,
-            grid_min_rows: 8,
-            grid_max_rows: 8,
-            grid_min_columns: 12,
-            grid_max_columns: 12,
         };
     }
 
     private intervalId: number | undefined;
+
     private startSimulation() {
         const fakeTime = new Date();
-        //let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
         let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
         fakeTime.setHours(23, 50, 0, 0);
 
@@ -85,9 +81,9 @@ export class LevelIndicatorClockCard extends LitElement {
         super.updated(changedProperties);
         if (changedProperties.has('timestamp')) {
             const currentTime = new Date(this.timestamp.state);
-            const priceLevels = this.timestamp.attributes.level_clock_pattern
+            const priceLevels = this.timestamp.attributes.level_clock_pattern;
             // Comment these two lines and uncomment the if statement below to start the simulation.
-           this.setClock(currentTime)
+           this.setClock(currentTime);
            this.updateLevels(priceLevels, currentTime);
 //            if (!this.intervalId) {
 //                this.startSimulation();
@@ -98,16 +94,15 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private updateLevels(priceLevels: string, currentTime: Date) {
         // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
-        console.log(`currentTime: ${currentTime}`);
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && priceLevels.length > 0) {
-            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes()*60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
             let startIndex = currentLevel - this.HISTORY;
             let endIndex = startIndex + this.NUMBER_OF_LEVELS - 1;
-            if(startIndex < 0) {
+            if (startIndex < 0) {
                 startIndex = 0;
             }
-            for(let i = startIndex; i < endIndex; i++) {
+            for (let i = startIndex; i < endIndex; i++) {
                 const slotIndex = i % this.NUMBER_OF_LEVELS;
                 this.levels[slotIndex] = priceLevels[i];
             }
@@ -190,7 +185,7 @@ export class LevelIndicatorClockCard extends LitElement {
             `;
         }
         return html`
-            <ha-card">
+            <ha-card>
                 <div class="card-content">
                     ${content}
                 </div>
@@ -207,4 +202,46 @@ export class LevelIndicatorClockCard extends LitElement {
             iso_formatted_time: "sensor.iso_formatted_time",
         };
     }
+
+    firstUpdated() {
+        this.updateHoursFontSize();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        window.addEventListener('resize', this.updateHoursFontSize.bind(this));
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('resize', this.updateHoursFontSize.bind(this));
+        super.disconnectedCallback();
+    }
+
+    private updateHoursFontSize() {
+        const cover = this.shadowRoot.querySelector('.gradient-cover');
+        const clock = this.shadowRoot.querySelector('.clock');
+        const hours = this.shadowRoot.querySelector('.hours');
+        if (cover && clock && hours) {
+            const clockWidth = clock.getBoundingClientRect().width;
+            const coverWidth = cover.getBoundingClientRect().width;
+            const sizeDiff = clockWidth - coverWidth;
+
+            if (sizeDiff > 0) {
+                const minFontSize = 8;
+                const maxFontSize = 30;
+                const minSizeDiff = 40;
+                const maxSizeDiff = 100;
+
+                if (sizeDiff > maxSizeDiff) {
+                    hours.style.fontSize = `${maxFontSize}px`;
+                } else if (sizeDiff < minSizeDiff) {
+                    hours.style.fontSize = `${minFontSize}px`;
+                } else {
+                    const fontSize = minFontSize + (sizeDiff - minSizeDiff) * (maxFontSize - minFontSize) / (maxSizeDiff - minSizeDiff);
+                    hours.style.fontSize = `${fontSize}px`;
+                }
+            }
+        }
+    }
+
 }
