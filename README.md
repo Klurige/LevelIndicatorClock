@@ -38,7 +38,13 @@ Modify the `.devcontainers/devcontainer.json` file and include a mount :
 ```
 Rebuild the devcontainer and restart it.
 
-You can now add the card to a dashboard as usual.
+Go to Settings -> Dashboards and click on the kebab icon in the top right corner to add resources.
+Add the following resource:
+```
+local/levelindicatorclock/LevelIndicatorClock.js
+```
+
+You can now add the card to your dashboard as usual.
 
 ### Development
 To start the development server, run the following command in the terminal:
