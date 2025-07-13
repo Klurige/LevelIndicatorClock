@@ -1,5 +1,6 @@
 import { LevelIndicatorClockCard } from "./LevelIndicatorClockCard.js";
 import { LevelIndicatorClockCardEditor } from "./LevelIndicatorClockCardEditor.js";
+import './levelindicatorclockcard.styles.ts';
 
 declare global {
     interface Window {

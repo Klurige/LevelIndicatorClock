@@ -204,7 +204,9 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     firstUpdated() {
-        this.updateHoursFontSize();
+        requestAnimationFrame(() => {
+            this.updateHoursFontSize();
+        });
     }
 
     connectedCallback() {
@@ -220,26 +222,15 @@ export class LevelIndicatorClockCard extends LitElement {
     private updateHoursFontSize() {
         const cover = this.shadowRoot.querySelector('.gradient-cover');
         const clock = this.shadowRoot.querySelector('.clock');
-        const hours = this.shadowRoot.querySelector('.hours');
+        const hours = this.shadowRoot.querySelector('.hours') as HTMLElement;
         if (cover && clock && hours) {
-            const clockWidth = clock.getBoundingClientRect().width;
-            const coverWidth = cover.getBoundingClientRect().width;
-            const sizeDiff = clockWidth - coverWidth;
+            const clockRadius = clock.getBoundingClientRect().width / 2;
+            const coverRadius = cover.getBoundingClientRect().width / 2;
+            const sizeDiff = clockRadius - coverRadius;
 
             if (sizeDiff > 0) {
-                const minFontSize = 8;
-                const maxFontSize = 30;
-                const minSizeDiff = 40;
-                const maxSizeDiff = 100;
-
-                if (sizeDiff > maxSizeDiff) {
-                    hours.style.fontSize = `${maxFontSize}px`;
-                } else if (sizeDiff < minSizeDiff) {
-                    hours.style.fontSize = `${minFontSize}px`;
-                } else {
-                    const fontSize = minFontSize + (sizeDiff - minSizeDiff) * (maxFontSize - minFontSize) / (maxSizeDiff - minSizeDiff);
-                    hours.style.fontSize = `${fontSize}px`;
-                }
+                const fontSize = sizeDiff * 0.6;
+                hours.style.setProperty('font-size', `${fontSize}px`, 'important');
             }
         }
     }
