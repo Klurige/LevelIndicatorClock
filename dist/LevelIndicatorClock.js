@@ -622,6 +622,9 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             iso_formatted_time: {
                 state: true
             },
+            electricity_price: {
+                state: true
+            },
             timestamp: {
                 state: true
             }
@@ -629,6 +632,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     setConfig(config) {
         this.iso_formatted_time = config.iso_formatted_time;
+        this.electricity_price = config.electricity_price;
         if (this._hass) this.hass = this._hass;
     }
     set hass(hass) {
@@ -647,28 +651,27 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             grid_columns: 12
         };
     }
-    startSimulation() {
-        const fakeTime = new Date();
-        let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
-        fakeTime.setHours(23, 50, 0, 0);
-        this.intervalId = window.setInterval(()=>{
-            fakeTime.setMinutes(fakeTime.getMinutes() + 1);
-            if (fakeTime.getHours() === 0 && fakeTime.getMinutes() === 0) fakeLevels = fakeLevels.slice(fakeLevels.length / 2);
-            this.setClock(fakeTime);
-            this.updateLevels(fakeLevels, fakeTime);
-        }, 1000); // Adjust the interval as needed
-    }
     updated(changedProperties) {
         super.updated(changedProperties);
-        if (changedProperties.has('timestamp')) {
-            const currentTime = new Date(this.timestamp.state);
-            const priceLevels = this.timestamp.attributes.level_clock_pattern;
-            // Comment these two lines and uncomment the if statement below to start the simulation.
-            this.setClock(currentTime);
-            this.updateLevels(priceLevels, currentTime);
-        //            if (!this.intervalId) {
-        //                this.startSimulation();
-        //            }
+        if (!this.isSimulating) {
+            if (changedProperties.has('electricity_price')) {
+                //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
+                //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
+                const prices = this._hass.states[this.electricity_price];
+                if (prices && prices.attributes && prices.attributes.rates) {
+                    //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
+                    let priceLevels = prices.attributes.rates.map((rate)=>{
+                        const start = new Date(rate.start);
+                        const end = new Date(rate.end);
+                        const durationMinutes = (end.getTime() - start.getTime()) / 60000;
+                        const repeatCount = durationMinutes / 12;
+                        return rate.level.charAt(0).repeat(repeatCount);
+                    }).join('');
+                    priceLevels = priceLevels.padEnd(240, 'U');
+                    //console.log(this.tag + "Electricity prices: "+ priceLevels.length + ", priceLevels:" + priceLevels);
+                    this.updateLevels(priceLevels, new Date(this.timestamp.state));
+                }
+            }
         }
     }
     updateLevels(priceLevels, currentTime) {
@@ -772,16 +775,63 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                             domain: 'sensor'
                         }
                     }
+                },
+                {
+                    name: 'electricity_price',
+                    selector: {
+                        entity: {
+                            domain: 'sensor'
+                        }
+                    }
                 }
             ]
         };
     }
-    static getStubConfig() {
-        return {
-            iso_formatted_time: "sensor.iso_formatted_time"
-        };
-    }
     firstUpdated() {
+        let millisecondsUntilNextMinute = 0;
+        if (this.isSimulating) {
+            this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
+            this.now.setHours(23, 50, 0, 0);
+        }
+        const scheduleNextLog = ()=>{
+            if (!this.isSimulating) {
+                this.now = new Date();
+                const nextMinute = new Date(this.now.getTime());
+                nextMinute.setSeconds(0, 0);
+                nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+                millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
+            } else {
+                // Simulating: just add 1 minute to the current time.
+                this.now.setMinutes(this.now.getMinutes() + 1);
+                // Time flies when simulating, one minute every 1000 milliseconds.
+                millisecondsUntilNextMinute = 50;
+                if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
+                    this.fakeLevels = this.fakeLevels.slice(120);
+                    this.fakeLevels += 'U'.repeat(120);
+                    console.log(this.tag + "New day: " + this.fakeLevels);
+                } else if (this.now.getHours() === 15 && this.now.getMinutes() === 0) {
+                    this.fakeLevels = this.fakeLevels.slice(0, -120);
+                    let newLevels = '';
+                    const levels = [
+                        'L',
+                        'M',
+                        'H'
+                    ];
+                    for(let i = 0; i < 24; i++){
+                        const level = levels[Math.floor(Math.random() * levels.length)];
+                        newLevels += level.repeat(5); // 5 slots per hour
+                    }
+                    this.fakeLevels += newLevels;
+                    console.log(this.tag + "New 24 hours: " + this.fakeLevels);
+                }
+            }
+            this.updateLevels(this.fakeLevels, this.now);
+            this.setClock(this.now);
+            this.intervalId = window.setTimeout(()=>{
+                scheduleNextLog();
+            }, millisecondsUntilNextMinute);
+        };
+        scheduleNextLog();
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock) {
             this.resizeObserver = new ResizeObserver(()=>{
@@ -798,6 +848,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     disconnectedCallback() {
         if (this.resizeObserver) this.resizeObserver.disconnect();
+        if (this.intervalId) clearTimeout(this.intervalId);
         super.disconnectedCallback();
     }
     updateHoursFontSize() {
@@ -815,12 +866,15 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         }
     }
     constructor(...args){
-        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.HISTORY = this.NUMBER_OF_LEVELS / 12 - 1, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill('U');
+        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 60, this.HISTORY = this.NUMBER_OF_LEVELS / 12 - 1, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.secondsPerLevel = 43200 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill('U'), this.now = new Date(), this.isSimulating = false, this.fakeLevels = "";
     }
 }
 (0, _tsDecorate._)([
     (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "iso_formatted_time", void 0);
+(0, _tsDecorate._)([
+    (0, _state.state)()
+], LevelIndicatorClockCard.prototype, "electricity_price", void 0);
 (0, _tsDecorate._)([
     (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "timestamp", void 0);

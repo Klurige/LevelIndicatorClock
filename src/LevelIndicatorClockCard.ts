@@ -13,7 +13,7 @@ interface Timestamp {
 
 interface Prices {
     attributes: {
-        rates: { start: string, cost: Number, credit: Number, level: string, rank: Number }[];
+        rates: { cost: number, credit: number, end: string, level: string, rank: number, spot_price: number, start:string }[];
     };
 }
 
@@ -51,7 +51,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     set hass(hass: HomeAssistant) {
         this._hass = hass;
-        this.timestamp = hass.states[this.iso_formatted_time];
+        this.timestamp = hass.states[this.iso_formatted_time] as unknown as Timestamp;
     }
 
     getCardSize() {
@@ -68,35 +68,31 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     private intervalId: number | undefined;
-
-    private startSimulation() {
-        const fakeTime = new Date();
-        let fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
-        fakeTime.setHours(23, 50, 0, 0);
-
-        this.intervalId = window.setInterval(() => {
-            fakeTime.setMinutes(fakeTime.getMinutes() + 1);
-            if (fakeTime.getHours() === 0 && fakeTime.getMinutes() === 0) {
-                fakeLevels = fakeLevels.slice(fakeLevels.length / 2);
-            }
-
-            this.setClock(fakeTime);
-            this.updateLevels(fakeLevels, fakeTime);
-        }, 1000); // Adjust the interval as needed
-    }
+    private now = new Date();
+    private isSimulating = false;
+    private fakeLevels = "";
 
     updated(changedProperties) {
         super.updated(changedProperties);
-        if (changedProperties.has('timestamp')) {
-            const currentTime = new Date(this.timestamp.state);
-            const priceLevels = this.timestamp.attributes.level_clock_pattern;
-            // Comment these two lines and uncomment the if statement below to start the simulation.
-           this.setClock(currentTime);
-           this.updateLevels(priceLevels, currentTime);
-//            if (!this.intervalId) {
-//                this.startSimulation();
-//            }
-
+        if (!this.isSimulating) {
+            if (changedProperties.has('electricity_price')) {
+                //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
+                //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
+                const prices = this._hass.states[this.electricity_price] as unknown as Prices;
+                if (prices && prices.attributes && prices.attributes.rates) {
+                    //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
+                    let priceLevels = prices.attributes.rates.map(rate => {
+                        const start = new Date(rate.start);
+                        const end = new Date(rate.end);
+                        const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+                        const repeatCount = durationMinutes / 12;
+                        return rate.level.charAt(0).repeat(repeatCount);
+                    }).join('');
+                    priceLevels = priceLevels.padEnd(240, 'U');
+                    //console.log(this.tag + "Electricity prices: "+ priceLevels.length + ", priceLevels:" + priceLevels);
+                    this.updateLevels(priceLevels, new Date(this.timestamp.state));
+                }
+            }
         }
     }
 
@@ -224,13 +220,49 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
-    static getStubConfig() {
-        return {
-            iso_formatted_time: "sensor.iso_formatted_time",
-        };
-    }
-
     firstUpdated() {
+        let millisecondsUntilNextMinute = 0;
+        if(this.isSimulating) {
+            this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
+            this.now.setHours(23, 50, 0, 0);
+        }
+        const scheduleNextLog = () => {
+            if(!this.isSimulating) {
+                this.now = new Date();
+                const nextMinute = new Date(this.now.getTime());
+                nextMinute.setSeconds(0, 0);
+                nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+                millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
+            } else {
+                // Simulating: just add 1 minute to the current time.
+                this.now.setMinutes(this.now.getMinutes() + 1);
+                // Time flies when simulating, one minute every 1000 milliseconds.
+                millisecondsUntilNextMinute = 50;
+                if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
+                    this.fakeLevels = this.fakeLevels.slice(120);
+                    this.fakeLevels += 'U'.repeat(120);
+                    console.log(this.tag + "New day: " + this.fakeLevels);
+                } else if(this.now.getHours() === 15 && this.now.getMinutes() === 0) {
+                    this.fakeLevels = this.fakeLevels.slice(0, -120);
+                    let newLevels = '';
+                    const levels = ['L', 'M', 'H'];
+                    for (let i = 0; i < 24; i++) { // 24 hours, 120 levels
+                        const level = levels[Math.floor(Math.random() * levels.length)];
+                        newLevels += level.repeat(5); // 5 slots per hour
+                    }
+                    this.fakeLevels += newLevels;
+                    console.log(this.tag + "New 24 hours: " + this.fakeLevels);
+                }
+            }
+            this.updateLevels(this.fakeLevels, this.now);
+            this.setClock(this.now);
+            this.intervalId = window.setTimeout(() => {
+                scheduleNextLog();
+            }, millisecondsUntilNextMinute);
+        };
+
+        scheduleNextLog();
+
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock) {
             this.resizeObserver = new ResizeObserver(() => {
@@ -250,6 +282,9 @@ export class LevelIndicatorClockCard extends LitElement {
     disconnectedCallback() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
+        }
+        if (this.intervalId) {
+            clearTimeout(this.intervalId);
         }
         super.disconnectedCallback();
     }
