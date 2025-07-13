@@ -677,12 +677,23 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                     }
                     for(let i = 0; i < rates.length; i += this.minutesPerLevel){
                         const chunk = rates.slice(i, i + this.minutesPerLevel);
-                        const sum = chunk.reduce((a, b)=>a + b, 0);
-                        const avg = sum / chunk.length || 10000000;
-                        if (avg < prices.attributes.low_threshold) priceLevels += 'L';
-                        else if (avg < prices.attributes.high_threshold) priceLevels += 'M';
-                        else if (avg < 10000000) priceLevels += 'H';
-                        else priceLevels += 'E';
+                        // All entries must be below the thresholds to be considered low, medium or high.
+                        if (chunk.length === 0) priceLevels += 'E';
+                        else if (chunk.every((rate)=>rate < prices.attributes.low_threshold)) priceLevels += 'L';
+                        else if (chunk.every((rate)=>rate < prices.attributes.high_threshold)) priceLevels += 'M';
+                        else priceLevels += 'H';
+                    // The average cost must be below the thresholds to be considered low, medium or high.
+                    // const sum = chunk.reduce((a, b) => a + b, 0);
+                    // const avg = sum / chunk.length || 10000000;
+                    // if (avg < prices.attributes.low_threshold) {
+                    //     priceLevels += 'L';
+                    // } else if (avg < prices.attributes.high_threshold) {
+                    //     priceLevels += 'M';
+                    // } else if( avg < 10000000) {
+                    //     priceLevels += 'H';
+                    // } else {
+                    //     priceLevels += 'E';
+                    // }
                     }
                     //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
                     priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
