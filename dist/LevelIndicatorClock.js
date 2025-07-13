@@ -597,10 +597,8 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 
 },{}],"h7u1C":[function(require,module,exports,__globalThis) {
 var _levelIndicatorClockCardJs = require("./LevelIndicatorClockCard.js");
-var _levelIndicatorClockCardEditorJs = require("./LevelIndicatorClockCardEditor.js");
 var _levelindicatorclockcardStylesTs = require("./levelindicatorclockcard.styles.ts");
 customElements.define("level-indicator-clock", (0, _levelIndicatorClockCardJs.LevelIndicatorClockCard));
-customElements.define("level-indicator-clock-editor", (0, _levelIndicatorClockCardEditorJs.LevelIndicatorClockCardEditor));
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: "level-indicator-clock",
@@ -609,7 +607,7 @@ window.customCards.push({
     preview: true
 });
 
-},{"./LevelIndicatorClockCard.js":"2rXwx","./LevelIndicatorClockCardEditor.js":"cjuRt","./levelindicatorclockcard.styles.ts":"aTxNe"}],"2rXwx":[function(require,module,exports,__globalThis) {
+},{"./LevelIndicatorClockCard.js":"2rXwx","./levelindicatorclockcard.styles.ts":"aTxNe"}],"2rXwx":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
@@ -764,8 +762,19 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             </ha-card>
         `;
     }
-    static getConfigElement() {
-        return document.createElement("level-indicator-clock-editor");
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: 'iso_formatted_time',
+                    selector: {
+                        entity: {
+                            domain: 'sensor'
+                        }
+                    }
+                }
+            ]
+        };
     }
     static getStubConfig() {
         return {
@@ -816,7 +825,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     (0, _state.state)()
 ], LevelIndicatorClockCard.prototype, "timestamp", void 0);
 
-},{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","lit/decorators/state":"5Z7m1","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lX6TJ":[function(require,module,exports,__globalThis) {
+},{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators/state":"5Z7m1"}],"lX6TJ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "_", ()=>(0, _tslib.__decorate));
@@ -2082,80 +2091,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "isServer", ()=>o);
 const o = !1;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Z7m1":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _stateJs = require("@lit/reactive-element/decorators/state.js");
-parcelHelpers.exportAll(_stateJs, exports);
-
-},{"@lit/reactive-element/decorators/state.js":"goyf7","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"goyf7":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "state", ()=>r);
-var _propertyJs = require("./property.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function r(r) {
-    return (0, _propertyJs.property)({
-        ...r,
-        state: !0,
-        attribute: !1
-    });
-}
-
-},{"./property.js":"ipYYa","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ipYYa":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "property", ()=>n);
-parcelHelpers.export(exports, "standardProperty", ()=>r);
-var _reactiveElementJs = require("../reactive-element.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const o = {
-    attribute: !0,
-    type: String,
-    converter: (0, _reactiveElementJs.defaultConverter),
-    reflect: !1,
-    hasChanged: (0, _reactiveElementJs.notEqual)
-}, r = (t = o, e, r)=>{
-    const { kind: n, metadata: i } = r;
-    let s = globalThis.litPropertyMetadata.get(i);
-    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
-        const { name: o } = r;
-        return {
-            set (r) {
-                const n = e.get.call(this);
-                e.set.call(this, r), this.requestUpdate(o, n, t);
-            },
-            init (e) {
-                return void 0 !== e && this.P(o, void 0, t), e;
-            }
-        };
-    }
-    if ("setter" === n) {
-        const { name: o } = r;
-        return function(r) {
-            const n = this[o];
-            e.call(this, r), this.requestUpdate(o, n, t);
-        };
-    }
-    throw Error("Unsupported decorator location: " + n);
-};
-function n(t) {
-    return (e, o)=>"object" == typeof o ? r(t, e, o) : ((t, e, o)=>{
-            const r = e.hasOwnProperty(o);
-            return e.constructor.createProperty(o, r ? {
-                ...t,
-                wrapped: !0
-            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
-        })(t, e, o);
-}
-
-},{"../reactive-element.js":"hypet","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aTxNe":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aTxNe":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _lit = require("lit");
@@ -2370,71 +2306,79 @@ li {
 }
 `;
 
-},{"lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cjuRt":[function(require,module,exports,__globalThis) {
+},{"lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5Z7m1":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "LevelIndicatorClockCardEditor", ()=>LevelIndicatorClockCardEditor);
-var _tsDecorate = require("@swc/helpers/_/_ts_decorate");
-var _lit = require("lit");
-var _state = require("lit/decorators/state");
-class LevelIndicatorClockCardEditor extends (0, _lit.LitElement) {
-    setConfig(config) {
-        this._config = config;
-    }
-    static{
-        this.styles = (0, _lit.css)`
-    .table {
-        display: table;
-    }
-    .row {
-        display: table-row;
-    }
-    .cell {
-        display: table-cell;
-        padding: 0.5em;
-    }
-`;
-    }
-    render() {
-        if (!this._config) return (0, _lit.html)``;
-        return (0, _lit.html)`
-        <form class="table">
-            <div class="row">
-                <label class="label cell" for="iso_formatted_time">Date and Time (ISO) entity:</label>
-                <input
-                    @change="${this.handleChangedEvent}"
-                    class="value cell" id="iso_formatted_time" .value="${this._config.iso_formatted_time}"/>
-            </div>
-        </form>
-    `;
-    }
-    handleChangedEvent(changedEvent) {
-        const target = changedEvent.target;
-        const newConfig = Object.assign({}, this._config);
-        switch(target.id){
-            case "iso_formatted_time":
-                newConfig.iso_formatted_time = changedEvent.target.value;
-                break;
-            default:
-                console.log(this._tag, "handleChangedEvent() - unknown event target id");
-        }
-        const messageEvent = new CustomEvent("config-changed", {
-            detail: {
-                config: newConfig
-            },
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(messageEvent);
-    }
-    constructor(...args){
-        super(...args), this._tag = "LevelIndicatorClockCardEditor";
-    }
-}
-(0, _tsDecorate._)([
-    (0, _state.state)()
-], LevelIndicatorClockCardEditor.prototype, "_config", void 0);
+var _stateJs = require("@lit/reactive-element/decorators/state.js");
+parcelHelpers.exportAll(_stateJs, exports);
 
-},{"@swc/helpers/_/_ts_decorate":"lX6TJ","lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators/state":"5Z7m1"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
+},{"@lit/reactive-element/decorators/state.js":"goyf7","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"goyf7":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "state", ()=>r);
+var _propertyJs = require("./property.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function r(r) {
+    return (0, _propertyJs.property)({
+        ...r,
+        state: !0,
+        attribute: !1
+    });
+}
+
+},{"./property.js":"ipYYa","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ipYYa":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "property", ()=>n);
+parcelHelpers.export(exports, "standardProperty", ()=>r);
+var _reactiveElementJs = require("../reactive-element.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const o = {
+    attribute: !0,
+    type: String,
+    converter: (0, _reactiveElementJs.defaultConverter),
+    reflect: !1,
+    hasChanged: (0, _reactiveElementJs.notEqual)
+}, r = (t = o, e, r)=>{
+    const { kind: n, metadata: i } = r;
+    let s = globalThis.litPropertyMetadata.get(i);
+    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
+        const { name: o } = r;
+        return {
+            set (r) {
+                const n = e.get.call(this);
+                e.set.call(this, r), this.requestUpdate(o, n, t);
+            },
+            init (e) {
+                return void 0 !== e && this.P(o, void 0, t), e;
+            }
+        };
+    }
+    if ("setter" === n) {
+        const { name: o } = r;
+        return function(r) {
+            const n = this[o];
+            e.call(this, r), this.requestUpdate(o, n, t);
+        };
+    }
+    throw Error("Unsupported decorator location: " + n);
+};
+function n(t) {
+    return (e, o)=>"object" == typeof o ? r(t, e, o) : ((t, e, o)=>{
+            const r = e.hasOwnProperty(o);
+            return e.constructor.createProperty(o, r ? {
+                ...t,
+                wrapped: !0
+            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
+        })(t, e, o);
+}
+
+},{"../reactive-element.js":"hypet","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=LevelIndicatorClock.js.map

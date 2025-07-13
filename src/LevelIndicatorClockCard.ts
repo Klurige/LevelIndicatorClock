@@ -30,17 +30,20 @@ export class LevelIndicatorClockCard extends LitElement {
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
     @state() private iso_formatted_time: string;
+    @state() private electricity_price: string;
     @state() private timestamp: Timestamp;
 
     static get properties() {
         return {
             iso_formatted_time: {state: true},
+            electricity_price: {state: true},
             timestamp: {state: true},
         };
     }
 
     setConfig(config: Config) {
         this.iso_formatted_time = config.iso_formatted_time;
+        this.electricity_price = config.electricity_price;
         if (this._hass) {
             this.hass = this._hass
         }
@@ -198,8 +201,27 @@ export class LevelIndicatorClockCard extends LitElement {
         `;
     }
 
-    static getConfigElement() {
-        return document.createElement("level-indicator-clock-editor");
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: 'iso_formatted_time',
+                    selector: {
+                        entity: {
+                            domain: 'sensor',
+                        },
+                    },
+                },
+                {
+                    name: 'electricity_price',
+                    selector: {
+                        entity: {
+                            domain: 'sensor',
+                        },
+                    },
+                },
+            ],
+        };
     }
 
     static getStubConfig() {

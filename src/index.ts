@@ -1,5 +1,4 @@
 import { LevelIndicatorClockCard } from "./LevelIndicatorClockCard.js";
-import { LevelIndicatorClockCardEditor } from "./LevelIndicatorClockCardEditor.js";
 import './levelindicatorclockcard.styles.ts';
 
 declare global {
@@ -10,10 +9,6 @@ declare global {
 customElements.define(
     "level-indicator-clock",
     LevelIndicatorClockCard
-);
-customElements.define(
-    "level-indicator-clock-editor",
-    LevelIndicatorClockCardEditor
 );
 
 window.customCards = window.customCards || [];
