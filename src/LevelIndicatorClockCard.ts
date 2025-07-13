@@ -4,13 +4,6 @@ import styles from './levelindicatorclockcard.styles';
 import {HomeAssistant} from "custom-card-helpers";
 import {Config} from "./Config";
 
-interface Timestamp {
-    state: string;
-    attributes: {
-        level_clock_pattern: string;
-    }
-}
-
 interface Prices {
     attributes: {
         rates: { cost: number, credit: number, end: string, level: string, rank: number, spot_price: number, start:string }[];
@@ -29,20 +22,16 @@ export class LevelIndicatorClockCard extends LitElement {
     private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
-    @state() private iso_formatted_time: string;
     @state() private electricity_price: string;
-    @state() private timestamp: Timestamp;
+    @state() private _dependencyMet = false;
 
     static get properties() {
         return {
-            iso_formatted_time: {state: true},
             electricity_price: {state: true},
-            timestamp: {state: true},
         };
     }
 
     setConfig(config: Config) {
-        this.iso_formatted_time = config.iso_formatted_time;
         this.electricity_price = config.electricity_price;
         if (this._hass) {
             this.hass = this._hass
@@ -51,7 +40,15 @@ export class LevelIndicatorClockCard extends LitElement {
 
     set hass(hass: HomeAssistant) {
         this._hass = hass;
-        this.timestamp = hass.states[this.iso_formatted_time] as unknown as Timestamp;
+        this.checkDependencies();
+    }
+
+    private checkDependencies() {
+        this._dependencyMet = this._hass?.config?.components?.includes('electricitypricelevels');
+        if(this._dependencyMet === false) {
+            console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
+            console.log("Installed HACS integrations:", this._hass.config.components);
+        }
     }
 
     getCardSize() {
@@ -80,17 +77,22 @@ export class LevelIndicatorClockCard extends LitElement {
                 //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
                 const prices = this._hass.states[this.electricity_price] as unknown as Prices;
                 if (prices && prices.attributes && prices.attributes.rates) {
-                    //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
+                    console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
                     let priceLevels = prices.attributes.rates.map(rate => {
                         const start = new Date(rate.start);
                         const end = new Date(rate.end);
-                        const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
-                        const repeatCount = durationMinutes / 12;
-                        return rate.level.charAt(0).repeat(repeatCount);
+                        let durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+                        let levels = "";
+                        console.log(this.tag + "Start: " + start.toISOString() + ", End: " + end.toISOString() + ", Duration: " + durationMinutes + " minutes");
+                        while( durationMinutes > 0) {
+                            levels += rate.level.charAt(0);
+                            durationMinutes -= 12;
+                        }
+                        return levels;
                     }).join('');
+                    console.log(this.tag + "Electricity prices: "+ priceLevels.length + ", priceLevels:" + priceLevels);
                     priceLevels = priceLevels.padEnd(240, 'U');
-                    //console.log(this.tag + "Electricity prices: "+ priceLevels.length + ", priceLevels:" + priceLevels);
-                    this.updateLevels(priceLevels, new Date(this.timestamp.state));
+                    this.updateLevels(priceLevels, this.now);
                 }
             }
         }
@@ -158,40 +160,42 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     render() {
-        let content: ReturnType<typeof html>;
-        if (!this.timestamp) {
-            content = html`
-                <div class="error">
-                    <p>${!this.timestamp ? 'iso_formatted_time is unavailable.' : ''}</p>
-                </div>
-            `;
-        } else {
-            content = html`
-                <div class="clock">
-                    <ul class='hours'>
-                        <li><span>1</span></li>
-                        <li><span>2</span></li>
-                        <li><span>3</span></li>
-                        <li><span>4</span></li>
-                        <li><span>5</span></li>
-                        <li><span>6</span></li>
-                        <li><span>7</span></li>
-                        <li><span>8</span></li>
-                        <li><span>9</span></li>
-                        <li><span>10</span></li>
-                        <li><span>11</span></li>
-                        <li><span>12</span></li>
-                    </ul>
-                    <div class="gradient-cover"></div>
-                    <div class='hour-hand'></div>
-                    <div class='minute-hand'></div>
-                </div>
-            `;
-        }
         return html`
             <ha-card>
                 <div class="card-content">
-                    ${content}
+                    <div class="clock">
+                        <ul class='hours'>
+                            <li><span>1</span></li>
+                            <li><span>2</span></li>
+                            <li><span>3</span></li>
+                            <li><span>4</span></li>
+                            <li><span>5</span></li>
+                            <li><span>6</span></li>
+                            <li><span>7</span></li>
+                            <li><span>8</span></li>
+                            <li><span>9</span></li>
+                            <li><span>10</span></li>
+                            <li><span>11</span></li>
+                            <li><span>12</span></li>
+                        </ul>
+                        <div class="gradient-cover"></div>
+                        <div class='hour-hand'></div>
+                        <div class='minute-hand'></div>
+                        ${!this._dependencyMet ?
+                                html`
+                                    <div class="error">
+                                        <p>HACS integration 'electricitypricelevels' is not installed or loaded.</p>
+                                    </div>
+                                ` : ''
+                        }
+                        ${this._dependencyMet && !this.electricity_price ?
+                                html`
+                                    <div class="error">
+                                        <p>electricity_price is not set.</p>
+                                    </div>
+                                ` : ''
+                        }
+                    </div>
                 </div>
             </ha-card>
         `;
@@ -200,14 +204,6 @@ export class LevelIndicatorClockCard extends LitElement {
     static getConfigForm() {
         return {
             schema: [
-                {
-                    name: 'iso_formatted_time',
-                    selector: {
-                        entity: {
-                            domain: 'sensor',
-                        },
-                    },
-                },
                 {
                     name: 'electricity_price',
                     selector: {
