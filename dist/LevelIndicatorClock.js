@@ -605,7 +605,8 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: "level-indicator-clock",
     name: "LevelIndicatorClock",
-    description: "Clock with level indicators"
+    description: "Clock with level indicators",
+    preview: true
 });
 
 },{"./LevelIndicatorClockCard.js":"2rXwx","./LevelIndicatorClockCardEditor.js":"cjuRt","./levelindicatorclockcard.styles.ts":"aTxNe"}],"2rXwx":[function(require,module,exports,__globalThis) {
@@ -635,6 +636,9 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     set hass(hass) {
         this._hass = hass;
         this.timestamp = hass.states[this.iso_formatted_time];
+    }
+    getCardSize() {
+        return 5;
     }
     static{
         this.styles = (0, _levelindicatorclockcardStylesDefault.default);
@@ -769,16 +773,22 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         };
     }
     firstUpdated() {
+        const clock = this.shadowRoot.querySelector('.clock');
+        if (clock) {
+            this.resizeObserver = new ResizeObserver(()=>{
+                this.updateHoursFontSize();
+            });
+            this.resizeObserver.observe(clock);
+        }
+    }
+    connectedCallback() {
+        super.connectedCallback();
         requestAnimationFrame(()=>{
             this.updateHoursFontSize();
         });
     }
-    connectedCallback() {
-        super.connectedCallback();
-        window.addEventListener('resize', this.updateHoursFontSize.bind(this));
-    }
     disconnectedCallback() {
-        window.removeEventListener('resize', this.updateHoursFontSize.bind(this));
+        if (this.resizeObserver) this.resizeObserver.disconnect();
         super.disconnectedCallback();
     }
     updateHoursFontSize() {
@@ -790,7 +800,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             const coverRadius = cover.getBoundingClientRect().width / 2;
             const sizeDiff = clockRadius - coverRadius;
             if (sizeDiff > 0) {
-                const fontSize = sizeDiff * 0.6;
+                const fontSize = Math.max(22, sizeDiff * 0.6);
                 hours.style.setProperty('font-size', `${fontSize}px`, 'important');
             }
         }

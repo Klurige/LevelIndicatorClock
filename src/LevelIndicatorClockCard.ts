@@ -22,6 +22,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private _hass: HomeAssistant;
 
+    private resizeObserver: ResizeObserver;
     private readonly NUMBER_OF_LEVELS = 60
     private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12) - 1;
     private readonly degreesPerLevel = 360 / this.NUMBER_OF_LEVELS;
@@ -48,6 +49,10 @@ export class LevelIndicatorClockCard extends LitElement {
     set hass(hass: HomeAssistant) {
         this._hass = hass;
         this.timestamp = hass.states[this.iso_formatted_time];
+    }
+
+    getCardSize() {
+        return 5;
     }
 
     static styles = styles;
@@ -204,18 +209,26 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     firstUpdated() {
+        const clock = this.shadowRoot.querySelector('.clock');
+        if (clock) {
+            this.resizeObserver = new ResizeObserver(() => {
+                this.updateHoursFontSize();
+            });
+            this.resizeObserver.observe(clock);
+        }
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
         requestAnimationFrame(() => {
             this.updateHoursFontSize();
         });
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        window.addEventListener('resize', this.updateHoursFontSize.bind(this));
-    }
-
     disconnectedCallback() {
-        window.removeEventListener('resize', this.updateHoursFontSize.bind(this));
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
         super.disconnectedCallback();
     }
 
@@ -229,7 +242,7 @@ export class LevelIndicatorClockCard extends LitElement {
             const sizeDiff = clockRadius - coverRadius;
 
             if (sizeDiff > 0) {
-                const fontSize = sizeDiff * 0.6;
+                const fontSize = Math.max(22, sizeDiff * 0.6);
                 hours.style.setProperty('font-size', `${fontSize}px`, 'important');
             }
         }

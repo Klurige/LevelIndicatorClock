@@ -21,4 +21,5 @@ window.customCards.push({
     type: "level-indicator-clock",
     name: "LevelIndicatorClock",
     description: "Clock with level indicators",
+    preview: true,
 });
