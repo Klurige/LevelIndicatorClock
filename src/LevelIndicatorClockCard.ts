@@ -25,10 +25,10 @@ export class LevelIndicatorClockCard extends LitElement {
     private _hass: HomeAssistant;
 
     private resizeObserver: ResizeObserver;
-    private readonly NUMBER_OF_LEVELS = 60
+    private readonly NUMBER_OF_LEVELS = 240;
     private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12) - 1;
     private readonly degreesPerLevel = 360 / this.NUMBER_OF_LEVELS;
-    private readonly secondsPerLevel = (12 * 60 * 60) / this.NUMBER_OF_LEVELS;
+    private readonly minutesPerLevel = 12 * 60 / this.NUMBER_OF_LEVELS;
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
     @state() private electricity_price: string;
@@ -105,8 +105,8 @@ export class LevelIndicatorClockCard extends LitElement {
                         }
                     }
 
-                    for (let i = 0; i < rates.length; i += 12) {
-                        const chunk = rates.slice(i, i + 12);
+                    for (let i = 0; i < rates.length; i += this.minutesPerLevel) {
+                        const chunk = rates.slice(i, i + this.minutesPerLevel);
                         const sum = chunk.reduce((a, b) => a + b, 0);
                         const avg = sum / chunk.length || 10000000;
                         if (avg < prices.attributes.low_threshold) {
@@ -121,7 +121,7 @@ export class LevelIndicatorClockCard extends LitElement {
                     }
 
                     //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
-                    priceLevels = priceLevels.padEnd(240, 'U');
+                    priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
                     this.updateLevels(priceLevels, this.now);
                 }
             }
@@ -132,7 +132,7 @@ export class LevelIndicatorClockCard extends LitElement {
         // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && priceLevels.length > 0) {
-            const currentLevel = Math.floor((currentTime.getHours() * 3600 + currentTime.getMinutes() * 60 + currentTime.getSeconds()) / this.secondsPerLevel);
+            const currentLevel = Math.floor((currentTime.getHours() * 60 + currentTime.getMinutes()) / this.minutesPerLevel);
             let startIndex = currentLevel - this.HISTORY;
             let endIndex = startIndex + this.NUMBER_OF_LEVELS - 1;
             if (startIndex < 0) {
