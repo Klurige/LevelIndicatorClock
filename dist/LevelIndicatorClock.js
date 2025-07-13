@@ -659,20 +659,32 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
                 //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
                 const prices = this._hass.states[this.electricity_price];
                 if (prices && prices.attributes && prices.attributes.rates) {
-                    console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
-                    let priceLevels = prices.attributes.rates.map((rate)=>{
+                    //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
+                    let priceLevels = "";
+                    let rates = [];
+                    const firstRateStart = new Date(prices.attributes.rates[0].start);
+                    const midnight = new Date(firstRateStart);
+                    midnight.setHours(0, 0, 0, 0);
+                    for (const rate of prices.attributes.rates){
                         const start = new Date(rate.start);
                         const end = new Date(rate.end);
-                        let durationMinutes = (end.getTime() - start.getTime()) / 60000;
-                        let levels = "";
-                        console.log(this.tag + "Start: " + start.toISOString() + ", End: " + end.toISOString() + ", Duration: " + durationMinutes + " minutes");
-                        while(durationMinutes > 0){
-                            levels += rate.level.charAt(0);
-                            durationMinutes -= 12;
+                        const cost = rate.cost;
+                        let millis = end.getTime() - start.getTime();
+                        while(millis > 0){
+                            rates.push(cost);
+                            millis -= 60000;
                         }
-                        return levels;
-                    }).join('');
-                    console.log(this.tag + "Electricity prices: " + priceLevels.length + ", priceLevels:" + priceLevels);
+                    }
+                    for(let i = 0; i < rates.length; i += 12){
+                        const chunk = rates.slice(i, i + 12);
+                        const sum = chunk.reduce((a, b)=>a + b, 0);
+                        const avg = sum / chunk.length || 10000000;
+                        if (avg < prices.attributes.low_threshold) priceLevels += 'L';
+                        else if (avg < prices.attributes.high_threshold) priceLevels += 'M';
+                        else if (avg < 10000000) priceLevels += 'H';
+                        else priceLevels += 'E';
+                    }
+                    //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
                     priceLevels = priceLevels.padEnd(240, 'U');
                     this.updateLevels(priceLevels, this.now);
                 }
