@@ -2327,6 +2327,14 @@ li {
     z-index: 2;
 }
 
+.minute-hand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    z-index: 2;
+}
+
 .hour-hand::before {
     content: '';
     position: absolute;
@@ -2336,15 +2344,7 @@ li {
     height: 33%;
     background: black;
     transform: translateX(-50%);
-    border-radius: 1cap;
-}
-
-.minute-hand {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-    z-index: 2;
+    border-radius: 100em;
 }
 
 .minute-hand::before {
@@ -2356,9 +2356,9 @@ li {
     height: 39%;
     background: black;
     transform: translateX(-50%);
-    border-radius: 1cap;
+    border-radius: 100em;
 }
-    `;
+`;
 
 },{"lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cjuRt":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
