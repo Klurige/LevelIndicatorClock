@@ -25,13 +25,16 @@ export class LevelIndicatorClockCardEditor extends LitElement {
 `;
 
 render() {
+    if (!this._config) {
+        return html``;
+    }
     return html`
         <form class="table">
             <div class="row">
                 <label class="label cell" for="iso_formatted_time">Date and Time (ISO) entity:</label>
                 <input
                     @change="${this.handleChangedEvent}"
-                    class="value cell" id="iso_formatted_time" value="${this._config.iso_formatted_time}"/>
+                    class="value cell" id="iso_formatted_time" .value="${this._config.iso_formatted_time}"/>
             </div>
         </form>
     `;
