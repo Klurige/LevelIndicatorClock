@@ -22,6 +22,5 @@
         "SE"
     ],
     "homeassistant": "2025.1.0",
-    "iot_class": "calculated",
-    "dependencies": ["electricitypricelevels"]
+    "iot_class": "calculated"
   }
