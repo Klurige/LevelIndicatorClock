@@ -21,6 +21,5 @@
         "PL",
         "SE"
     ],
-    "homeassistant": "2025.1.0",
-    "iot_class": "calculated"
-  }
+    "homeassistant": "2025.1.0"
+}
