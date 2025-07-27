@@ -2,24 +2,5 @@
     "name": "LevelIndicatorClock",
     "render_readme": true,
     "filename": "levelindicatorclock.js",
-    "content_in_root": false,
-    "country": [
-        "AT",
-        "BE",
-        "DE",
-        "DK",
-        "EE",
-        "ES",
-        "FI",
-        "FR",
-        "GB",
-        "LT",
-        "LU",
-        "LV",
-        "NL",
-        "NO",
-        "PL",
-        "SE"
-    ],
-    "homeassistant": "2025.1.0"
-}
+    "content_in_root": false
+  }
