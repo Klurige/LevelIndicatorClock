@@ -19,6 +19,13 @@ interface Prices {
     };
 }
 
+interface LevelsResponse {
+    level_length: number;
+    levels: string;
+    low_threshold: number;
+    high_threshold: number;
+}
+
 export class LevelIndicatorClockCard extends LitElement {
     private tag = "LevelIndicatorClockCard";
 
@@ -32,31 +39,41 @@ export class LevelIndicatorClockCard extends LitElement {
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
     @state() private electricity_price: string;
+    @state() private date_time_iso: string;
     @state() private _dependencyMet = false;
 
     static get properties() {
         return {
             electricity_price: {state: true},
+            date_time_iso: {type: String},
         };
     }
 
     setConfig(config: Config) {
         this.electricity_price = config.electricity_price;
+        this.date_time_iso = config.date_time_iso;
         if (this._hass) {
             this.hass = this._hass
         }
     }
 
     set hass(hass: HomeAssistant) {
-        this._hass = hass;
-        this.checkDependencies();
+        if (!hass) {
+            return;
+        }
+        if (this._hass !== hass) {
+            console.log(this.tag + ": hass has changed...");
+            this._hass = hass;
+            this.checkDependencies();
+        }
     }
 
     private checkDependencies() {
+        console.log(this.tag + ": Checking dependencies...");
         this._dependencyMet = this._hass?.config?.components?.includes('electricitypricelevels');
         if(this._dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
-            console.log("Installed HACS integrations:", this._hass.config.components);
+            console.error("Installed HACS integrations:", this._hass.config.components);
         }
     }
 
@@ -78,65 +95,73 @@ export class LevelIndicatorClockCard extends LitElement {
     private isSimulating = false;
     private fakeLevels = "";
 
+    private electricityPriceSensorUpdated() {
+        //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
+        //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
+        const prices = this._hass.states[this.electricity_price] as unknown as Prices;
+        if (prices && prices.attributes && prices.attributes.rates) {
+            //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
+            let priceLevels = "";
+            let rates: number[] = [];
+            const firstRateStart = new Date(prices.attributes.rates[0].start);
+            const midnight = new Date(firstRateStart);
+            midnight.setHours(0, 0, 0, 0);
+
+            for (const rate of prices.attributes.rates) {
+                const start = new Date(rate.start);
+                const end = new Date(rate.end);
+                const cost = rate.cost;
+
+                let millis = end.getTime() - start.getTime();
+                while(millis > 0) {
+                    rates.push(cost);
+                    millis -= 60 * 1000;
+                }
+            }
+
+            for (let i = 0; i < rates.length; i += this.minutesPerLevel) {
+                const chunk = rates.slice(i, i + this.minutesPerLevel);
+                // All entries must be below the thresholds to be considered low, medium or high.
+                if (chunk.length === 0) {
+                    priceLevels += 'E';
+                } else if (chunk.every(rate => rate < prices.attributes.low_threshold)) {
+                    priceLevels += 'L';
+                } else if (chunk.every(rate => rate < prices.attributes.high_threshold)) {
+                    priceLevels += 'M';
+                } else {
+                    priceLevels += 'H';
+                }
+
+            }
+
+            //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
+            priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
+            this.updateLevels(priceLevels, this.now);
+        }
+
+    }
+
+    private dateTimeUpdated() {
+        console.log(this.tag + ": Date time entity changed: ", this.date_time_iso);
+        const dateTimeSensor = this._hass.states[this.date_time_iso];
+        if (dateTimeSensor) {
+            const currentTime = new Date(dateTimeSensor.state);
+            console.log(this.tag + ": Current time from date_time_iso sensor: ", currentTime);
+            this.setClock(currentTime);
+        } else {
+            console.error(this.tag + " Date time sensor not found: ", this.date_time_iso);
+        }
+    }
+
     updated(changedProperties) {
         super.updated(changedProperties);
+        console.log(this.tag + ": Updated properties: ", changedProperties);
         if (!this.isSimulating) {
             if (changedProperties.has('electricity_price')) {
-                //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
-                //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
-                const prices = this._hass.states[this.electricity_price] as unknown as Prices;
-                if (prices && prices.attributes && prices.attributes.rates) {
-                    //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
-                    let priceLevels = "";
-                    let rates: number[] = [];
-                    const firstRateStart = new Date(prices.attributes.rates[0].start);
-                    const midnight = new Date(firstRateStart);
-                    midnight.setHours(0, 0, 0, 0);
-
-                    for (const rate of prices.attributes.rates) {
-                        const start = new Date(rate.start);
-                        const end = new Date(rate.end);
-                        const cost = rate.cost;
-
-                        let millis = end.getTime() - start.getTime();
-                        while(millis > 0) {
-                            rates.push(cost);
-                            millis -= 60 * 1000;
-                        }
-                    }
-
-                    for (let i = 0; i < rates.length; i += this.minutesPerLevel) {
-                        const chunk = rates.slice(i, i + this.minutesPerLevel);
-                        // All entries must be below the thresholds to be considered low, medium or high.
-                        if (chunk.length === 0) {
-                            priceLevels += 'E';
-                        } else if (chunk.every(rate => rate < prices.attributes.low_threshold)) {
-                            priceLevels += 'L';
-                        } else if (chunk.every(rate => rate < prices.attributes.high_threshold)) {
-                            priceLevels += 'M';
-                        } else {
-                            priceLevels += 'H';
-                        }
-
-                        // The average cost must be below the thresholds to be considered low, medium or high.
-                        // const sum = chunk.reduce((a, b) => a + b, 0);
-                        // const avg = sum / chunk.length || 10000000;
-                        // if (avg < prices.attributes.low_threshold) {
-                        //     priceLevels += 'L';
-                        // } else if (avg < prices.attributes.high_threshold) {
-                        //     priceLevels += 'M';
-                        // } else if( avg < 10000000) {
-                        //     priceLevels += 'H';
-                        // } else {
-                        //     priceLevels += 'E';
-                        // }
-
-                    }
-
-                    //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
-                    priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
-                    this.updateLevels(priceLevels, this.now);
-                }
+                this.electricityPriceSensorUpdated();
+            }
+            if(changedProperties.has('date_time_iso')) {
+                this.dateTimeUpdated()
             }
         }
     }
@@ -231,6 +256,7 @@ export class LevelIndicatorClockCard extends LitElement {
                                     </div>
                                 ` : ''
                         }
+                        <!--
                         ${this._dependencyMet && !this.electricity_price ?
                                 html`
                                     <div class="error">
@@ -238,6 +264,7 @@ export class LevelIndicatorClockCard extends LitElement {
                                     </div>
                                 ` : ''
                         }
+                        -->
                     </div>
                 </div>
             </ha-card>
@@ -255,17 +282,65 @@ export class LevelIndicatorClockCard extends LitElement {
                         },
                     },
                 },
+                {
+                    name: 'date_time_iso',
+                    selector: {
+                        entity: {
+                            domain: 'sensor',
+                        },
+                    },
+                },
             ],
         };
     }
 
+    // Retrieve levels from the electricitypricelevels service.
+    // Returns a LevelsResponse object with level_length, levels, low_threshold, and high_threshold.
+    // If the service call fails, returns a default LevelsResponse object with level_length 0
+    private getLevels() {
+        console.log(this.tag + ": Fetching levels from electricitypricelevels service...");
+        if (this._hass) {
+            this._hass.callWS<LevelsResponse>({
+                type: 'call_service',
+                domain: 'electricitypricelevels',
+                service: 'get_levels',
+                return_response: true
+            })
+                .then((response) => {
+                    console.log(this.tag + " Service electricitypricelevels.get_levels called successfully.");
+                    if (response) {
+                        return response;
+                    } else {
+                        return {
+                            level_length: 0,
+                            levels: "",
+                            low_threshold: 0,
+                            high_threshold: 0
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.error(this.tag + " Error calling service electricitypricelevels.get_levels:", error);
+                });
+        }
+        return {
+            level_length: 0,
+            levels: "",
+            low_threshold: 0,
+            high_threshold: 0
+        };
+
+    }
     firstUpdated() {
+        console.log(this.tag + " First updated, initializing clock...");
+
+
         let millisecondsUntilNextMinute = 0;
         if(this.isSimulating) {
             this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
             this.now.setHours(23, 50, 0, 0);
         }
-        const scheduleNextLog = () => {
+        const scheduleNextTick = () => {
             if(!this.isSimulating) {
                 this.now = new Date();
                 const nextMinute = new Date(this.now.getTime());
@@ -296,11 +371,11 @@ export class LevelIndicatorClockCard extends LitElement {
             this.updateLevels(this.fakeLevels, this.now);
             this.setClock(this.now);
             this.intervalId = window.setTimeout(() => {
-                scheduleNextLog();
+                scheduleNextTick();
             }, millisecondsUntilNextMinute);
         };
 
-        scheduleNextLog();
+        scheduleNextTick();
 
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock) {

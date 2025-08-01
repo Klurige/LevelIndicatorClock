@@ -46,6 +46,7 @@ li {
     font-size: 30px;
     color: black;
     z-index: 2;
+    font-weight: bold;
 }
 
 .hours li {

@@ -1,4 +1,4 @@
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/klurige)
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/klurige)
 
 # Level Indicator Clock
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
@@ -41,7 +41,7 @@ Install that integration, including its dependencies, first.
 Add the card to your Lovelace dashboard:
 ```yaml
 type: custom:level-indicator-clock-card
-entity: sensor.electricity_price_levels
+entity: sensor.electricitypricelevels
 ```
 
 | Name | Type | Default | Description |
@@ -80,7 +80,7 @@ local/levelindicatorclock/LevelIndicatorClock.js
 You can now add the card to your dashboard as usual.
 
 ### Development
-To start the development server, run the following command in the terminal:
+To continuously build the card when you make changes to the source code, run the following command in the terminal:
 ```bash
 npm run watch
 ```
@@ -97,9 +97,9 @@ If you have issues, please [open an issue on GitHub](https://github.com/Klurige/
 Contributions are welcome! Please open a pull request with your changes.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the GNU General Public License (GPL). See the [LICENSE](LICENSE) file for details.
 
 ## Say Thanks
 If you like this project, please consider supporting me.
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/klurige)
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/klurige)
