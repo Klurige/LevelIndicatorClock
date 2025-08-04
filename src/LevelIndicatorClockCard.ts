@@ -15,7 +15,15 @@ interface Prices {
         rank: number;
         low_threshold: number;
         high_threshold: number;
-        rates: { cost: number, credit: number, end: string, level: string, rank: number, spot_price: number, start:string }[];
+        rates: {
+            cost: number,
+            credit: number,
+            end: string,
+            level: string,
+            rank: number,
+            spot_price: number,
+            start: string
+        }[];
     };
 }
 
@@ -26,10 +34,12 @@ interface LevelsResponse {
     high_threshold: number;
 }
 
+interface Timestamp {
+    state: string;
+}
+
 export class LevelIndicatorClockCard extends LitElement {
     private tag = "LevelIndicatorClockCard";
-
-    private _hass: HomeAssistant;
 
     private resizeObserver: ResizeObserver;
     private readonly NUMBER_OF_LEVELS = 240;
@@ -38,9 +48,14 @@ export class LevelIndicatorClockCard extends LitElement {
     private readonly minutesPerLevel = 12 * 60 / this.NUMBER_OF_LEVELS;
     private levels: string[] = new Array(this.NUMBER_OF_LEVELS).fill('U');
 
+    private minuteLevels: string[] = new Array(1440).fill('U');
+    private minuteIndex = 0;
+
     @state() private electricity_price: string;
     @state() private date_time_iso: string;
     @state() private _dependencyMet = false;
+
+    private now = new Date();
 
     static get properties() {
         return {
@@ -52,28 +67,23 @@ export class LevelIndicatorClockCard extends LitElement {
     setConfig(config: Config) {
         this.electricity_price = config.electricity_price;
         this.date_time_iso = config.date_time_iso;
-        if (this._hass) {
-            this.hass = this._hass
-        }
     }
 
     set hass(hass: HomeAssistant) {
         if (!hass) {
             return;
         }
-        if (this._hass !== hass) {
-            console.log(this.tag + ": hass has changed...");
-            this._hass = hass;
-            this.checkDependencies();
-        }
-    }
+        const timestamp = hass.states[this.date_time_iso] as Timestamp;
+        this.now = new Date(timestamp.state);
+        console.log(this.tag + ": Current time: ", this.now);
+        this.setClock(this.now);
 
-    private checkDependencies() {
-        console.log(this.tag + ": Checking dependencies...");
-        this._dependencyMet = this._hass?.config?.components?.includes('electricitypricelevels');
-        if(this._dependencyMet === false) {
+        this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
+        if (this._dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
-            console.error("Installed HACS integrations:", this._hass.config.components);
+        } else {
+            this.getLevels(hass)
+            console.debug(this.tag + ": Called getLevels");
         }
     }
 
@@ -91,100 +101,36 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     private intervalId: number | undefined;
-    private now = new Date();
     private isSimulating = false;
     private fakeLevels = "";
-
-    private electricityPriceSensorUpdated() {
-        //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
-        //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
-        const prices = this._hass.states[this.electricity_price] as unknown as Prices;
-        if (prices && prices.attributes && prices.attributes.rates) {
-            //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
-            let priceLevels = "";
-            let rates: number[] = [];
-            const firstRateStart = new Date(prices.attributes.rates[0].start);
-            const midnight = new Date(firstRateStart);
-            midnight.setHours(0, 0, 0, 0);
-
-            for (const rate of prices.attributes.rates) {
-                const start = new Date(rate.start);
-                const end = new Date(rate.end);
-                const cost = rate.cost;
-
-                let millis = end.getTime() - start.getTime();
-                while(millis > 0) {
-                    rates.push(cost);
-                    millis -= 60 * 1000;
-                }
-            }
-
-            for (let i = 0; i < rates.length; i += this.minutesPerLevel) {
-                const chunk = rates.slice(i, i + this.minutesPerLevel);
-                // All entries must be below the thresholds to be considered low, medium or high.
-                if (chunk.length === 0) {
-                    priceLevels += 'E';
-                } else if (chunk.every(rate => rate < prices.attributes.low_threshold)) {
-                    priceLevels += 'L';
-                } else if (chunk.every(rate => rate < prices.attributes.high_threshold)) {
-                    priceLevels += 'M';
-                } else {
-                    priceLevels += 'H';
-                }
-
-            }
-
-            //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
-            priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
-            this.updateLevels(priceLevels, this.now);
-        }
-
-    }
-
-    private dateTimeUpdated() {
-        console.log(this.tag + ": Date time entity changed: ", this.date_time_iso);
-        const dateTimeSensor = this._hass.states[this.date_time_iso];
-        if (dateTimeSensor) {
-            const currentTime = new Date(dateTimeSensor.state);
-            console.log(this.tag + ": Current time from date_time_iso sensor: ", currentTime);
-            this.setClock(currentTime);
-        } else {
-            console.error(this.tag + " Date time sensor not found: ", this.date_time_iso);
-        }
-    }
 
     updated(changedProperties) {
         super.updated(changedProperties);
         console.log(this.tag + ": Updated properties: ", changedProperties);
-        if (!this.isSimulating) {
-            if (changedProperties.has('electricity_price')) {
-                this.electricityPriceSensorUpdated();
-            }
-            if(changedProperties.has('date_time_iso')) {
-                this.dateTimeUpdated()
-            }
-        }
     }
 
-    private updateLevels(priceLevels: string, currentTime: Date) {
-        // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
+    private updateLevels(priceLevelLength: number, priceLevels: string, currentTime: Date) {
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock && priceLevels.length > 0) {
-            const currentLevel = Math.floor((currentTime.getHours() * 60 + currentTime.getMinutes()) / this.minutesPerLevel);
-            let startIndex = currentLevel - this.HISTORY;
-            let endIndex = startIndex + this.NUMBER_OF_LEVELS - 1;
-            if (startIndex < 0) {
-                startIndex = 0;
+            for (let minute = 0; minute < 1440; minute++) {
+                const levelIndex = Math.floor(minute / priceLevelLength);
+                if (levelIndex < priceLevels.length) {
+                    this.minuteLevels[minute] = priceLevels[levelIndex];
+                }
             }
-            for (let i = startIndex; i < endIndex; i++) {
-                const slotIndex = i % this.NUMBER_OF_LEVELS;
-                this.levels[slotIndex] = priceLevels[i];
-            }
-            this.levels[endIndex % this.NUMBER_OF_LEVELS] = 'E';
 
-            const gradient = this.levels.map((level, index) => {
-                const startAngle = index * this.degreesPerLevel;
-                const endAngle = startAngle + this.degreesPerLevel;
+            const levels: string[] = [];
+            for(let i = 0; i < 3; i++) {
+              levels.push('E');
+            }
+            for (let i = 3; i < 720; i++) {
+                levels.push(this.minuteLevels[(this.minuteIndex + i) % 1440]);
+            }
+
+            const degreesPerLevel = 360 / levels.length;
+            const gradient = levels.map((level, index) => {
+                const startAngle = index * degreesPerLevel;
+                const endAngle = startAngle + degreesPerLevel;
                 let color: string;
                 switch (level) {
                     case "L":
@@ -210,12 +156,17 @@ export class LevelIndicatorClockCard extends LitElement {
                 }
                 return `${color} ${startAngle}deg ${endAngle}deg`;
             }).join(', ');
-            (clock as HTMLElement).style.background = `conic-gradient(${gradient})`;
+            (clock as HTMLElement).style.background = `conic-gradient(from ${this.minuteIndex * 0.5}deg, ${gradient})`;
         }
     }
 
     private setAngle(hand, angle) {
-        (this.shadowRoot.querySelector("." + hand) as HTMLElement).style.transform = "rotate(" + angle + "deg)";
+        const handElement = this.shadowRoot?.querySelector("." + hand) as HTMLElement;
+        if (handElement) {
+            handElement.style.transform = "rotate(" + angle + "deg)";
+        } else {
+            console.debug(`${this.tag}: Hand element '${hand}' not found.`);
+        }
     }
 
     private setClock(currentTime: Date) {
@@ -225,6 +176,12 @@ export class LevelIndicatorClockCard extends LitElement {
         const minAngle = currentMinute * 6;
         this.setAngle("hour-hand", hrAngle);
         this.setAngle("minute-hand", minAngle);
+        this.minuteIndex = (currentHour * 60 + currentMinute - 60);
+        if( this.minuteIndex < 0) {
+            this.minuteIndex += 1440;
+        } else if (this.minuteIndex >= 1440) {
+            this.minuteIndex -= 1440;
+        }
     }
 
     render() {
@@ -256,7 +213,7 @@ export class LevelIndicatorClockCard extends LitElement {
                                     </div>
                                 ` : ''
                         }
-                        <!--
+                            <!--
                         ${this._dependencyMet && !this.electricity_price ?
                                 html`
                                     <div class="error">
@@ -294,89 +251,108 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
+    private getLevels(hass: HomeAssistant) {
+        (async () => {
+            console.debug(this.tag + ": Fetching levels...");
+            const result = await this.fetchLevels(hass);
+            console.debug(this.tag + ": Levels fetched: ", result);
+            console.debug(this.tag + ": Levels fetched successfully: ", result);
+            this.updateLevels(result.level_length, result.levels, this.now);
+        })();
+    }
+
     // Retrieve levels from the electricitypricelevels service.
     // Returns a LevelsResponse object with level_length, levels, low_threshold, and high_threshold.
     // If the service call fails, returns a default LevelsResponse object with level_length 0
-    private getLevels() {
-        console.log(this.tag + ": Fetching levels from electricitypricelevels service...");
-        if (this._hass) {
-            this._hass.callWS<LevelsResponse>({
-                type: 'call_service',
-                domain: 'electricitypricelevels',
-                service: 'get_levels',
-                return_response: true
-            })
-                .then((response) => {
-                    console.log(this.tag + " Service electricitypricelevels.get_levels called successfully.");
-                    if (response) {
-                        return response;
-                    } else {
-                        return {
-                            level_length: 0,
-                            levels: "",
-                            low_threshold: 0,
-                            high_threshold: 0
-                        }
-                    }
-                })
-                .catch((error) => {
-                    console.error(this.tag + " Error calling service electricitypricelevels.get_levels:", error);
+    private async fetchLevels(hass: HomeAssistant): Promise<LevelsResponse> {
+        //console.debug(this.tag + ": Fetching levels from electricitypricelevels service...");
+        if (hass) {
+            try {
+                const response = await hass.callWS<{ response: LevelsResponse }>({
+                    type: 'call_service',
+                    domain: 'electricitypricelevels',
+                    service: 'get_levels',
+                    return_response: true
                 });
-        }
-        return {
-            level_length: 0,
-            levels: "",
-            low_threshold: 0,
-            high_threshold: 0
-        };
 
+                if (response && response.response) {
+                    //console.debug(this.tag + " Service electricitypricelevels.get_levels called successfully.");
+                    return response.response;
+                } else {
+                    console.error(this.tag + " No response from electricitypricelevels.get_levels service.");
+                    return {
+                        level_length: 0,
+                        levels: "",
+                        low_threshold: 0,
+                        high_threshold: 0
+                    };
+                }
+            } catch (error) {
+                console.error(this.tag + " Error calling service electricitypricelevels.get_levels:", error);
+                return {
+                    level_length: 0,
+                    levels: "",
+                    low_threshold: 0,
+                    high_threshold: 0
+                };
+            }
+        } else {
+            console.error(this.tag + " Home Assistant object not available when fetching levels.");
+            return {
+                level_length: 0,
+                levels: "",
+                low_threshold: 0,
+                high_threshold: 0
+            };
+        }
     }
+
     firstUpdated() {
         console.log(this.tag + " First updated, initializing clock...");
 
-
-        let millisecondsUntilNextMinute = 0;
-        if(this.isSimulating) {
-            this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
-            this.now.setHours(23, 50, 0, 0);
-        }
-        const scheduleNextTick = () => {
-            if(!this.isSimulating) {
-                this.now = new Date();
-                const nextMinute = new Date(this.now.getTime());
-                nextMinute.setSeconds(0, 0);
-                nextMinute.setMinutes(nextMinute.getMinutes() + 1);
-                millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
-            } else {
-                // Simulating: just add 1 minute to the current time.
-                this.now.setMinutes(this.now.getMinutes() + 1);
-                // Time flies when simulating, one minute every 1000 milliseconds.
-                millisecondsUntilNextMinute = 50;
-                if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
-                    this.fakeLevels = this.fakeLevels.slice(120);
-                    this.fakeLevels += 'U'.repeat(120);
-                    console.log(this.tag + "New day: " + this.fakeLevels);
-                } else if(this.now.getHours() === 15 && this.now.getMinutes() === 0) {
-                    this.fakeLevels = this.fakeLevels.slice(0, -120);
-                    let newLevels = '';
-                    const levels = ['L', 'M', 'H'];
-                    for (let i = 0; i < 24; i++) { // 24 hours, 120 levels
-                        const level = levels[Math.floor(Math.random() * levels.length)];
-                        newLevels += level.repeat(5); // 5 slots per hour
-                    }
-                    this.fakeLevels += newLevels;
-                    console.log(this.tag + "New 24 hours: " + this.fakeLevels);
+        /*
+                let millisecondsUntilNextMinute = 0;
+                if(this.isSimulating) {
+                    this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
+                    this.now.setHours(23, 50, 0, 0);
                 }
-            }
-            this.updateLevels(this.fakeLevels, this.now);
-            this.setClock(this.now);
-            this.intervalId = window.setTimeout(() => {
+                const scheduleNextTick = () => {
+                    if(!this.isSimulating) {
+                        this.now = new Date();
+                        const nextMinute = new Date(this.now.getTime());
+                        nextMinute.setSeconds(0, 0);
+                        nextMinute.setMinutes(nextMinute.getMinutes() + 1);
+                        millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
+                    } else {
+                        // Simulating: just add 1 minute to the current time.
+                        this.now.setMinutes(this.now.getMinutes() + 1);
+                        // Time flies when simulating, one minute every 1000 milliseconds.
+                        millisecondsUntilNextMinute = 50;
+                        if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
+                            this.fakeLevels = this.fakeLevels.slice(120);
+                            this.fakeLevels += 'U'.repeat(120);
+                            console.log(this.tag + "New day: " + this.fakeLevels);
+                        } else if(this.now.getHours() === 15 && this.now.getMinutes() === 0) {
+                            this.fakeLevels = this.fakeLevels.slice(0, -120);
+                            let newLevels = '';
+                            const levels = ['L', 'M', 'H'];
+                            for (let i = 0; i < 24; i++) { // 24 hours, 120 levels
+                                const level = levels[Math.floor(Math.random() * levels.length)];
+                                newLevels += level.repeat(5); // 5 slots per hour
+                            }
+                            this.fakeLevels += newLevels;
+                            console.log(this.tag + "New 24 hours: " + this.fakeLevels);
+                        }
+                    }
+                    this.updateLevels(this.fakeLevels, this.now);
+                    this.setClock(this.now);
+                    this.intervalId = window.setTimeout(() => {
+                        scheduleNextTick();
+                    }, millisecondsUntilNextMinute);
+                };
+
                 scheduleNextTick();
-            }, millisecondsUntilNextMinute);
-        };
-
-        scheduleNextTick();
-
+        */
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock) {
             this.resizeObserver = new ResizeObserver(() => {
@@ -384,6 +360,8 @@ export class LevelIndicatorClockCard extends LitElement {
             });
             this.resizeObserver.observe(clock);
         }
+        this.setClock(this.now);
+
     }
 
     connectedCallback() {
