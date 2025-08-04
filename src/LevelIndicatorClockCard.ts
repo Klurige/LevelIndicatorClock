@@ -41,6 +41,13 @@ interface Timestamp {
 export class LevelIndicatorClockCard extends LitElement {
     private tag = "LevelIndicatorClockCard";
 
+
+    private intervalId: number | undefined;
+    private isSimulating = false;
+    private fakeLevels: LevelsResponse | undefined;
+    private readonly SIMULATION_STEP_MINUTES = 1;
+    private readonly SIMULATION_UPDATE_PERIOD_MS = 1000;
+
     private resizeObserver: ResizeObserver;
     private readonly NUMBER_OF_LEVELS = 240;
     private readonly HISTORY = (this.NUMBER_OF_LEVELS / 12) - 1;
@@ -70,7 +77,7 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     set hass(hass: HomeAssistant) {
-        if (!hass) {
+        if (this.isSimulating || !hass) {
             return;
         }
         const timestamp = hass.states[this.date_time_iso] as Timestamp;
@@ -100,10 +107,6 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
-    private intervalId: number | undefined;
-    private isSimulating = false;
-    private fakeLevels = "";
-
     updated(changedProperties) {
         super.updated(changedProperties);
         console.log(this.tag + ": Updated properties: ", changedProperties);
@@ -131,32 +134,59 @@ export class LevelIndicatorClockCard extends LitElement {
             const gradient = levels.map((level, index) => {
                 const startAngle = index * degreesPerLevel;
                 const endAngle = startAngle + degreesPerLevel;
-                let color: string;
-                switch (level) {
-                    case "L":
-                        color = "green";
-                        break;
-                    case "M":
-                        color = "yellow";
-                        break;
-                    case "H":
-                        color = "red";
-                        break;
-                    case "U":
-                        color = "magenta";
-                        break;
-                    case "S":
-                        color = "blue";
-                        break;
-                    case "E":
-                        color = "white";
-                        break;
-                    default:
-                        color = "grey";
-                }
+                let color = this.getLevelColor(level);
                 return `${color} ${startAngle}deg ${endAngle}deg`;
             }).join(', ');
             (clock as HTMLElement).style.background = `conic-gradient(from ${this.minuteIndex * 0.5}deg, ${gradient})`;
+        }
+    }
+
+    private isPrime(num: number): boolean {
+        if (num <= 1) return false;
+        if (num <= 3) return true;
+        if (num % 2 === 0 || num % 3 === 0) return false;
+        for (let i = 5; i * i <= num; i = i + 6) {
+            if (num % i === 0 || num % (i + 2) === 0) return false;
+        }
+        return true;
+    }
+
+    private generateFakeLevels(levelLength: number): LevelsResponse {
+        const levels: string[] = [];
+        const numberOfLevels = (48 * this.MINUTES_IN_HOUR) / levelLength;
+        const possibleLevels = ['L', 'M', 'H'];
+        let levelIndex = 0;
+
+        for (let i = 0; i < numberOfLevels; i++) {
+            if (this.isPrime(i)) {
+                levelIndex++;
+            }
+            levels.push(possibleLevels[levelIndex % possibleLevels.length]);
+        }
+        return {
+            level_length: levelLength,
+            levels: levels.join(''),
+            low_threshold: 0,
+            high_threshold: 0
+        };
+    }
+
+    private getLevelColor(level: string): string {
+        switch (level) {
+            case "L":
+                return "green";
+            case "M":
+                return "yellow";
+            case "H":
+                return "red";
+            case "U":
+                return "magenta";
+            case "S":
+                return "blue";
+            case "E":
+                return "white";
+            default:
+                return "grey";
         }
     }
 
@@ -257,7 +287,7 @@ export class LevelIndicatorClockCard extends LitElement {
             const result = await this.fetchLevels(hass);
             console.debug(this.tag + ": Levels fetched: ", result);
             console.debug(this.tag + ": Levels fetched successfully: ", result);
-            this.updateLevels(result.level_length, result.levels, this.now);
+            this.updateLevels(result.level_length, result.levels);
         })();
     }
 
@@ -310,49 +340,29 @@ export class LevelIndicatorClockCard extends LitElement {
     firstUpdated() {
         console.log(this.tag + " First updated, initializing clock...");
 
-        /*
-                let millisecondsUntilNextMinute = 0;
-                if(this.isSimulating) {
-                    this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
-                    this.now.setHours(23, 50, 0, 0);
-                }
-                const scheduleNextTick = () => {
-                    if(!this.isSimulating) {
-                        this.now = new Date();
-                        const nextMinute = new Date(this.now.getTime());
-                        nextMinute.setSeconds(0, 0);
-                        nextMinute.setMinutes(nextMinute.getMinutes() + 1);
-                        millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
-                    } else {
-                        // Simulating: just add 1 minute to the current time.
-                        this.now.setMinutes(this.now.getMinutes() + 1);
-                        // Time flies when simulating, one minute every 1000 milliseconds.
-                        millisecondsUntilNextMinute = 50;
-                        if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
-                            this.fakeLevels = this.fakeLevels.slice(120);
-                            this.fakeLevels += 'U'.repeat(120);
-                            console.log(this.tag + "New day: " + this.fakeLevels);
-                        } else if(this.now.getHours() === 15 && this.now.getMinutes() === 0) {
-                            this.fakeLevels = this.fakeLevels.slice(0, -120);
-                            let newLevels = '';
-                            const levels = ['L', 'M', 'H'];
-                            for (let i = 0; i < 24; i++) { // 24 hours, 120 levels
-                                const level = levels[Math.floor(Math.random() * levels.length)];
-                                newLevels += level.repeat(5); // 5 slots per hour
-                            }
-                            this.fakeLevels += newLevels;
-                            console.log(this.tag + "New 24 hours: " + this.fakeLevels);
-                        }
-                    }
-                    this.updateLevels(this.fakeLevels, this.now);
-                    this.setClock(this.now);
-                    this.intervalId = window.setTimeout(() => {
-                        scheduleNextTick();
-                    }, millisecondsUntilNextMinute);
-                };
+        if (this.isSimulating) {
+            this.now = new Date();
+            this.now.setHours(0, 0, 0, 0);
+            this.fakeLevels = this.generateFakeLevels(this.MINUTES_IN_HOUR);
 
-                scheduleNextTick();
-        */
+            const scheduleNextTick = () => {
+                this.now.setMinutes(this.now.getMinutes() + this.SIMULATION_STEP_MINUTES);
+
+                if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
+                    this.fakeLevels = this.generateFakeLevels(this.MINUTES_IN_HOUR);
+                }
+
+                this.setClock(this.now);
+                this.updateLevels(this.fakeLevels.level_length, this.fakeLevels.levels);
+
+                this.intervalId = window.setTimeout(() => {
+                    scheduleNextTick();
+                }, this.SIMULATION_UPDATE_PERIOD_MS);
+            };
+
+            scheduleNextTick();
+        }
+
         const clock = this.shadowRoot.querySelector('.clock');
         if (clock) {
             this.resizeObserver = new ResizeObserver(() => {
