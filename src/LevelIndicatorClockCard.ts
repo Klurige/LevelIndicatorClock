@@ -4,6 +4,13 @@ import styles from './levelindicatorclockcard.styles';
 import {HomeAssistant} from "custom-card-helpers";
 import {Config} from "./Config";
 
+interface LevelsResponse {
+    minutes_since_midnight: number;
+    level_length: number;
+    passed_levels: string;
+    future_levels: string;
+}
+
 interface Timestamp {
     state: string;
 }
@@ -21,6 +28,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     @state() private electricity_price: string;
     @state() private date_time_iso: string;
+    @state() private _compactlevels: string;
     @state() private _dependencyMet = false;
     @state() private hourHandEnd = {x: 100, y: 55};
     @state() private minuteHandEnd = {x: 100, y: 40};
@@ -41,6 +49,7 @@ export class LevelIndicatorClockCard extends LitElement {
     static get properties() {
         return {
             electricity_price: {state: true},
+            compactlevels: {type: String},
             date_time_iso: {type: String},
         };
     }
@@ -48,6 +57,7 @@ export class LevelIndicatorClockCard extends LitElement {
     setConfig(config: Config) {
         this.electricity_price = config.electricity_price;
         this.date_time_iso = config.date_time_iso;
+        this.compactlevels = config.compactlevels;
     }
 
     set hass(hass: HomeAssistant) {
@@ -64,17 +74,58 @@ export class LevelIndicatorClockCard extends LitElement {
         if (this._dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
         } else {
-            console.info(this.tag + ": Called getLevels");
+            const compactLevelsState = hass.states['sensor.compactlevels'];
+            const compactLevels = compactLevelsState?.attributes?.compact;
+            if (this._compactlevels === undefined || compactLevels !== this._compactlevels) {
+                this._compactlevels = compactLevels;
+                console.debug('[ClockCard] sensor.compactlevels state:', this._compactlevels);
+                const result = this._compactToLevels(compactLevels);
+                console.debug("[ClockCard] Levels data:", result);
+            }
         }
     }
 
+    private _compactToLevels(compactLevels: string): LevelsResponse {
+        // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
+        if (!compactLevels) {
+            return {
+                minutes_since_midnight: 0,
+                level_length: 0,
+                passed_levels: '',
+                future_levels: ''
+            };
+        }
+        const parts = compactLevels.split(":");
+        if (parts.length < 4) {
+            console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
+            return {
+                minutes_since_midnight: 0,
+                level_length: 0,
+                passed_levels: '',
+                future_levels: ''
+            };
+        }
+        const minutes_since_midnight = parseInt(parts[0], 10);
+        const level_length = parseInt(parts[1], 10);
+        const passed_levels = parts[2];
+        const future_levels = parts[3];
+        return {
+            minutes_since_midnight: minutes_since_midnight,
+            level_length: level_length,
+            passed_levels: passed_levels,
+            future_levels: future_levels
+        };
+    }
+
     getCardSize() {
+        console.debug("[ClockCard] getCardSize()");
         return 5;
     }
 
     static styles = styles;
 
     public getLayoutOptions() {
+        console.debug("[ClockCard] getLayoutOptions");
         return {
             grid_rows: 8,
             grid_columns: 12,
@@ -83,7 +134,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     updated(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
         super.updated(changedProperties);
-        console.log(this.tag + ": Updated properties: ", changedProperties);
+        console.debug('[ClockCard] Updated: ', changedProperties);
     }
 
 
@@ -93,15 +144,8 @@ export class LevelIndicatorClockCard extends LitElement {
             console.debug(this.tag + ": Setting angle of " + hand + " to " + angle + " degrees.");
             handElement.style.transform = "rotate(" + angle + "deg)";
         } else {
-            console.debug(`${this.tag}: Hand element '${hand}' not found.`);
+            console.error(`${this.tag}: Hand element '${hand}' not found.`);
         }
-    }
-
-    private static polarToCartesian(cx: number, cy: number, r: number, angleRad: number) {
-        return {
-            x: cx + r * Math.cos(angleRad - Math.PI / 2),
-            y: cy + r * Math.sin(angleRad - Math.PI / 2)
-        };
     }
 
     private setClock(currentTime: Date) {
@@ -153,6 +197,14 @@ export class LevelIndicatorClockCard extends LitElement {
             schema: [
                 {
                     name: 'electricity_price',
+                    selector: {
+                        entity: {
+                            domain: 'sensor',
+                        },
+                    },
+                },
+                {
+                    name: 'compactlevels',
                     selector: {
                         entity: {
                             domain: 'sensor',
