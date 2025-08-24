@@ -84,11 +84,38 @@ To continuously build the card when you make changes to the source code, run the
 ```bash
 npm run watch
 ```
-This will rebuild the card whenever you make changes to the source code.
+or
+```bash
+npx parcel src/index.ts
+```
+
+This will rebuild the card whenever you make changes to the source code. (In Webstorm ide, you must click inside the terminal window to give it focus before it will pick up changes.)
 
 To update the card in the browser, you will need to hard-refresh the browser.
 For Google Chrome: Open the Inspect window and press: `Ctrl+Shift+R`.
 Other browsers may have different shortcuts.
+
+## Running Unit Tests
+
+Unit tests are written using [Jest](https://jestjs.io/).
+
+To run all unit tests, execute:
+
+```sh
+npx jest
+```
+
+You can also run tests with coverage:
+
+```sh
+npx jest --coverage
+```
+
+Ensure you have installed all dependencies first:
+
+```sh
+npm install
+```
 
 ## Troubleshooting
 If you have issues, please [open an issue on GitHub](https://github.com/Klurige/levelindicatorclock/issues).

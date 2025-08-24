@@ -611,31 +611,58 @@ window.customCards.push({
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
-var _tsDecorate = require("@swc/helpers/_/_ts_decorate");
 var _lit = require("lit");
 var _decoratorsJs = require("lit/decorators.js");
 var _levelindicatorclockcardStyles = require("./levelindicatorclockcard.styles");
 var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_levelindicatorclockcardStyles);
-class LevelIndicatorClockCard extends (0, _lit.LitElement) {
-    static{
-        this.centerX = 100;
-    }
-    static{
-        this.centerY = 100;
-    }
-    static{
-        this.hourDigitsRadius = 82;
-    }
-    static{
-        this.hourDigits = Array.from({
-            length: 12
-        }, (_, i)=>{
-            const hour = i + 1;
-            const angle = (hour - 3) * Math.PI * 2 / 12;
-            const x = LevelIndicatorClockCard.centerX + LevelIndicatorClockCard.hourDigitsRadius * Math.cos(angle);
-            const y = LevelIndicatorClockCard.centerY + LevelIndicatorClockCard.hourDigitsRadius * Math.sin(angle);
-            return (0, _lit.svg)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
-        });
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _LevelIndicatorClockCard;
+function _initializerDefineProperty(e, i, r, l) {
+    r && Object.defineProperty(e, i, {
+        enumerable: r.enumerable,
+        configurable: r.configurable,
+        writable: r.writable,
+        value: r.initializer ? r.initializer.call(l) : void 0
+    });
+}
+function _applyDecoratedDescriptor(i, e, r, n, l) {
+    var a = {};
+    return Object.keys(n).forEach(function(i) {
+        a[i] = n[i];
+    }), a.enumerable = !!a.enumerable, a.configurable = !!a.configurable, ("value" in a || a.initializer) && (a.writable = !0), a = r.slice().reverse().reduce(function(r, n) {
+        return n(i, e, r) || r;
+    }, a), l && void 0 !== a.initializer && (a.value = a.initializer ? a.initializer.call(l) : void 0, a.initializer = void 0), void 0 === a.initializer ? (Object.defineProperty(i, e, a), null) : a;
+}
+function _initializerWarningHelper(r, e) {
+    throw Error("Decorating class property failed. Please ensure that transform-class-properties is enabled and runs after the decorators transform.");
+}
+const DEFAULT_LEVELS_RESPONSE = {
+    minutes_since_midnight: 0,
+    level_length: 0,
+    passed_levels: '',
+    future_levels: ''
+};
+let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
+    type: String
+}), _dec2 = (0, _decoratorsJs.property)({
+    type: String
+}), _dec3 = (0, _decoratorsJs.property)({
+    type: String
+}), _dec4 = (0, _decoratorsJs.state)(), _dec5 = (0, _decoratorsJs.state)(), _dec6 = (0, _decoratorsJs.state)(), _class = (_LevelIndicatorClockCard = class LevelIndicatorClockCard extends (0, _lit.LitElement) {
+    constructor(...args){
+        super(...args);
+        this.tag = "LevelIndicatorClockCard";
+        this.intervalId = void 0;
+        this.isSimulating = false;
+        this.SIMULATION_STEP_MINUTES = 1;
+        this.SIMULATION_UPDATE_PERIOD_MS = 1000;
+        this.current_time_minutes = 0;
+        _initializerDefineProperty(this, "electricity_price", _descriptor, this);
+        _initializerDefineProperty(this, "date_time_iso", _descriptor2, this);
+        _initializerDefineProperty(this, "_compactlevels", _descriptor3, this);
+        _initializerDefineProperty(this, "_dependencyMet", _descriptor4, this);
+        _initializerDefineProperty(this, "hourHandEnd", _descriptor5, this);
+        _initializerDefineProperty(this, "minuteHandEnd", _descriptor6, this);
+        this.currentTime = new Date();
     }
     static get properties() {
         return {
@@ -653,7 +680,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     setConfig(config) {
         this.electricity_price = config.electricity_price;
         this.date_time_iso = config.date_time_iso;
-        this.compactlevels = config.compactlevels;
+        this._compactlevels = config.compactlevels;
     }
     set hass(hass) {
         if (this.isSimulating || !hass) {
@@ -661,16 +688,19 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
             return;
         }
         const timestamp = hass.states[this.date_time_iso];
-        this.now = new Date(timestamp.state);
-        console.log(this.tag + ": Current time: ", this.now);
-        this.setClock(this.now);
+        const now = new Date(timestamp.state);
+        if (now.getTime() !== this.currentTime.getTime()) {
+            this.currentTime = now;
+            console.debug('[ClockCard] Current time: ', this.currentTime);
+            this.setClock(this.currentTime);
+        }
         this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
         if (this._dependencyMet === false) console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
         else {
-            const compactLevelsState = hass.states['sensor.compactlevels'];
-            const compactLevels = compactLevelsState?.attributes?.compact;
-            if (this._compactlevels === undefined || compactLevels !== this._compactlevels) {
-                this._compactlevels = compactLevels;
+            const compactLevelsState = hass.states?.['sensor.compactlevels'];
+            const compactLevels = compactLevelsState?.attributes?.compact ?? undefined;
+            if (compactLevels !== this._compactlevels) {
+                this._compactlevels = compactLevels ?? '';
                 console.debug('[ClockCard] sensor.compactlevels state:', this._compactlevels);
                 const result = this._compactToLevels(compactLevels);
                 console.debug("[ClockCard] Levels data:", result);
@@ -679,21 +709,11 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     }
     _compactToLevels(compactLevels) {
         // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
-        if (!compactLevels) return {
-            minutes_since_midnight: 0,
-            level_length: 0,
-            passed_levels: '',
-            future_levels: ''
-        };
+        if (!compactLevels) return DEFAULT_LEVELS_RESPONSE;
         const parts = compactLevels.split(":");
         if (parts.length < 4) {
             console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
-            return {
-                minutes_since_midnight: 0,
-                level_length: 0,
-                passed_levels: '',
-                future_levels: ''
-            };
+            return DEFAULT_LEVELS_RESPONSE;
         }
         const minutes_since_midnight = parseInt(parts[0], 10);
         const level_length = parseInt(parts[1], 10);
@@ -709,9 +729,6 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     getCardSize() {
         console.debug("[ClockCard] getCardSize()");
         return 5;
-    }
-    static{
-        this.styles = (0, _levelindicatorclockcardStylesDefault.default);
     }
     getLayoutOptions() {
         console.debug("[ClockCard] getLayoutOptions");
@@ -738,9 +755,7 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         const minAngle = currentMinute * 6;
         this.setAngle("hour-hand", hrAngle);
         this.setAngle("minute-hand", minAngle);
-        this.minuteIndex = currentHour * 60 + currentMinute - 60;
-        if (this.minuteIndex < 0) this.minuteIndex += 1440;
-        else if (this.minuteIndex >= 1440) this.minuteIndex -= 1440;
+        this.current_time_minutes = (currentHour * 60 + currentMinute) % 1440;
     }
     render() {
         return (0, _lit.html)`
@@ -801,18 +816,18 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     firstUpdated() {
         console.log(this.tag + " First updated, initializing clock...");
         if (this.isSimulating) {
-            this.now = new Date();
-            this.now.setHours(0, 0, 0, 0);
+            this.currentTime = new Date();
+            this.currentTime.setHours(0, 0, 0, 0);
             const scheduleNextTick = ()=>{
-                this.now.setMinutes(this.now.getMinutes() + this.SIMULATION_STEP_MINUTES);
-                this.setClock(this.now);
+                this.currentTime.setMinutes(this.currentTime.getMinutes() + this.SIMULATION_STEP_MINUTES);
+                this.setClock(this.currentTime);
                 this.intervalId = window.setTimeout(()=>{
                     scheduleNextTick();
                 }, this.SIMULATION_UPDATE_PERIOD_MS);
             };
             scheduleNextTick();
         }
-        this.setClock(this.now);
+        this.setClock(this.currentTime);
     }
     connectedCallback() {
         super.connectedCallback();
@@ -821,36 +836,77 @@ class LevelIndicatorClockCard extends (0, _lit.LitElement) {
         if (this.intervalId) clearTimeout(this.intervalId);
         super.disconnectedCallback();
     }
-    constructor(...args){
-        super(...args), this.tag = "LevelIndicatorClockCard", this.isSimulating = false, this.SIMULATION_STEP_MINUTES = 1, this.SIMULATION_UPDATE_PERIOD_MS = 1000, this.minuteIndex = 0, this._dependencyMet = false, this.hourHandEnd = {
+}, _LevelIndicatorClockCard.centerX = 100, _LevelIndicatorClockCard.centerY = 100, _LevelIndicatorClockCard.hourDigitsRadius = 82, _LevelIndicatorClockCard.hourDigits = Array.from({
+    length: 12
+}, (_, i)=>{
+    const hour = i + 1;
+    const angle = (hour - 3) * Math.PI * 2 / 12;
+    const x = _LevelIndicatorClockCard.centerX + _LevelIndicatorClockCard.hourDigitsRadius * Math.cos(angle);
+    const y = _LevelIndicatorClockCard.centerY + _LevelIndicatorClockCard.hourDigitsRadius * Math.sin(angle);
+    return (0, _lit.svg)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
+}), _LevelIndicatorClockCard.styles = (0, _levelindicatorclockcardStylesDefault.default), _LevelIndicatorClockCard), _descriptor = _applyDecoratedDescriptor(_class.prototype, "electricity_price", [
+    _dec
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return '';
+    }
+}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, "date_time_iso", [
+    _dec2
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return '';
+    }
+}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, "_compactlevels", [
+    _dec3
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return '';
+    }
+}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, "_dependencyMet", [
+    _dec4
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return false;
+    }
+}), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, "hourHandEnd", [
+    _dec5
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return {
             x: 100,
             y: 55
-        }, this.minuteHandEnd = {
+        };
+    }
+}), _descriptor6 = _applyDecoratedDescriptor(_class.prototype, "minuteHandEnd", [
+    _dec6
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return {
             x: 100,
             y: 40
-        }, this.now = new Date();
+        };
     }
-}
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "electricity_price", void 0);
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "date_time_iso", void 0);
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "_compactlevels", void 0);
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "_dependencyMet", void 0);
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "hourHandEnd", void 0);
-(0, _tsDecorate._)([
-    (0, _decoratorsJs.state)()
-], LevelIndicatorClockCard.prototype, "minuteHandEnd", void 0);
+}), _class);
 
-},{"lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators.js":"bCPKi","@swc/helpers/_/_ts_decorate":"lX6TJ"}],"4antt":[function(require,module,exports,__globalThis) {
+},{"lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators.js":"bCPKi"}],"4antt":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _reactiveElement = require("@lit/reactive-element");
@@ -1826,585 +1882,6 @@ var _baseJs = require("./base.js");
     };
 }
 
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lX6TJ":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "_", ()=>(0, _tslib.__decorate));
-var _tslib = require("tslib");
-
-},{"tslib":"lRdW5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lRdW5":[function(require,module,exports,__globalThis) {
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */ /* global Reflect, Promise, SuppressedError, Symbol, Iterator */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "__extends", ()=>__extends);
-parcelHelpers.export(exports, "__assign", ()=>__assign);
-parcelHelpers.export(exports, "__rest", ()=>__rest);
-parcelHelpers.export(exports, "__decorate", ()=>__decorate);
-parcelHelpers.export(exports, "__param", ()=>__param);
-parcelHelpers.export(exports, "__esDecorate", ()=>__esDecorate);
-parcelHelpers.export(exports, "__runInitializers", ()=>__runInitializers);
-parcelHelpers.export(exports, "__propKey", ()=>__propKey);
-parcelHelpers.export(exports, "__setFunctionName", ()=>__setFunctionName);
-parcelHelpers.export(exports, "__metadata", ()=>__metadata);
-parcelHelpers.export(exports, "__awaiter", ()=>__awaiter);
-parcelHelpers.export(exports, "__generator", ()=>__generator);
-parcelHelpers.export(exports, "__createBinding", ()=>__createBinding);
-parcelHelpers.export(exports, "__exportStar", ()=>__exportStar);
-parcelHelpers.export(exports, "__values", ()=>__values);
-parcelHelpers.export(exports, "__read", ()=>__read);
-/** @deprecated */ parcelHelpers.export(exports, "__spread", ()=>__spread);
-/** @deprecated */ parcelHelpers.export(exports, "__spreadArrays", ()=>__spreadArrays);
-parcelHelpers.export(exports, "__spreadArray", ()=>__spreadArray);
-parcelHelpers.export(exports, "__await", ()=>__await);
-parcelHelpers.export(exports, "__asyncGenerator", ()=>__asyncGenerator);
-parcelHelpers.export(exports, "__asyncDelegator", ()=>__asyncDelegator);
-parcelHelpers.export(exports, "__asyncValues", ()=>__asyncValues);
-parcelHelpers.export(exports, "__makeTemplateObject", ()=>__makeTemplateObject);
-parcelHelpers.export(exports, "__importStar", ()=>__importStar);
-parcelHelpers.export(exports, "__importDefault", ()=>__importDefault);
-parcelHelpers.export(exports, "__classPrivateFieldGet", ()=>__classPrivateFieldGet);
-parcelHelpers.export(exports, "__classPrivateFieldSet", ()=>__classPrivateFieldSet);
-parcelHelpers.export(exports, "__classPrivateFieldIn", ()=>__classPrivateFieldIn);
-parcelHelpers.export(exports, "__addDisposableResource", ()=>__addDisposableResource);
-parcelHelpers.export(exports, "__disposeResources", ()=>__disposeResources);
-parcelHelpers.export(exports, "__rewriteRelativeImportExtension", ()=>__rewriteRelativeImportExtension);
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf || ({
-        __proto__: []
-    }) instanceof Array && function(d, b) {
-        d.__proto__ = b;
-    } || function(d, b) {
-        for(var p in b)if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
-    };
-    return extendStatics(d, b);
-};
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() {
-        this.constructor = d;
-    }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for(var s, i = 1, n = arguments.length; i < n; i++){
-            s = arguments[i];
-            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-function __rest(s, e) {
-    var t = {};
-    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
-        for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-    }
-    return t;
-}
-function __decorate(decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-}
-function __param(paramIndex, decorator) {
-    return function(target, key) {
-        decorator(target, key, paramIndex);
-    };
-}
-function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) {
-        if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected");
-        return f;
-    }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for(var i = decorators.length - 1; i >= 0; i--){
-        var context = {};
-        for(var p in contextIn)context[p] = p === "access" ? {} : contextIn[p];
-        for(var p in contextIn.access)context.access[p] = contextIn.access[p];
-        context.addInitializer = function(f) {
-            if (done) throw new TypeError("Cannot add initializers after decoration has completed");
-            extraInitializers.push(accept(f || null));
-        };
-        var result = (0, decorators[i])(kind === "accessor" ? {
-            get: descriptor.get,
-            set: descriptor.set
-        } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        } else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-}
-function __runInitializers(thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for(var i = 0; i < initializers.length; i++)value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    return useValue ? value : void 0;
-}
-function __propKey(x) {
-    return typeof x === "symbol" ? x : "".concat(x);
-}
-function __setFunctionName(f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", {
-        configurable: true,
-        value: prefix ? "".concat(prefix, " ", name) : name
-    });
-}
-function __metadata(metadataKey, metadataValue) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-}
-function __awaiter(thisArg, _arguments, P, generator) {
-    function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve) {
-            resolve(value);
-        });
-    }
-    return new (P || (P = Promise))(function(resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function step(result) {
-            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-}
-function __generator(thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function() {
-            if (t[0] & 1) throw t[1];
-            return t[1];
-        },
-        trys: [],
-        ops: []
-    }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
-        return this;
-    }), g;
-    function verb(n) {
-        return function(v) {
-            return step([
-                n,
-                v
-            ]);
-        };
-    }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while(g && (g = 0, op[0] && (_ = 0)), _)try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [
-                op[0] & 2,
-                t.value
-            ];
-            switch(op[0]){
-                case 0:
-                case 1:
-                    t = op;
-                    break;
-                case 4:
-                    _.label++;
-                    return {
-                        value: op[1],
-                        done: false
-                    };
-                case 5:
-                    _.label++;
-                    y = op[1];
-                    op = [
-                        0
-                    ];
-                    continue;
-                case 7:
-                    op = _.ops.pop();
-                    _.trys.pop();
-                    continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                        _ = 0;
-                        continue;
-                    }
-                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                        _.label = op[1];
-                        break;
-                    }
-                    if (op[0] === 6 && _.label < t[1]) {
-                        _.label = t[1];
-                        t = op;
-                        break;
-                    }
-                    if (t && _.label < t[2]) {
-                        _.label = t[2];
-                        _.ops.push(op);
-                        break;
-                    }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop();
-                    continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) {
-            op = [
-                6,
-                e
-            ];
-            y = 0;
-        } finally{
-            f = t = 0;
-        }
-        if (op[0] & 5) throw op[1];
-        return {
-            value: op[0] ? op[1] : void 0,
-            done: true
-        };
-    }
-}
-var __createBinding = Object.create ? function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) desc = {
-        enumerable: true,
-        get: function() {
-            return m[k];
-        }
-    };
-    Object.defineProperty(o, k2, desc);
-} : function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-};
-function __exportStar(m, o) {
-    for(var p in m)if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
-}
-function __values(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function() {
-            if (o && i >= o.length) o = void 0;
-            return {
-                value: o && o[i++],
-                done: !o
-            };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-function __read(o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
-    } catch (error) {
-        e = {
-            error: error
-        };
-    } finally{
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        } finally{
-            if (e) throw e.error;
-        }
-    }
-    return ar;
-}
-function __spread() {
-    for(var ar = [], i = 0; i < arguments.length; i++)ar = ar.concat(__read(arguments[i]));
-    return ar;
-}
-function __spreadArrays() {
-    for(var s = 0, i = 0, il = arguments.length; i < il; i++)s += arguments[i].length;
-    for(var r = Array(s), k = 0, i = 0; i < il; i++)for(var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)r[k] = a[j];
-    return r;
-}
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) {
-        for(var i = 0, l = from.length, ar; i < l; i++)if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-function __await(v) {
-    return this instanceof __await ? (this.v = v, this) : new __await(v);
-}
-function __asyncGenerator(thisArg, _arguments, generator) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
-        return this;
-    }, i;
-    function awaitReturn(f) {
-        return function(v) {
-            return Promise.resolve(v).then(f, reject);
-        };
-    }
-    function verb(n, f) {
-        if (g[n]) {
-            i[n] = function(v) {
-                return new Promise(function(a, b) {
-                    q.push([
-                        n,
-                        v,
-                        a,
-                        b
-                    ]) > 1 || resume(n, v);
-                });
-            };
-            if (f) i[n] = f(i[n]);
-        }
-    }
-    function resume(n, v) {
-        try {
-            step(g[n](v));
-        } catch (e) {
-            settle(q[0][3], e);
-        }
-    }
-    function step(r) {
-        r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
-    }
-    function fulfill(value) {
-        resume("next", value);
-    }
-    function reject(value) {
-        resume("throw", value);
-    }
-    function settle(f, v) {
-        if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
-    }
-}
-function __asyncDelegator(o) {
-    var i, p;
-    return i = {}, verb("next"), verb("throw", function(e) {
-        throw e;
-    }), verb("return"), i[Symbol.iterator] = function() {
-        return this;
-    }, i;
-    function verb(n, f) {
-        i[n] = o[n] ? function(v) {
-            return (p = !p) ? {
-                value: __await(o[n](v)),
-                done: false
-            } : f ? f(v) : v;
-        } : f;
-    }
-}
-function __asyncValues(o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
-        return this;
-    }, i);
-    function verb(n) {
-        i[n] = o[n] && function(v) {
-            return new Promise(function(resolve, reject) {
-                v = o[n](v), settle(resolve, reject, v.done, v.value);
-            });
-        };
-    }
-    function settle(resolve, reject, d, v) {
-        Promise.resolve(v).then(function(v) {
-            resolve({
-                value: v,
-                done: d
-            });
-        }, reject);
-    }
-}
-function __makeTemplateObject(cooked, raw) {
-    if (Object.defineProperty) Object.defineProperty(cooked, "raw", {
-        value: raw
-    });
-    else cooked.raw = raw;
-    return cooked;
-}
-var __setModuleDefault = Object.create ? function(o, v) {
-    Object.defineProperty(o, "default", {
-        enumerable: true,
-        value: v
-    });
-} : function(o, v) {
-    o["default"] = v;
-};
-var ownKeys = function(o) {
-    ownKeys = Object.getOwnPropertyNames || function(o) {
-        var ar = [];
-        for(var k in o)if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-        return ar;
-    };
-    return ownKeys(o);
-};
-function __importStar(mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) {
-        for(var k = ownKeys(mod), i = 0; i < k.length; i++)if (k[i] !== "default") __createBinding(result, mod, k[i]);
-    }
-    __setModuleDefault(result, mod);
-    return result;
-}
-function __importDefault(mod) {
-    return mod && mod.__esModule ? mod : {
-        default: mod
-    };
-}
-function __classPrivateFieldGet(receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-}
-function __classPrivateFieldSet(receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
-}
-function __classPrivateFieldIn(state, receiver) {
-    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function") throw new TypeError("Cannot use 'in' operator on non-object");
-    return typeof state === "function" ? receiver === state : state.has(receiver);
-}
-function __addDisposableResource(env, value, async) {
-    if (value !== null && value !== void 0) {
-        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose, inner;
-        if (async) {
-            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-            dispose = value[Symbol.asyncDispose];
-        }
-        if (dispose === void 0) {
-            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-            dispose = value[Symbol.dispose];
-            if (async) inner = dispose;
-        }
-        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-        if (inner) dispose = function() {
-            try {
-                inner.call(this);
-            } catch (e) {
-                return Promise.reject(e);
-            }
-        };
-        env.stack.push({
-            value: value,
-            dispose: dispose,
-            async: async
-        });
-    } else if (async) env.stack.push({
-        async: true
-    });
-    return value;
-}
-var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-function __disposeResources(env) {
-    function fail(e) {
-        env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-        env.hasError = true;
-    }
-    var r, s = 0;
-    function next() {
-        while(r = env.stack.pop())try {
-            if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-            if (r.dispose) {
-                var result = r.dispose.call(r.value);
-                if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) {
-                    fail(e);
-                    return next();
-                });
-            } else s |= 1;
-        } catch (e) {
-            fail(e);
-        }
-        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-        if (env.hasError) throw env.error;
-    }
-    return next();
-}
-function __rewriteRelativeImportExtension(path, preserveJsx) {
-    if (typeof path === "string" && /^\.\.?\//.test(path)) return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
-        return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
-    });
-    return path;
-}
-exports.default = {
-    __extends: __extends,
-    __assign: __assign,
-    __rest: __rest,
-    __decorate: __decorate,
-    __param: __param,
-    __esDecorate: __esDecorate,
-    __runInitializers: __runInitializers,
-    __propKey: __propKey,
-    __setFunctionName: __setFunctionName,
-    __metadata: __metadata,
-    __awaiter: __awaiter,
-    __generator: __generator,
-    __createBinding: __createBinding,
-    __exportStar: __exportStar,
-    __values: __values,
-    __read: __read,
-    __spread: __spread,
-    __spreadArrays: __spreadArrays,
-    __spreadArray: __spreadArray,
-    __await: __await,
-    __asyncGenerator: __asyncGenerator,
-    __asyncDelegator: __asyncDelegator,
-    __asyncValues: __asyncValues,
-    __makeTemplateObject: __makeTemplateObject,
-    __importStar: __importStar,
-    __importDefault: __importDefault,
-    __classPrivateFieldGet: __classPrivateFieldGet,
-    __classPrivateFieldSet: __classPrivateFieldSet,
-    __classPrivateFieldIn: __classPrivateFieldIn,
-    __addDisposableResource: __addDisposableResource,
-    __disposeResources: __disposeResources,
-    __rewriteRelativeImportExtension: __rewriteRelativeImportExtension
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=LevelIndicatorClock.js.map

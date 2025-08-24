@@ -15,6 +15,13 @@ interface Timestamp {
     state: string;
 }
 
+const DEFAULT_LEVELS_RESPONSE: LevelsResponse = {
+    minutes_since_midnight: 0,
+    level_length: 0,
+    passed_levels: '',
+    future_levels: ''
+};
+
 export class LevelIndicatorClockCard extends LitElement {
     private tag = "LevelIndicatorClockCard";
 
@@ -24,11 +31,10 @@ export class LevelIndicatorClockCard extends LitElement {
     private readonly SIMULATION_STEP_MINUTES = 1;
     private readonly SIMULATION_UPDATE_PERIOD_MS = 1000;
 
-    private minuteIndex = 0;
-
-    @state() private electricity_price: string;
-    @state() private date_time_iso: string;
-    @state() private _compactlevels: string;
+    private current_time_minutes = 0;
+    @property({type: String}) electricity_price = '';
+    @property({type: String}) date_time_iso = '';
+    @property({type: String}) _compactlevels = '';
     @state() private _dependencyMet = false;
     @state() private hourHandEnd = {x: 100, y: 55};
     @state() private minuteHandEnd = {x: 100, y: 40};
@@ -44,7 +50,7 @@ export class LevelIndicatorClockCard extends LitElement {
         return svg`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
     });
 
-    private now = new Date();
+    private currentTime = new Date();
 
     static get properties() {
         return {
@@ -57,7 +63,7 @@ export class LevelIndicatorClockCard extends LitElement {
     setConfig(config: Config) {
         this.electricity_price = config.electricity_price;
         this.date_time_iso = config.date_time_iso;
-        this.compactlevels = config.compactlevels;
+        this._compactlevels = config.compactlevels;
     }
 
     set hass(hass: HomeAssistant) {
@@ -66,18 +72,20 @@ export class LevelIndicatorClockCard extends LitElement {
             return;
         }
         const timestamp = hass.states[this.date_time_iso] as Timestamp;
-        this.now = new Date(timestamp.state);
-        console.log(this.tag + ": Current time: ", this.now);
-        this.setClock(this.now);
-
+        const now = new Date(timestamp.state);
+        if (now.getTime() !== this.currentTime.getTime()) {
+            this.currentTime = now;
+            console.debug('[ClockCard] Current time: ', this.currentTime);
+            this.setClock(this.currentTime);
+        }
         this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
         if (this._dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
         } else {
-            const compactLevelsState = hass.states['sensor.compactlevels'];
-            const compactLevels = compactLevelsState?.attributes?.compact;
-            if (this._compactlevels === undefined || compactLevels !== this._compactlevels) {
-                this._compactlevels = compactLevels;
+            const compactLevelsState = hass.states?.['sensor.compactlevels'];
+            const compactLevels = compactLevelsState?.attributes?.compact ?? undefined;
+            if (compactLevels !== this._compactlevels) {
+                this._compactlevels = compactLevels ?? '';
                 console.debug('[ClockCard] sensor.compactlevels state:', this._compactlevels);
                 const result = this._compactToLevels(compactLevels);
                 console.debug("[ClockCard] Levels data:", result);
@@ -85,25 +93,15 @@ export class LevelIndicatorClockCard extends LitElement {
         }
     }
 
-    private _compactToLevels(compactLevels: string): LevelsResponse {
+    private _compactToLevels(compactLevels: string | undefined): LevelsResponse {
         // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
         if (!compactLevels) {
-            return {
-                minutes_since_midnight: 0,
-                level_length: 0,
-                passed_levels: '',
-                future_levels: ''
-            };
+            return DEFAULT_LEVELS_RESPONSE;
         }
         const parts = compactLevels.split(":");
         if (parts.length < 4) {
             console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
-            return {
-                minutes_since_midnight: 0,
-                level_length: 0,
-                passed_levels: '',
-                future_levels: ''
-            };
+            return DEFAULT_LEVELS_RESPONSE;
         }
         const minutes_since_midnight = parseInt(parts[0], 10);
         const level_length = parseInt(parts[1], 10);
@@ -155,12 +153,7 @@ export class LevelIndicatorClockCard extends LitElement {
         const minAngle = currentMinute * 6;
         this.setAngle("hour-hand", hrAngle);
         this.setAngle("minute-hand", minAngle);
-        this.minuteIndex = (currentHour * 60 + currentMinute - 60);
-        if( this.minuteIndex < 0) {
-            this.minuteIndex += 1440;
-        } else if (this.minuteIndex >= 1440) {
-            this.minuteIndex -= 1440;
-        }
+        this.current_time_minutes = (currentHour * 60 + currentMinute) % 1440;
     }
 
     render() {
@@ -227,13 +220,13 @@ export class LevelIndicatorClockCard extends LitElement {
         console.log(this.tag + " First updated, initializing clock...");
 
         if (this.isSimulating) {
-            this.now = new Date();
-            this.now.setHours(0, 0, 0, 0);
+            this.currentTime = new Date();
+            this.currentTime.setHours(0, 0, 0, 0);
 
             const scheduleNextTick = () => {
-                this.now.setMinutes(this.now.getMinutes() + this.SIMULATION_STEP_MINUTES);
+                this.currentTime.setMinutes(this.currentTime.getMinutes() + this.SIMULATION_STEP_MINUTES);
 
-                this.setClock(this.now);
+                this.setClock(this.currentTime);
 
                 this.intervalId = window.setTimeout(() => {
                     scheduleNextTick();
@@ -243,7 +236,7 @@ export class LevelIndicatorClockCard extends LitElement {
             scheduleNextTick();
         }
 
-        this.setClock(this.now);
+        this.setClock(this.currentTime);
 
     }
 
