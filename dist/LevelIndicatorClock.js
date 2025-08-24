@@ -615,7 +615,8 @@ var _lit = require("lit");
 var _decoratorsJs = require("lit/decorators.js");
 var _levelindicatorclockcardStyles = require("./levelindicatorclockcard.styles");
 var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_levelindicatorclockcardStyles);
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _LevelIndicatorClockCard;
+var _levelArcs = require("./LevelArcs");
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _LevelIndicatorClockCard;
 function _initializerDefineProperty(e, i, r, l) {
     r && Object.defineProperty(e, i, {
         enumerable: r.enumerable,
@@ -647,10 +648,9 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     type: String
 }), _dec3 = (0, _decoratorsJs.property)({
     type: String
-}), _dec4 = (0, _decoratorsJs.state)(), _dec5 = (0, _decoratorsJs.state)(), _dec6 = (0, _decoratorsJs.state)(), _class = (_LevelIndicatorClockCard = class LevelIndicatorClockCard extends (0, _lit.LitElement) {
+}), _dec4 = (0, _decoratorsJs.state)(), _dec5 = (0, _decoratorsJs.state)(), _dec6 = (0, _decoratorsJs.state)(), _dec7 = (0, _decoratorsJs.state)(), _class = (_LevelIndicatorClockCard = class LevelIndicatorClockCard extends (0, _lit.LitElement) {
     constructor(...args){
         super(...args);
-        this.tag = "LevelIndicatorClockCard";
         this.intervalId = void 0;
         this.isSimulating = false;
         this.SIMULATION_STEP_MINUTES = 1;
@@ -658,11 +658,12 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         this.current_time_minutes = 0;
         _initializerDefineProperty(this, "electricity_price", _descriptor, this);
         _initializerDefineProperty(this, "date_time_iso", _descriptor2, this);
-        _initializerDefineProperty(this, "_compactlevels", _descriptor3, this);
+        _initializerDefineProperty(this, "compactlevels", _descriptor3, this);
         _initializerDefineProperty(this, "_dependencyMet", _descriptor4, this);
         _initializerDefineProperty(this, "hourHandEnd", _descriptor5, this);
         _initializerDefineProperty(this, "minuteHandEnd", _descriptor6, this);
         this.currentTime = new Date();
+        _initializerDefineProperty(this, "levelArcs", _descriptor7, this);
     }
     static get properties() {
         return {
@@ -680,7 +681,7 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     setConfig(config) {
         this.electricity_price = config.electricity_price;
         this.date_time_iso = config.date_time_iso;
-        this._compactlevels = config.compactlevels;
+        this.compactlevels = config.compactlevels;
     }
     set hass(hass) {
         if (this.isSimulating || !hass) {
@@ -699,11 +700,11 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         else {
             const compactLevelsState = hass.states?.['sensor.compactlevels'];
             const compactLevels = compactLevelsState?.attributes?.compact ?? undefined;
-            if (compactLevels !== this._compactlevels) {
-                this._compactlevels = compactLevels ?? '';
-                console.debug('[ClockCard] sensor.compactlevels state:', this._compactlevels);
+            if (compactLevels !== this.compactlevels) {
+                this.compactlevels = compactLevels ?? '';
+                console.debug('[ClockCard] sensor.compactlevels state:', this.compactlevels);
                 const result = this._compactToLevels(compactLevels);
-                console.debug("[ClockCard] Levels data:", result);
+                this._updateLevels(result);
             }
         }
     }
@@ -741,12 +742,69 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         super.updated(changedProperties);
         console.debug('[ClockCard] Updated: ', changedProperties);
     }
+    static minutesToTime(minutes) {
+        let hours = Math.floor(minutes / 60);
+        let mins = minutes % 60;
+        if (hours < 0) hours += 24;
+        if (mins < 0) mins += 60;
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+    static minutesToAngle(minutes) {
+        let angle = minutes / 2;
+        while(angle < 0)angle += 360;
+        while(angle > 360)angle -= 360;
+        return angle;
+    }
+    _updateLevels(levels) {
+        const currentMinute = this.current_time_minutes;
+        const startOfCurrentSlot = Math.floor(levels.minutes_since_midnight / levels.level_length) * levels.level_length;
+        const endOfCurrentSlot = startOfCurrentSlot + levels.level_length;
+        const levelsHistoryLength = levels.passed_levels.length * levels.level_length;
+        const historyStartMinute = currentMinute - levelsHistoryLength;
+        const futureEndMinute = historyStartMinute + 720;
+        const startOfHistorySlot = Math.floor(historyStartMinute / levels.level_length) * levels.level_length;
+        let endOfHistorySlot = startOfHistorySlot + levels.level_length;
+        let slotIndex = 0;
+        let slotStartMinute = historyStartMinute;
+        let slotEndMinute = endOfHistorySlot;
+        while(slotStartMinute < startOfCurrentSlot){
+            const levelChar = levels.passed_levels.charAt(slotIndex);
+            const color = this.getLevelColor(levelChar.toLowerCase());
+            slotIndex++;
+            const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
+            const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
+            this.levelArcs.insertLevelArc(color, startAngle, endAngle);
+            slotStartMinute = endOfHistorySlot;
+            slotEndMinute += levels.level_length;
+        }
+        slotStartMinute = startOfCurrentSlot;
+        slotEndMinute = currentMinute;
+        slotIndex = 0;
+        const levelChar = levels.future_levels.charAt(slotIndex);
+        const color = this.getLevelColor(levelChar.toLowerCase());
+        slotIndex++;
+        const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
+        const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
+        this.levelArcs.insertLevelArc(color, startAngle, endAngle);
+        slotStartMinute = slotEndMinute;
+        slotEndMinute = endOfCurrentSlot;
+        while(slotStartMinute < futureEndMinute){
+            //console.debug(`Slot ${slotIndex}: ${LevelIndicatorClockCard.minutesToTime(slotStartMinute)} - ${LevelIndicatorClockCard.minutesToTime(slotEndMinute)}`);
+            const levelChar = levels.future_levels.charAt(slotIndex);
+            //console.debug(`Slot ${slotIndex}:  Level char: ${levelChar}`);
+            const color = this.getLevelColor(levelChar);
+            slotIndex++;
+            const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
+            const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
+            this.levelArcs.insertLevelArc(color, startAngle, endAngle);
+            slotStartMinute = slotEndMinute;
+            slotEndMinute += levels.level_length;
+        }
+    }
     setAngle(hand, angle) {
         const handElement = this.shadowRoot?.querySelector("." + hand);
-        if (handElement) {
-            console.debug(this.tag + ": Setting angle of " + hand + " to " + angle + " degrees.");
-            handElement.style.transform = "rotate(" + angle + "deg)";
-        } else console.error(`${this.tag}: Hand element '${hand}' not found.`);
+        if (handElement) handElement.style.transform = "rotate(" + angle + "deg)";
+        else console.error(`[ClockCard]: Hand element '${hand}' not found.`);
     }
     setClock(currentTime) {
         const currentHour = currentTime.getHours();
@@ -757,7 +815,64 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         this.setAngle("minute-hand", minAngle);
         this.current_time_minutes = (currentHour * 60 + currentMinute) % 1440;
     }
+    getLevelColor(level) {
+        switch(level){
+            case "L":
+                return "green";
+            // Green for low
+            case "l":
+                return "darkgreen";
+            // Dark green for low
+            case "M":
+                return "yellow";
+            // Yellow for medium
+            case "m":
+                return "olive";
+            // Dark yellow for medium
+            case "H":
+                return "red";
+            // Red for high
+            case "h":
+                return "maroon";
+            // Dark red for high
+            case "S":
+                return "blue";
+            // Blue for solar
+            case "s":
+                return "navy";
+            // Dark blue for solar
+            case "U":
+                return "magenta";
+            // Magenta for unknown
+            case "u":
+                return "purple";
+            // Dark magenta for unknown
+            case "E":
+                return "cyan";
+            // Cyan for error
+            case "e":
+                return "teal";
+            // Dark cyan for error
+            case "P":
+                return "white";
+            // White for passed
+            case "p":
+                return "gray";
+            // Dark grey for passed
+            default:
+                return "black";
+        }
+    }
     render() {
+        const markerStartMinute = this.current_time_minutes - 60;
+        const markerEndMinute = markerStartMinute + LevelIndicatorClockCard.MARKER_WIDTH_MINUTES;
+        const markerStartAngle = LevelIndicatorClockCard.minutesToAngle(markerStartMinute);
+        const markerEndAngle = LevelIndicatorClockCard.minutesToAngle(markerEndMinute);
+        this.levelArcs.insertLevelArc(this.getLevelColor('E'), markerStartAngle, markerEndAngle);
+        const arcPaths = this.levelArcs.getArcs().map((levelArc)=>{
+            const path = levelArc.arcToPath(LevelIndicatorClockCard.centerX, LevelIndicatorClockCard.centerY, LevelIndicatorClockCard.arcRadius);
+            return (0, _lit.svg)`<path d="${path}" stroke="${levelArc.color}" stroke-width="${LevelIndicatorClockCard.arcStrokeWidth}" fill="none" />`;
+        });
         return (0, _lit.html)`
             <ha-card>
                 ${!this._dependencyMet ? (0, _lit.html)`
@@ -768,6 +883,8 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
                 ${(0, _lit.svg)`
                 <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="100" cy="100" r="95" fill="#f0f0f0" stroke="#333" stroke-width="2.5" />
+
+                    ${arcPaths}
 
                     <g font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
                         ${LevelIndicatorClockCard.hourDigits}
@@ -814,7 +931,7 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         };
     }
     firstUpdated() {
-        console.log(this.tag + " First updated, initializing clock...");
+        console.log("[ClockCard] First updated, initializing clock...");
         if (this.isSimulating) {
             this.currentTime = new Date();
             this.currentTime.setHours(0, 0, 0, 0);
@@ -844,7 +961,7 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     const x = _LevelIndicatorClockCard.centerX + _LevelIndicatorClockCard.hourDigitsRadius * Math.cos(angle);
     const y = _LevelIndicatorClockCard.centerY + _LevelIndicatorClockCard.hourDigitsRadius * Math.sin(angle);
     return (0, _lit.svg)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
-}), _LevelIndicatorClockCard.styles = (0, _levelindicatorclockcardStylesDefault.default), _LevelIndicatorClockCard), _descriptor = _applyDecoratedDescriptor(_class.prototype, "electricity_price", [
+}), _LevelIndicatorClockCard.arcRadius = _LevelIndicatorClockCard.hourDigitsRadius + 1, _LevelIndicatorClockCard.arcStrokeWidth = 22, _LevelIndicatorClockCard.MARKER_WIDTH_MINUTES = 3, _LevelIndicatorClockCard.styles = (0, _levelindicatorclockcardStylesDefault.default), _LevelIndicatorClockCard), _descriptor = _applyDecoratedDescriptor(_class.prototype, "electricity_price", [
     _dec
 ], {
     configurable: true,
@@ -862,7 +979,7 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     initializer: function() {
         return '';
     }
-}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, "_compactlevels", [
+}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, "compactlevels", [
     _dec3
 ], {
     configurable: true,
@@ -904,9 +1021,18 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             y: 40
         };
     }
+}), _descriptor7 = _applyDecoratedDescriptor(_class.prototype, "levelArcs", [
+    _dec7
+], {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    initializer: function() {
+        return new (0, _levelArcs.LevelArcs)(this.getLevelColor('U'));
+    }
 }), _class);
 
-},{"lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators.js":"bCPKi"}],"4antt":[function(require,module,exports,__globalThis) {
+},{"lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit/decorators.js":"bCPKi","./LevelArcs":"bxZMu"}],"4antt":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _reactiveElement = require("@lit/reactive-element");
@@ -1882,6 +2008,124 @@ var _baseJs = require("./base.js");
     };
 }
 
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bxZMu":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LevelArc", ()=>LevelArc);
+parcelHelpers.export(exports, "LevelArcs", ()=>LevelArcs);
+class LevelArc {
+    constructor(color, start, end){
+        this.color = void 0;
+        this.start = void 0;
+        this.end = void 0;
+        this.color = color;
+        this.start = start;
+        this.end = end;
+    }
+    arcToPath(cx, cy, r) {
+        let angleDiff = Math.abs(this.end - this.start);
+        // If the arc is a full circle or nearly so, extend the end angle slightly
+        if (angleDiff >= 360 || angleDiff === 0) {
+            // Draw two arcs to make a full circle
+            const path1 = LevelArc.describeArcSegment(cx, cy, r, this.start, this.start + 180);
+            const path2 = LevelArc.describeArcSegment(cx, cy, r, this.start + 180, this.end);
+            return `${path1} ${path2}`;
+        } else return LevelArc.describeArcSegment(cx, cy, r, this.start, this.end);
+    }
+    static polarToCartesian(cx, cy, r, angleRad) {
+        return {
+            x: cx + r * Math.cos(angleRad - Math.PI / 2),
+            y: cy + r * Math.sin(angleRad - Math.PI / 2)
+        };
+    }
+    static describeArcSegment(cx, cy, r, startAngle, endAngle) {
+        const OVERLAP = 0.12;
+        const start = startAngle == 0 ? -OVERLAP : startAngle;
+        const end = endAngle == 360 ? 360 + OVERLAP : endAngle;
+        const arcStart = LevelArc.polarToCartesian(cx, cy, r, end * (Math.PI / 180));
+        const arcEnd = LevelArc.polarToCartesian(cx, cy, r, start * (Math.PI / 180));
+        const largeArcFlag = Math.abs(end - start) > 180 ? '1' : '0';
+        return `M ${arcStart.x} ${arcStart.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${arcEnd.x} ${arcEnd.y}`;
+    }
+}
+class LevelArcs {
+    constructor(initialColor = 'magenta'){
+        this.arcs = [];
+        this.arcs = [
+            new LevelArc(initialColor, 0, 360)
+        ];
+    }
+    getArcs() {
+        return this.arcs;
+    }
+    insertLevelArc(color, startAngle, endAngle) {
+        //        console.debug(`Inserting level arc: color=${color}, startAngle=${startAngle}, endAngle=${endAngle}`);
+        if (startAngle >= 0 && startAngle <= 360 && endAngle >= 0 && endAngle <= 360) {
+            if (startAngle < endAngle) this.insertAndMergeLevelArc(color, startAngle, endAngle);
+            else if (startAngle > endAngle) {
+                if (startAngle < 360) this.insertAndMergeLevelArc(color, startAngle, 360);
+                if (endAngle > 0) this.insertAndMergeLevelArc(color, 0, endAngle);
+            }
+        }
+    }
+    insertAndMergeLevelArc(color, startAngle, endAngle) {
+        let i = 0;
+        while(i < this.arcs.length){
+            const arc = this.arcs[i];
+            if (startAngle >= arc.end || endAngle <= arc.start) {
+                i++;
+                continue;
+            }
+            const originalEnd = arc.end;
+            if (startAngle > arc.start && endAngle < originalEnd) {
+                arc.end = startAngle;
+                const newArc = new LevelArc(color, startAngle, endAngle);
+                const afterArc = new LevelArc(arc.color, endAngle, originalEnd);
+                this.arcs.splice(i + 1, 0, newArc, afterArc);
+                break;
+            }
+            if (startAngle <= arc.start && endAngle < originalEnd && endAngle > arc.start) {
+                arc.start = endAngle;
+                const newArc = new LevelArc(color, startAngle, endAngle);
+                this.arcs.splice(i, 0, newArc);
+                break;
+            }
+            if (startAngle > arc.start && endAngle >= originalEnd) {
+                arc.end = startAngle;
+                const newArc = new LevelArc(color, startAngle, endAngle);
+                this.arcs.splice(i + 1, 0, newArc);
+                i++;
+                continue;
+            }
+            if (startAngle <= arc.start && endAngle >= originalEnd) {
+                this.arcs.splice(i, 1);
+                continue;
+            }
+            throw new Error('Unreachable');
+        //i++;
+        }
+        let inserted = this.arcs.some((g)=>g.start === startAngle && g.end === endAngle);
+        if (!inserted) {
+            let insertedInLoop = false;
+            for(let j = 0; j < this.arcs.length; j++)if (startAngle < this.arcs[j].start) {
+                this.arcs.splice(j, 0, new LevelArc(color, startAngle, endAngle));
+                insertedInLoop = true;
+                break;
+            }
+            if (!insertedInLoop) this.arcs.push(new LevelArc(color, startAngle, endAngle));
+        }
+        i = 0;
+        while(i < this.arcs.length - 1){
+            const current = this.arcs[i];
+            const next = this.arcs[i + 1];
+            if (current.color === next.color && current.end === next.start) {
+                current.end = next.end;
+                this.arcs.splice(i + 1, 1);
+            } else i++;
+        }
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=LevelIndicatorClock.js.map
