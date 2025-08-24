@@ -1,595 +1,838 @@
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
+// modules are defined as an array
+// [ module function, map of requires ]
+//
+// map of requires is short require name -> numeric require
+//
+// anything defined in a previous bundle is accessed via the
+// orig method which is the require for previous bundles
 
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
+(function (modules, entry, mainEntry, parcelRequireName, globalName) {
+  /* eslint-disable no-undef */
+  var globalObject =
+    typeof globalThis !== 'undefined'
+      ? globalThis
+      : typeof self !== 'undefined'
+      ? self
+      : typeof window !== 'undefined'
+      ? window
+      : typeof global !== 'undefined'
+      ? global
+      : {};
+  /* eslint-enable no-undef */
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */ /* global Reflect, Promise, SuppressedError, Symbol, Iterator */ var $24c52f343453d62d$var$extendStatics = function(d, b) {
-    $24c52f343453d62d$var$extendStatics = Object.setPrototypeOf || ({
-        __proto__: []
-    }) instanceof Array && function(d, b) {
-        d.__proto__ = b;
-    } || function(d, b) {
-        for(var p in b)if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
-    };
-    return $24c52f343453d62d$var$extendStatics(d, b);
-};
-function $24c52f343453d62d$export$a8ba968b8961cb8a(d, b) {
-    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    $24c52f343453d62d$var$extendStatics(d, b);
-    function __() {
-        this.constructor = d;
-    }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-var $24c52f343453d62d$export$18ce0697a983be9b = function() {
-    $24c52f343453d62d$export$18ce0697a983be9b = Object.assign || function __assign(t) {
-        for(var s, i = 1, n = arguments.length; i < n; i++){
-            s = arguments[i];
-            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+  // Save the require from previous bundle to this closure if any
+  var previousRequire =
+    typeof globalObject[parcelRequireName] === 'function' &&
+    globalObject[parcelRequireName];
+
+  var cache = previousRequire.cache || {};
+  // Do not use `require` to prevent Webpack from trying to bundle this call
+  var nodeRequire =
+    typeof module !== 'undefined' &&
+    typeof module.require === 'function' &&
+    module.require.bind(module);
+
+  function newRequire(name, jumped) {
+    if (!cache[name]) {
+      if (!modules[name]) {
+        // if we cannot find the module within our internal map or
+        // cache jump to the current global require ie. the last bundle
+        // that was added to the page.
+        var currentRequire =
+          typeof globalObject[parcelRequireName] === 'function' &&
+          globalObject[parcelRequireName];
+        if (!jumped && currentRequire) {
+          return currentRequire(name, true);
         }
-        return t;
-    };
-    return $24c52f343453d62d$export$18ce0697a983be9b.apply(this, arguments);
-};
-function $24c52f343453d62d$export$3c9a16f847548506(s, e) {
-    var t = {};
-    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
-        for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-    }
-    return t;
-}
-function $24c52f343453d62d$export$29e00dfd3077644b(decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-}
-function $24c52f343453d62d$export$d5ad3fd78186038f(paramIndex, decorator) {
-    return function(target, key) {
-        decorator(target, key, paramIndex);
-    };
-}
-function $24c52f343453d62d$export$3a84e1ae4e97e9b0(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) {
-        if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected");
-        return f;
-    }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for(var i = decorators.length - 1; i >= 0; i--){
-        var context = {};
-        for(var p in contextIn)context[p] = p === "access" ? {} : contextIn[p];
-        for(var p in contextIn.access)context.access[p] = contextIn.access[p];
-        context.addInitializer = function(f) {
-            if (done) throw new TypeError("Cannot add initializers after decoration has completed");
-            extraInitializers.push(accept(f || null));
-        };
-        var result = (0, decorators[i])(kind === "accessor" ? {
-            get: descriptor.get,
-            set: descriptor.set
-        } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        } else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
+
+        // If there are other bundles on this page the require from the
+        // previous one is saved to 'previousRequire'. Repeat this as
+        // many times as there are bundles until the module is found or
+        // we exhaust the require chain.
+        if (previousRequire) {
+          return previousRequire(name, true);
         }
+
+        // Try the node require function if it exists.
+        if (nodeRequire && typeof name === 'string') {
+          return nodeRequire(name);
+        }
+
+        var err = new Error("Cannot find module '" + name + "'");
+        err.code = 'MODULE_NOT_FOUND';
+        throw err;
+      }
+
+      localRequire.resolve = resolve;
+      localRequire.cache = {};
+
+      var module = (cache[name] = new newRequire.Module(name));
+
+      modules[name][0].call(
+        module.exports,
+        localRequire,
+        module,
+        module.exports,
+        globalObject
+      );
     }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-}
-function $24c52f343453d62d$export$d831c04e792af3d(thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for(var i = 0; i < initializers.length; i++)value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    return useValue ? value : void 0;
-}
-function $24c52f343453d62d$export$6a2a36740a146cb8(x) {
-    return typeof x === "symbol" ? x : "".concat(x);
-}
-function $24c52f343453d62d$export$d1a06452d3489bc7(f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", {
-        configurable: true,
-        value: prefix ? "".concat(prefix, " ", name) : name
-    });
-}
-function $24c52f343453d62d$export$f1db080c865becb9(metadataKey, metadataValue) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-}
-function $24c52f343453d62d$export$1050f835b63b671e(thisArg, _arguments, P, generator) {
-    function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve) {
-            resolve(value);
-        });
+
+    return cache[name].exports;
+
+    function localRequire(x) {
+      var res = localRequire.resolve(x);
+      return res === false ? {} : newRequire(res);
     }
-    return new (P || (P = Promise))(function(resolve, reject) {
-        function fulfilled(value) {
-            try {
-                step(generator.next(value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function rejected(value) {
-            try {
-                step(generator["throw"](value));
-            } catch (e) {
-                reject(e);
-            }
-        }
-        function step(result) {
-            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+
+    function resolve(x) {
+      var id = modules[name][1][x];
+      return id != null ? id : x;
+    }
+  }
+
+  function Module(moduleName) {
+    this.id = moduleName;
+    this.bundle = newRequire;
+    this.exports = {};
+  }
+
+  newRequire.isParcelRequire = true;
+  newRequire.Module = Module;
+  newRequire.modules = modules;
+  newRequire.cache = cache;
+  newRequire.parent = previousRequire;
+  newRequire.register = function (id, exports) {
+    modules[id] = [
+      function (require, module) {
+        module.exports = exports;
+      },
+      {},
+    ];
+  };
+
+  Object.defineProperty(newRequire, 'root', {
+    get: function () {
+      return globalObject[parcelRequireName];
+    },
+  });
+
+  globalObject[parcelRequireName] = newRequire;
+
+  for (var i = 0; i < entry.length; i++) {
+    newRequire(entry[i]);
+  }
+
+  if (mainEntry) {
+    // Expose entry point to Node, AMD or browser globals
+    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
+    var mainExports = newRequire(mainEntry);
+
+    // CommonJS
+    if (typeof exports === 'object' && typeof module !== 'undefined') {
+      module.exports = mainExports;
+
+      // RequireJS
+    } else if (typeof define === 'function' && define.amd) {
+      define(function () {
+        return mainExports;
+      });
+
+      // <script>
+    } else if (globalName) {
+      this[globalName] = mainExports;
+    }
+  }
+})({"bTHtU":[function(require,module,exports,__globalThis) {
+var global = arguments[3];
+var HMR_HOST = null;
+var HMR_PORT = null;
+var HMR_SECURE = false;
+var HMR_ENV_HASH = "d6ea1d42532a7575";
+var HMR_USE_SSE = false;
+module.bundle.HMR_BUNDLE_ID = "5c1b77e3b71e74eb";
+"use strict";
+/* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, HMR_USE_SSE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
+import type {
+  HMRAsset,
+  HMRMessage,
+} from '@parcel/reporter-dev-server/src/HMRServer.js';
+interface ParcelRequire {
+  (string): mixed;
+  cache: {|[string]: ParcelModule|};
+  hotData: {|[string]: mixed|};
+  Module: any;
+  parent: ?ParcelRequire;
+  isParcelRequire: true;
+  modules: {|[string]: [Function, {|[string]: string|}]|};
+  HMR_BUNDLE_ID: string;
+  root: ParcelRequire;
 }
-function $24c52f343453d62d$export$67ebef60e6f28a6(thisArg, body) {
-    var _ = {
-        label: 0,
-        sent: function() {
-            if (t[0] & 1) throw t[1];
-            return t[1];
+interface ParcelModule {
+  hot: {|
+    data: mixed,
+    accept(cb: (Function) => void): void,
+    dispose(cb: (mixed) => void): void,
+    // accept(deps: Array<string> | string, cb: (Function) => void): void,
+    // decline(): void,
+    _acceptCallbacks: Array<(Function) => void>,
+    _disposeCallbacks: Array<(mixed) => void>,
+  |};
+}
+interface ExtensionContext {
+  runtime: {|
+    reload(): void,
+    getURL(url: string): string;
+    getManifest(): {manifest_version: number, ...};
+  |};
+}
+declare var module: {bundle: ParcelRequire, ...};
+declare var HMR_HOST: string;
+declare var HMR_PORT: string;
+declare var HMR_ENV_HASH: string;
+declare var HMR_SECURE: boolean;
+declare var HMR_USE_SSE: boolean;
+declare var chrome: ExtensionContext;
+declare var browser: ExtensionContext;
+declare var __parcel__import__: (string) => Promise<void>;
+declare var __parcel__importScripts__: (string) => Promise<void>;
+declare var globalThis: typeof self;
+declare var ServiceWorkerGlobalScope: Object;
+*/ var OVERLAY_ID = '__parcel__error__overlay__';
+var OldModule = module.bundle.Module;
+function Module(moduleName) {
+    OldModule.call(this, moduleName);
+    this.hot = {
+        data: module.bundle.hotData[moduleName],
+        _acceptCallbacks: [],
+        _disposeCallbacks: [],
+        accept: function(fn) {
+            this._acceptCallbacks.push(fn || function() {});
         },
-        trys: [],
-        ops: []
-    }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
-        return this;
-    }), g;
-    function verb(n) {
-        return function(v) {
-            return step([
-                n,
-                v
-            ]);
-        };
-    }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while(g && (g = 0, op[0] && (_ = 0)), _)try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [
-                op[0] & 2,
-                t.value
-            ];
-            switch(op[0]){
-                case 0:
-                case 1:
-                    t = op;
-                    break;
-                case 4:
-                    _.label++;
-                    return {
-                        value: op[1],
-                        done: false
-                    };
-                case 5:
-                    _.label++;
-                    y = op[1];
-                    op = [
-                        0
-                    ];
-                    continue;
-                case 7:
-                    op = _.ops.pop();
-                    _.trys.pop();
-                    continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                        _ = 0;
-                        continue;
-                    }
-                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                        _.label = op[1];
-                        break;
-                    }
-                    if (op[0] === 6 && _.label < t[1]) {
-                        _.label = t[1];
-                        t = op;
-                        break;
-                    }
-                    if (t && _.label < t[2]) {
-                        _.label = t[2];
-                        _.ops.push(op);
-                        break;
-                    }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop();
-                    continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) {
-            op = [
-                6,
-                e
-            ];
-            y = 0;
-        } finally{
-            f = t = 0;
-        }
-        if (op[0] & 5) throw op[1];
-        return {
-            value: op[0] ? op[1] : void 0,
-            done: true
-        };
-    }
-}
-var $24c52f343453d62d$export$45d3717a4c69092e = Object.create ? function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) desc = {
-        enumerable: true,
-        get: function() {
-            return m[k];
+        dispose: function(fn) {
+            this._disposeCallbacks.push(fn);
         }
     };
-    Object.defineProperty(o, k2, desc);
-} : function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-};
-function $24c52f343453d62d$export$f33643c0debef087(m, o) {
-    for(var p in m)if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) $24c52f343453d62d$export$45d3717a4c69092e(o, m, p);
+    module.bundle.hotData[moduleName] = undefined;
 }
-function $24c52f343453d62d$export$19a8beecd37a4c45(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function() {
-            if (o && i >= o.length) o = void 0;
-            return {
-                value: o && o[i++],
-                done: !o
-            };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+module.bundle.Module = Module;
+module.bundle.hotData = {};
+var checkedAssets /*: {|[string]: boolean|} */ , disposedAssets /*: {|[string]: boolean|} */ , assetsToDispose /*: Array<[ParcelRequire, string]> */ , assetsToAccept /*: Array<[ParcelRequire, string]> */ ;
+function getHostname() {
+    return HMR_HOST || (location.protocol.indexOf('http') === 0 ? location.hostname : 'localhost');
 }
-function $24c52f343453d62d$export$8d051b38c9118094(o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
+function getPort() {
+    return HMR_PORT || location.port;
+}
+// eslint-disable-next-line no-redeclare
+var parent = module.bundle.parent;
+if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
+    var hostname = getHostname();
+    var port = getPort();
+    var protocol = HMR_SECURE || location.protocol == 'https:' && ![
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0'
+    ].includes(hostname) ? 'wss' : 'ws';
+    var ws;
+    if (HMR_USE_SSE) ws = new EventSource('/__parcel_hmr');
+    else try {
+        ws = new WebSocket(protocol + '://' + hostname + (port ? ':' + port : '') + '/');
+    } catch (err) {
+        if (err.message) console.error(err.message);
+        ws = {};
+    }
+    // Web extension context
+    var extCtx = typeof browser === 'undefined' ? typeof chrome === 'undefined' ? null : chrome : browser;
+    // Safari doesn't support sourceURL in error stacks.
+    // eval may also be disabled via CSP, so do a quick check.
+    var supportsSourceURL = false;
     try {
-        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
-    } catch (error) {
-        e = {
-            error: error
+        (0, eval)('throw new Error("test"); //# sourceURL=test.js');
+    } catch (err) {
+        supportsSourceURL = err.stack.includes('test.js');
+    }
+    // $FlowFixMe
+    ws.onmessage = async function(event /*: {data: string, ...} */ ) {
+        checkedAssets = {} /*: {|[string]: boolean|} */ ;
+        disposedAssets = {} /*: {|[string]: boolean|} */ ;
+        assetsToAccept = [];
+        assetsToDispose = [];
+        var data /*: HMRMessage */  = JSON.parse(event.data);
+        if (data.type === 'reload') fullReload();
+        else if (data.type === 'update') {
+            // Remove error overlay if there is one
+            if (typeof document !== 'undefined') removeErrorOverlay();
+            let assets = data.assets.filter((asset)=>asset.envHash === HMR_ENV_HASH);
+            // Handle HMR Update
+            let handled = assets.every((asset)=>{
+                return asset.type === 'css' || asset.type === 'js' && hmrAcceptCheck(module.bundle.root, asset.id, asset.depsByBundle);
+            });
+            if (handled) {
+                console.clear();
+                // Dispatch custom event so other runtimes (e.g React Refresh) are aware.
+                if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') window.dispatchEvent(new CustomEvent('parcelhmraccept'));
+                await hmrApplyUpdates(assets);
+                hmrDisposeQueue();
+                // Run accept callbacks. This will also re-execute other disposed assets in topological order.
+                let processedAssets = {};
+                for(let i = 0; i < assetsToAccept.length; i++){
+                    let id = assetsToAccept[i][1];
+                    if (!processedAssets[id]) {
+                        hmrAccept(assetsToAccept[i][0], id);
+                        processedAssets[id] = true;
+                    }
+                }
+            } else fullReload();
+        }
+        if (data.type === 'error') {
+            // Log parcel errors to console
+            for (let ansiDiagnostic of data.diagnostics.ansi){
+                let stack = ansiDiagnostic.codeframe ? ansiDiagnostic.codeframe : ansiDiagnostic.stack;
+                console.error("\uD83D\uDEA8 [parcel]: " + ansiDiagnostic.message + '\n' + stack + '\n\n' + ansiDiagnostic.hints.join('\n'));
+            }
+            if (typeof document !== 'undefined') {
+                // Render the fancy html overlay
+                removeErrorOverlay();
+                var overlay = createErrorOverlay(data.diagnostics.html);
+                // $FlowFixMe
+                document.body.appendChild(overlay);
+            }
+        }
+    };
+    if (ws instanceof WebSocket) {
+        ws.onerror = function(e) {
+            if (e.message) console.error(e.message);
         };
-    } finally{
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        } finally{
-            if (e) throw e.error;
+        ws.onclose = function() {
+            console.warn("[parcel] \uD83D\uDEA8 Connection to the HMR server was lost");
+        };
+    }
+}
+function removeErrorOverlay() {
+    var overlay = document.getElementById(OVERLAY_ID);
+    if (overlay) {
+        overlay.remove();
+        console.log("[parcel] \u2728 Error resolved");
+    }
+}
+function createErrorOverlay(diagnostics) {
+    var overlay = document.createElement('div');
+    overlay.id = OVERLAY_ID;
+    let errorHTML = '<div style="background: black; opacity: 0.85; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; font-family: Menlo, Consolas, monospace; z-index: 9999;">';
+    for (let diagnostic of diagnostics){
+        let stack = diagnostic.frames.length ? diagnostic.frames.reduce((p, frame)=>{
+            return `${p}
+<a href="/__parcel_launch_editor?file=${encodeURIComponent(frame.location)}" style="text-decoration: underline; color: #888" onclick="fetch(this.href); return false">${frame.location}</a>
+${frame.code}`;
+        }, '') : diagnostic.stack;
+        errorHTML += `
+      <div>
+        <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">
+          \u{1F6A8} ${diagnostic.message}
+        </div>
+        <pre>${stack}</pre>
+        <div>
+          ${diagnostic.hints.map((hint)=>"<div>\uD83D\uDCA1 " + hint + '</div>').join('')}
+        </div>
+        ${diagnostic.documentation ? `<div>\u{1F4DD} <a style="color: violet" href="${diagnostic.documentation}" target="_blank">Learn more</a></div>` : ''}
+      </div>
+    `;
+    }
+    errorHTML += '</div>';
+    overlay.innerHTML = errorHTML;
+    return overlay;
+}
+function fullReload() {
+    if ('reload' in location) location.reload();
+    else if (extCtx && extCtx.runtime && extCtx.runtime.reload) extCtx.runtime.reload();
+}
+function getParents(bundle, id) /*: Array<[ParcelRequire, string]> */ {
+    var modules = bundle.modules;
+    if (!modules) return [];
+    var parents = [];
+    var k, d, dep;
+    for(k in modules)for(d in modules[k][1]){
+        dep = modules[k][1][d];
+        if (dep === id || Array.isArray(dep) && dep[dep.length - 1] === id) parents.push([
+            bundle,
+            k
+        ]);
+    }
+    if (bundle.parent) parents = parents.concat(getParents(bundle.parent, id));
+    return parents;
+}
+function updateLink(link) {
+    var href = link.getAttribute('href');
+    if (!href) return;
+    var newLink = link.cloneNode();
+    newLink.onload = function() {
+        if (link.parentNode !== null) // $FlowFixMe
+        link.parentNode.removeChild(link);
+    };
+    newLink.setAttribute('href', // $FlowFixMe
+    href.split('?')[0] + '?' + Date.now());
+    // $FlowFixMe
+    link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+var cssTimeout = null;
+function reloadCSS() {
+    if (cssTimeout) return;
+    cssTimeout = setTimeout(function() {
+        var links = document.querySelectorAll('link[rel="stylesheet"]');
+        for(var i = 0; i < links.length; i++){
+            // $FlowFixMe[incompatible-type]
+            var href /*: string */  = links[i].getAttribute('href');
+            var hostname = getHostname();
+            var servedFromHMRServer = hostname === 'localhost' ? new RegExp('^(https?:\\/\\/(0.0.0.0|127.0.0.1)|localhost):' + getPort()).test(href) : href.indexOf(hostname + ':' + getPort());
+            var absolute = /^https?:\/\//i.test(href) && href.indexOf(location.origin) !== 0 && !servedFromHMRServer;
+            if (!absolute) updateLink(links[i]);
+        }
+        cssTimeout = null;
+    }, 50);
+}
+function hmrDownload(asset) {
+    if (asset.type === 'js') {
+        if (typeof document !== 'undefined') {
+            let script = document.createElement('script');
+            script.src = asset.url + '?t=' + Date.now();
+            if (asset.outputFormat === 'esmodule') script.type = 'module';
+            return new Promise((resolve, reject)=>{
+                var _document$head;
+                script.onload = ()=>resolve(script);
+                script.onerror = reject;
+                (_document$head = document.head) === null || _document$head === void 0 || _document$head.appendChild(script);
+            });
+        } else if (typeof importScripts === 'function') {
+            // Worker scripts
+            if (asset.outputFormat === 'esmodule') return import(asset.url + '?t=' + Date.now());
+            else return new Promise((resolve, reject)=>{
+                try {
+                    importScripts(asset.url + '?t=' + Date.now());
+                    resolve();
+                } catch (err) {
+                    reject(err);
+                }
+            });
         }
     }
-    return ar;
 }
-function $24c52f343453d62d$export$afc72e2116322959() {
-    for(var ar = [], i = 0; i < arguments.length; i++)ar = ar.concat($24c52f343453d62d$export$8d051b38c9118094(arguments[i]));
-    return ar;
-}
-function $24c52f343453d62d$export$6388937ca91ccae8() {
-    for(var s = 0, i = 0, il = arguments.length; i < il; i++)s += arguments[i].length;
-    for(var r = Array(s), k = 0, i = 0; i < il; i++)for(var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)r[k] = a[j];
-    return r;
-}
-function $24c52f343453d62d$export$1216008129fb82ed(to, from, pack) {
-    if (pack || arguments.length === 2) {
-        for(var i = 0, l = from.length, ar; i < l; i++)if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-function $24c52f343453d62d$export$10c90e4f7922046c(v) {
-    return this instanceof $24c52f343453d62d$export$10c90e4f7922046c ? (this.v = v, this) : new $24c52f343453d62d$export$10c90e4f7922046c(v);
-}
-function $24c52f343453d62d$export$e427f37a30a4de9b(thisArg, _arguments, generator) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
-        return this;
-    }, i;
-    function awaitReturn(f) {
-        return function(v) {
-            return Promise.resolve(v).then(f, reject);
-        };
-    }
-    function verb(n, f) {
-        if (g[n]) {
-            i[n] = function(v) {
-                return new Promise(function(a, b) {
-                    q.push([
-                        n,
-                        v,
-                        a,
-                        b
-                    ]) > 1 || resume(n, v);
+async function hmrApplyUpdates(assets) {
+    global.parcelHotUpdate = Object.create(null);
+    let scriptsToRemove;
+    try {
+        // If sourceURL comments aren't supported in eval, we need to load
+        // the update from the dev server over HTTP so that stack traces
+        // are correct in errors/logs. This is much slower than eval, so
+        // we only do it if needed (currently just Safari).
+        // https://bugs.webkit.org/show_bug.cgi?id=137297
+        // This path is also taken if a CSP disallows eval.
+        if (!supportsSourceURL) {
+            let promises = assets.map((asset)=>{
+                var _hmrDownload;
+                return (_hmrDownload = hmrDownload(asset)) === null || _hmrDownload === void 0 ? void 0 : _hmrDownload.catch((err)=>{
+                    // Web extension fix
+                    if (extCtx && extCtx.runtime && extCtx.runtime.getManifest().manifest_version == 3 && typeof ServiceWorkerGlobalScope != 'undefined' && global instanceof ServiceWorkerGlobalScope) {
+                        extCtx.runtime.reload();
+                        return;
+                    }
+                    throw err;
                 });
-            };
-            if (f) i[n] = f(i[n]);
-        }
-    }
-    function resume(n, v) {
-        try {
-            step(g[n](v));
-        } catch (e) {
-            settle(q[0][3], e);
-        }
-    }
-    function step(r) {
-        r.value instanceof $24c52f343453d62d$export$10c90e4f7922046c ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
-    }
-    function fulfill(value) {
-        resume("next", value);
-    }
-    function reject(value) {
-        resume("throw", value);
-    }
-    function settle(f, v) {
-        if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
-    }
-}
-function $24c52f343453d62d$export$bbd80228419bb833(o) {
-    var i, p;
-    return i = {}, verb("next"), verb("throw", function(e) {
-        throw e;
-    }), verb("return"), i[Symbol.iterator] = function() {
-        return this;
-    }, i;
-    function verb(n, f) {
-        i[n] = o[n] ? function(v) {
-            return (p = !p) ? {
-                value: $24c52f343453d62d$export$10c90e4f7922046c(o[n](v)),
-                done: false
-            } : f ? f(v) : v;
-        } : f;
-    }
-}
-function $24c52f343453d62d$export$e3b29a3d6162315f(o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof $24c52f343453d62d$export$19a8beecd37a4c45 === "function" ? $24c52f343453d62d$export$19a8beecd37a4c45(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
-        return this;
-    }, i);
-    function verb(n) {
-        i[n] = o[n] && function(v) {
-            return new Promise(function(resolve, reject) {
-                v = o[n](v), settle(resolve, reject, v.done, v.value);
             });
-        };
+            scriptsToRemove = await Promise.all(promises);
+        }
+        assets.forEach(function(asset) {
+            hmrApply(module.bundle.root, asset);
+        });
+    } finally{
+        delete global.parcelHotUpdate;
+        if (scriptsToRemove) scriptsToRemove.forEach((script)=>{
+            if (script) {
+                var _document$head2;
+                (_document$head2 = document.head) === null || _document$head2 === void 0 || _document$head2.removeChild(script);
+            }
+        });
     }
-    function settle(resolve, reject, d, v) {
-        Promise.resolve(v).then(function(v) {
-            resolve({
-                value: v,
-                done: d
+}
+function hmrApply(bundle /*: ParcelRequire */ , asset /*:  HMRAsset */ ) {
+    var modules = bundle.modules;
+    if (!modules) return;
+    if (asset.type === 'css') reloadCSS();
+    else if (asset.type === 'js') {
+        let deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
+        if (deps) {
+            if (modules[asset.id]) {
+                // Remove dependencies that are removed and will become orphaned.
+                // This is necessary so that if the asset is added back again, the cache is gone, and we prevent a full page reload.
+                let oldDeps = modules[asset.id][1];
+                for(let dep in oldDeps)if (!deps[dep] || deps[dep] !== oldDeps[dep]) {
+                    let id = oldDeps[dep];
+                    let parents = getParents(module.bundle.root, id);
+                    if (parents.length === 1) hmrDelete(module.bundle.root, id);
+                }
+            }
+            if (supportsSourceURL) // Global eval. We would use `new Function` here but browser
+            // support for source maps is better with eval.
+            (0, eval)(asset.output);
+            // $FlowFixMe
+            let fn = global.parcelHotUpdate[asset.id];
+            modules[asset.id] = [
+                fn,
+                deps
+            ];
+        }
+        // Always traverse to the parent bundle, even if we already replaced the asset in this bundle.
+        // This is required in case modules are duplicated. We need to ensure all instances have the updated code.
+        if (bundle.parent) hmrApply(bundle.parent, asset);
+    }
+}
+function hmrDelete(bundle, id) {
+    let modules = bundle.modules;
+    if (!modules) return;
+    if (modules[id]) {
+        // Collect dependencies that will become orphaned when this module is deleted.
+        let deps = modules[id][1];
+        let orphans = [];
+        for(let dep in deps){
+            let parents = getParents(module.bundle.root, deps[dep]);
+            if (parents.length === 1) orphans.push(deps[dep]);
+        }
+        // Delete the module. This must be done before deleting dependencies in case of circular dependencies.
+        delete modules[id];
+        delete bundle.cache[id];
+        // Now delete the orphans.
+        orphans.forEach((id)=>{
+            hmrDelete(module.bundle.root, id);
+        });
+    } else if (bundle.parent) hmrDelete(bundle.parent, id);
+}
+function hmrAcceptCheck(bundle /*: ParcelRequire */ , id /*: string */ , depsByBundle /*: ?{ [string]: { [string]: string } }*/ ) {
+    if (hmrAcceptCheckOne(bundle, id, depsByBundle)) return true;
+    // Traverse parents breadth first. All possible ancestries must accept the HMR update, or we'll reload.
+    let parents = getParents(module.bundle.root, id);
+    let accepted = false;
+    while(parents.length > 0){
+        let v = parents.shift();
+        let a = hmrAcceptCheckOne(v[0], v[1], null);
+        if (a) // If this parent accepts, stop traversing upward, but still consider siblings.
+        accepted = true;
+        else {
+            // Otherwise, queue the parents in the next level upward.
+            let p = getParents(module.bundle.root, v[1]);
+            if (p.length === 0) {
+                // If there are no parents, then we've reached an entry without accepting. Reload.
+                accepted = false;
+                break;
+            }
+            parents.push(...p);
+        }
+    }
+    return accepted;
+}
+function hmrAcceptCheckOne(bundle /*: ParcelRequire */ , id /*: string */ , depsByBundle /*: ?{ [string]: { [string]: string } }*/ ) {
+    var modules = bundle.modules;
+    if (!modules) return;
+    if (depsByBundle && !depsByBundle[bundle.HMR_BUNDLE_ID]) {
+        // If we reached the root bundle without finding where the asset should go,
+        // there's nothing to do. Mark as "accepted" so we don't reload the page.
+        if (!bundle.parent) return true;
+        return hmrAcceptCheck(bundle.parent, id, depsByBundle);
+    }
+    if (checkedAssets[id]) return true;
+    checkedAssets[id] = true;
+    var cached = bundle.cache[id];
+    assetsToDispose.push([
+        bundle,
+        id
+    ]);
+    if (!cached || cached.hot && cached.hot._acceptCallbacks.length) {
+        assetsToAccept.push([
+            bundle,
+            id
+        ]);
+        return true;
+    }
+}
+function hmrDisposeQueue() {
+    // Dispose all old assets.
+    for(let i = 0; i < assetsToDispose.length; i++){
+        let id = assetsToDispose[i][1];
+        if (!disposedAssets[id]) {
+            hmrDispose(assetsToDispose[i][0], id);
+            disposedAssets[id] = true;
+        }
+    }
+    assetsToDispose = [];
+}
+function hmrDispose(bundle /*: ParcelRequire */ , id /*: string */ ) {
+    var cached = bundle.cache[id];
+    bundle.hotData[id] = {};
+    if (cached && cached.hot) cached.hot.data = bundle.hotData[id];
+    if (cached && cached.hot && cached.hot._disposeCallbacks.length) cached.hot._disposeCallbacks.forEach(function(cb) {
+        cb(bundle.hotData[id]);
+    });
+    delete bundle.cache[id];
+}
+function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
+    // Execute the module.
+    bundle(id);
+    // Run the accept callbacks in the new version of the module.
+    var cached = bundle.cache[id];
+    if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+        let assetsToAlsoAccept = [];
+        cached.hot._acceptCallbacks.forEach(function(cb) {
+            let additionalAssets = cb(function() {
+                return getParents(module.bundle.root, id);
             });
-        }, reject);
+            if (Array.isArray(additionalAssets) && additionalAssets.length) assetsToAlsoAccept.push(...additionalAssets);
+        });
+        if (assetsToAlsoAccept.length) {
+            let handled = assetsToAlsoAccept.every(function(a) {
+                return hmrAcceptCheck(a[0], a[1]);
+            });
+            if (!handled) return fullReload();
+            hmrDisposeQueue();
+        }
     }
 }
-function $24c52f343453d62d$export$4fb47efe1390b86f(cooked, raw) {
-    if (Object.defineProperty) Object.defineProperty(cooked, "raw", {
-        value: raw
-    });
-    else cooked.raw = raw;
-    return cooked;
-}
-var $24c52f343453d62d$var$__setModuleDefault = Object.create ? function(o, v) {
-    Object.defineProperty(o, "default", {
-        enumerable: true,
-        value: v
-    });
-} : function(o, v) {
-    o["default"] = v;
-};
-var $24c52f343453d62d$var$ownKeys = function(o) {
-    $24c52f343453d62d$var$ownKeys = Object.getOwnPropertyNames || function(o) {
-        var ar = [];
-        for(var k in o)if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-        return ar;
-    };
-    return $24c52f343453d62d$var$ownKeys(o);
-};
-function $24c52f343453d62d$export$c21735bcef00d192(mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) {
-        for(var k = $24c52f343453d62d$var$ownKeys(mod), i = 0; i < k.length; i++)if (k[i] !== "default") $24c52f343453d62d$export$45d3717a4c69092e(result, mod, k[i]);
+
+},{}],"h7u1C":[function(require,module,exports,__globalThis) {
+var _levelIndicatorClockCardJs = require("./LevelIndicatorClockCard.js");
+var _levelindicatorclockcardStylesTs = require("./levelindicatorclockcard.styles.ts");
+customElements.define("level-indicator-clock", (0, _levelIndicatorClockCardJs.LevelIndicatorClockCard));
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "level-indicator-clock",
+    name: "LevelIndicatorClock",
+    description: "Clock with level indicators",
+    preview: true
+});
+
+},{"./LevelIndicatorClockCard.js":"2rXwx","./levelindicatorclockcard.styles.ts":"aTxNe"}],"2rXwx":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
+var _tsDecorate = require("@swc/helpers/_/_ts_decorate");
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _levelindicatorclockcardStyles = require("./levelindicatorclockcard.styles");
+var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_levelindicatorclockcardStyles);
+class LevelIndicatorClockCard extends (0, _lit.LitElement) {
+    static{
+        this.centerX = 100;
     }
-    $24c52f343453d62d$var$__setModuleDefault(result, mod);
-    return result;
-}
-function $24c52f343453d62d$export$da59b14a69baef04(mod) {
-    return mod && mod.__esModule ? mod : {
-        default: mod
-    };
-}
-function $24c52f343453d62d$export$d5dcaf168c640c35(receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-}
-function $24c52f343453d62d$export$d40a35129aaff81f(receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
-}
-function $24c52f343453d62d$export$81fdc39f203e4e04(state, receiver) {
-    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function") throw new TypeError("Cannot use 'in' operator on non-object");
-    return typeof state === "function" ? receiver === state : state.has(receiver);
-}
-function $24c52f343453d62d$export$88ac25d8e944e405(env, value, async) {
-    if (value !== null && value !== void 0) {
-        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose, inner;
-        if (async) {
-            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-            dispose = value[Symbol.asyncDispose];
-        }
-        if (dispose === void 0) {
-            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-            dispose = value[Symbol.dispose];
-            if (async) inner = dispose;
-        }
-        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-        if (inner) dispose = function() {
-            try {
-                inner.call(this);
-            } catch (e) {
-                return Promise.reject(e);
+    static{
+        this.centerY = 100;
+    }
+    static{
+        this.hourDigitsRadius = 82;
+    }
+    static{
+        this.hourDigits = Array.from({
+            length: 12
+        }, (_, i)=>{
+            const hour = i + 1;
+            const angle = (hour - 3) * Math.PI * 2 / 12;
+            const x = LevelIndicatorClockCard.centerX + LevelIndicatorClockCard.hourDigitsRadius * Math.cos(angle);
+            const y = LevelIndicatorClockCard.centerY + LevelIndicatorClockCard.hourDigitsRadius * Math.sin(angle);
+            return (0, _lit.svg)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
+        });
+    }
+    static get properties() {
+        return {
+            electricity_price: {
+                state: true
+            },
+            date_time_iso: {
+                type: String
             }
         };
-        env.stack.push({
-            value: value,
-            dispose: dispose,
-            async: async
-        });
-    } else if (async) env.stack.push({
-        async: true
-    });
-    return value;
-}
-var $24c52f343453d62d$var$_SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-};
-function $24c52f343453d62d$export$8f076105dc360e92(env) {
-    function fail(e) {
-        env.error = env.hasError ? new $24c52f343453d62d$var$_SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-        env.hasError = true;
     }
-    var r, s = 0;
-    function next() {
-        while(r = env.stack.pop())try {
-            if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
-            if (r.dispose) {
-                var result = r.dispose.call(r.value);
-                if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) {
-                    fail(e);
-                    return next();
-                });
-            } else s |= 1;
-        } catch (e) {
-            fail(e);
+    setConfig(config) {
+        this.electricity_price = config.electricity_price;
+        this.date_time_iso = config.date_time_iso;
+    }
+    set hass(hass) {
+        if (this.isSimulating || !hass) {
+            console.debug("[ClockCard] Skipping update: simulating or hass not available.");
+            return;
         }
-        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
-        if (env.hasError) throw env.error;
+        const timestamp = hass.states[this.date_time_iso];
+        this.now = new Date(timestamp.state);
+        console.log(this.tag + ": Current time: ", this.now);
+        this.setClock(this.now);
+        this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
+        if (this._dependencyMet === false) console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
+        else console.info(this.tag + ": Called getLevels");
     }
-    return next();
-}
-function $24c52f343453d62d$export$889dfb5d17574b0b(path, preserveJsx) {
-    if (typeof path === "string" && /^\.\.?\//.test(path)) return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
-        return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
-    });
-    return path;
-}
-var $24c52f343453d62d$export$2e2bcd8739ae039 = {
-    __extends: $24c52f343453d62d$export$a8ba968b8961cb8a,
-    __assign: $24c52f343453d62d$export$18ce0697a983be9b,
-    __rest: $24c52f343453d62d$export$3c9a16f847548506,
-    __decorate: $24c52f343453d62d$export$29e00dfd3077644b,
-    __param: $24c52f343453d62d$export$d5ad3fd78186038f,
-    __esDecorate: $24c52f343453d62d$export$3a84e1ae4e97e9b0,
-    __runInitializers: $24c52f343453d62d$export$d831c04e792af3d,
-    __propKey: $24c52f343453d62d$export$6a2a36740a146cb8,
-    __setFunctionName: $24c52f343453d62d$export$d1a06452d3489bc7,
-    __metadata: $24c52f343453d62d$export$f1db080c865becb9,
-    __awaiter: $24c52f343453d62d$export$1050f835b63b671e,
-    __generator: $24c52f343453d62d$export$67ebef60e6f28a6,
-    __createBinding: $24c52f343453d62d$export$45d3717a4c69092e,
-    __exportStar: $24c52f343453d62d$export$f33643c0debef087,
-    __values: $24c52f343453d62d$export$19a8beecd37a4c45,
-    __read: $24c52f343453d62d$export$8d051b38c9118094,
-    __spread: $24c52f343453d62d$export$afc72e2116322959,
-    __spreadArrays: $24c52f343453d62d$export$6388937ca91ccae8,
-    __spreadArray: $24c52f343453d62d$export$1216008129fb82ed,
-    __await: $24c52f343453d62d$export$10c90e4f7922046c,
-    __asyncGenerator: $24c52f343453d62d$export$e427f37a30a4de9b,
-    __asyncDelegator: $24c52f343453d62d$export$bbd80228419bb833,
-    __asyncValues: $24c52f343453d62d$export$e3b29a3d6162315f,
-    __makeTemplateObject: $24c52f343453d62d$export$4fb47efe1390b86f,
-    __importStar: $24c52f343453d62d$export$c21735bcef00d192,
-    __importDefault: $24c52f343453d62d$export$da59b14a69baef04,
-    __classPrivateFieldGet: $24c52f343453d62d$export$d5dcaf168c640c35,
-    __classPrivateFieldSet: $24c52f343453d62d$export$d40a35129aaff81f,
-    __classPrivateFieldIn: $24c52f343453d62d$export$81fdc39f203e4e04,
-    __addDisposableResource: $24c52f343453d62d$export$88ac25d8e944e405,
-    __disposeResources: $24c52f343453d62d$export$8f076105dc360e92,
-    __rewriteRelativeImportExtension: $24c52f343453d62d$export$889dfb5d17574b0b
-};
-
-
-
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const $def2de46b9306e8a$var$t = globalThis, $def2de46b9306e8a$export$b4d10f6001c083c2 = $def2de46b9306e8a$var$t.ShadowRoot && (void 0 === $def2de46b9306e8a$var$t.ShadyCSS || $def2de46b9306e8a$var$t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $def2de46b9306e8a$var$s = Symbol(), $def2de46b9306e8a$var$o = new WeakMap;
-class $def2de46b9306e8a$export$505d1e8739bad805 {
-    constructor(t, e, o){
-        if (this._$cssResult$ = !0, o !== $def2de46b9306e8a$var$s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
-        this.cssText = t, this.t = e;
+    getCardSize() {
+        return 5;
     }
-    get styleSheet() {
-        let t = this.o;
-        const s = this.t;
-        if ($def2de46b9306e8a$export$b4d10f6001c083c2 && void 0 === t) {
-            const e = void 0 !== s && 1 === s.length;
-            e && (t = $def2de46b9306e8a$var$o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && $def2de46b9306e8a$var$o.set(s, t));
+    static{
+        this.styles = (0, _levelindicatorclockcardStylesDefault.default);
+    }
+    getLayoutOptions() {
+        return {
+            grid_rows: 8,
+            grid_columns: 12
+        };
+    }
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        console.log(this.tag + ": Updated properties: ", changedProperties);
+    }
+    setAngle(hand, angle) {
+        const handElement = this.shadowRoot?.querySelector("." + hand);
+        if (handElement) {
+            console.debug(this.tag + ": Setting angle of " + hand + " to " + angle + " degrees.");
+            handElement.style.transform = "rotate(" + angle + "deg)";
+        } else console.debug(`${this.tag}: Hand element '${hand}' not found.`);
+    }
+    static polarToCartesian(cx, cy, r, angleRad) {
+        return {
+            x: cx + r * Math.cos(angleRad - Math.PI / 2),
+            y: cy + r * Math.sin(angleRad - Math.PI / 2)
+        };
+    }
+    setClock(currentTime) {
+        const currentHour = currentTime.getHours();
+        const currentMinute = currentTime.getMinutes();
+        const hrAngle = currentHour * 30 + currentMinute * 6 / 12;
+        const minAngle = currentMinute * 6;
+        this.setAngle("hour-hand", hrAngle);
+        this.setAngle("minute-hand", minAngle);
+        this.minuteIndex = currentHour * 60 + currentMinute - 60;
+        if (this.minuteIndex < 0) this.minuteIndex += 1440;
+        else if (this.minuteIndex >= 1440) this.minuteIndex -= 1440;
+    }
+    render() {
+        return (0, _lit.html)`
+            <ha-card>
+                ${!this._dependencyMet ? (0, _lit.html)`
+                            <div class="error">
+                                <p>HACS integration 'electricitypricelevels' is not installed or loaded.</p>
+                            </div>
+                        ` : ''}
+                ${(0, _lit.svg)`
+                <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="#f0f0f0" stroke="#333" stroke-width="2.5" />
+
+                    <g font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
+                        ${LevelIndicatorClockCard.hourDigits}
+                    </g>
+
+                    <line class="hour-hand" x1="100" y1="100" x2="${this.hourHandEnd.x}" y2="${this.hourHandEnd.y}"
+                          stroke="#000" stroke-width="5" stroke-linecap="round" />
+                    <line class="minute-hand" x1="100" y1="100" x2="${this.minuteHandEnd.x}" y2="${this.minuteHandEnd.y}"
+                          stroke="#000" stroke-width="3" stroke-linecap="round" />
+                    <circle cx="100" cy="100" r="4" fill="#000" />
+                </svg>
+            `}
+            </ha-card>
+        `;
+    }
+    static getConfigForm() {
+        return {
+            schema: [
+                {
+                    name: 'electricity_price',
+                    selector: {
+                        entity: {
+                            domain: 'sensor'
+                        }
+                    }
+                },
+                {
+                    name: 'date_time_iso',
+                    selector: {
+                        entity: {
+                            domain: 'sensor'
+                        }
+                    }
+                }
+            ]
+        };
+    }
+    firstUpdated() {
+        console.log(this.tag + " First updated, initializing clock...");
+        if (this.isSimulating) {
+            this.now = new Date();
+            this.now.setHours(0, 0, 0, 0);
+            const scheduleNextTick = ()=>{
+                this.now.setMinutes(this.now.getMinutes() + this.SIMULATION_STEP_MINUTES);
+                this.setClock(this.now);
+                this.intervalId = window.setTimeout(()=>{
+                    scheduleNextTick();
+                }, this.SIMULATION_UPDATE_PERIOD_MS);
+            };
+            scheduleNextTick();
         }
-        return t;
+        this.setClock(this.now);
     }
-    toString() {
-        return this.cssText;
+    connectedCallback() {
+        super.connectedCallback();
+    }
+    disconnectedCallback() {
+        if (this.intervalId) clearTimeout(this.intervalId);
+        super.disconnectedCallback();
+    }
+    constructor(...args){
+        super(...args), this.tag = "LevelIndicatorClockCard", this.isSimulating = false, this.SIMULATION_STEP_MINUTES = 1, this.SIMULATION_UPDATE_PERIOD_MS = 1000, this.minuteIndex = 0, this._dependencyMet = false, this.hourHandEnd = {
+            x: 100,
+            y: 55
+        }, this.minuteHandEnd = {
+            x: 100,
+            y: 40
+        }, this.now = new Date();
     }
 }
-const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$export$505d1e8739bad805("string" == typeof t ? t : t + "", void 0, $def2de46b9306e8a$var$s), $def2de46b9306e8a$export$dbf350e5966cf602 = (t, ...e)=>{
-    const o = 1 === t.length ? t[0] : e.reduce((e, s, o)=>e + ((t)=>{
-            if (!0 === t._$cssResult$) return t.cssText;
-            if ("number" == typeof t) return t;
-            throw Error("Value passed to 'css' function must be a 'css' function result: " + t + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
-        })(s) + t[o + 1], t[0]);
-    return new $def2de46b9306e8a$export$505d1e8739bad805(o, t, $def2de46b9306e8a$var$s);
-}, $def2de46b9306e8a$export$2ca4a66ec4cecb90 = (s, o)=>{
-    if ($def2de46b9306e8a$export$b4d10f6001c083c2) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
-    else for (const e of o){
-        const o = document.createElement("style"), n = $def2de46b9306e8a$var$t.litNonce;
-        void 0 !== n && o.setAttribute("nonce", n), o.textContent = e.cssText, s.appendChild(o);
-    }
-}, $def2de46b9306e8a$export$ee69dfd951e24778 = $def2de46b9306e8a$export$b4d10f6001c083c2 ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
-        let e = "";
-        for (const s of t.cssRules)e += s.cssText;
-        return $def2de46b9306e8a$export$8d80f9cac07cdb3(e);
-    })(t) : t;
+(0, _tsDecorate._)([
+    (0, _decoratorsJs.state)()
+], LevelIndicatorClockCard.prototype, "electricity_price", void 0);
+(0, _tsDecorate._)([
+    (0, _decoratorsJs.state)()
+], LevelIndicatorClockCard.prototype, "date_time_iso", void 0);
+(0, _tsDecorate._)([
+    (0, _decoratorsJs.state)()
+], LevelIndicatorClockCard.prototype, "_dependencyMet", void 0);
+(0, _tsDecorate._)([
+    (0, _decoratorsJs.state)()
+], LevelIndicatorClockCard.prototype, "hourHandEnd", void 0);
+(0, _tsDecorate._)([
+    (0, _decoratorsJs.state)()
+], LevelIndicatorClockCard.prototype, "minuteHandEnd", void 0);
 
+},{"lit":"4antt","./levelindicatorclockcard.styles":"aTxNe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@swc/helpers/_/_ts_decorate":"lX6TJ","lit/decorators.js":"bCPKi"}],"4antt":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _reactiveElement = require("@lit/reactive-element");
+var _litHtml = require("lit-html");
+var _litElementJs = require("lit-element/lit-element.js");
+parcelHelpers.exportAll(_litElementJs, exports);
+var _isServerJs = require("lit-html/is-server.js");
+parcelHelpers.exportAll(_isServerJs, exports);
 
+},{"@lit/reactive-element":"hypet","lit-html":"1cmQt","lit-element/lit-element.js":"9YxkX","lit-html/is-server.js":"e2OXP","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hypet":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "CSSResult", ()=>(0, _cssTagJs.CSSResult));
+parcelHelpers.export(exports, "adoptStyles", ()=>(0, _cssTagJs.adoptStyles));
+parcelHelpers.export(exports, "css", ()=>(0, _cssTagJs.css));
+parcelHelpers.export(exports, "getCompatibleStyle", ()=>(0, _cssTagJs.getCompatibleStyle));
+parcelHelpers.export(exports, "supportsAdoptingStyleSheets", ()=>(0, _cssTagJs.supportsAdoptingStyleSheets));
+parcelHelpers.export(exports, "unsafeCSS", ()=>(0, _cssTagJs.unsafeCSS));
+parcelHelpers.export(exports, "ReactiveElement", ()=>b);
+parcelHelpers.export(exports, "defaultConverter", ()=>u);
+parcelHelpers.export(exports, "notEqual", ()=>f);
+var _cssTagJs = require("./css-tag.js");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const { is: $19fe8e3abedf4df0$var$i, defineProperty: $19fe8e3abedf4df0$var$e, getOwnPropertyDescriptor: $19fe8e3abedf4df0$var$r, getOwnPropertyNames: $19fe8e3abedf4df0$var$h, getOwnPropertySymbols: $19fe8e3abedf4df0$var$o, getPrototypeOf: $19fe8e3abedf4df0$var$n } = Object, $19fe8e3abedf4df0$var$a = globalThis, $19fe8e3abedf4df0$var$c = $19fe8e3abedf4df0$var$a.trustedTypes, $19fe8e3abedf4df0$var$l = $19fe8e3abedf4df0$var$c ? $19fe8e3abedf4df0$var$c.emptyScript : "", $19fe8e3abedf4df0$var$p = $19fe8e3abedf4df0$var$a.reactiveElementPolyfillSupport, $19fe8e3abedf4df0$var$d = (t, s)=>t, $19fe8e3abedf4df0$export$7312b35fbf521afb = {
+ */ const { is: i, defineProperty: e, getOwnPropertyDescriptor: r, getOwnPropertyNames: h, getOwnPropertySymbols: o, getPrototypeOf: n } = Object, a = globalThis, c = a.trustedTypes, l = c ? c.emptyScript : "", p = a.reactiveElementPolyfillSupport, d = (t, s)=>t, u = {
     toAttribute (t, s) {
         switch(s){
             case Boolean:
-                t = t ? $19fe8e3abedf4df0$var$l : null;
+                t = t ? l : null;
                 break;
             case Object:
             case Array:
@@ -616,15 +859,15 @@ const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$expo
         }
         return i;
     }
-}, $19fe8e3abedf4df0$export$53a6892c50694894 = (t, s)=>!$19fe8e3abedf4df0$var$i(t, s), $19fe8e3abedf4df0$var$y = {
+}, f = (t, s)=>!i(t, s), y = {
     attribute: !0,
     type: String,
-    converter: $19fe8e3abedf4df0$export$7312b35fbf521afb,
+    converter: u,
     reflect: !1,
-    hasChanged: $19fe8e3abedf4df0$export$53a6892c50694894
+    hasChanged: f
 };
-Symbol.metadata ??= Symbol("metadata"), $19fe8e3abedf4df0$var$a.litPropertyMetadata ??= new WeakMap;
-class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
+Symbol.metadata ??= Symbol("metadata"), a.litPropertyMetadata ??= new WeakMap;
+class b extends HTMLElement {
     static addInitializer(t) {
         this._$Ei(), (this.l ??= []).push(t);
     }
@@ -633,14 +876,14 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
             ...this._$Eh.keys()
         ];
     }
-    static createProperty(t, s = $19fe8e3abedf4df0$var$y) {
+    static createProperty(t, s = y) {
         if (s.state && (s.attribute = !1), this._$Ei(), this.elementProperties.set(t, s), !s.noAccessor) {
             const i = Symbol(), r = this.getPropertyDescriptor(t, i, s);
-            void 0 !== r && $19fe8e3abedf4df0$var$e(this.prototype, t, r);
+            void 0 !== r && e(this.prototype, t, r);
         }
     }
     static getPropertyDescriptor(t, s, i) {
-        const { get: e, set: h } = $19fe8e3abedf4df0$var$r(this.prototype, t) ?? {
+        const { get: e, set: h } = r(this.prototype, t) ?? {
             get () {
                 return this[s];
             },
@@ -661,21 +904,21 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         };
     }
     static getPropertyOptions(t) {
-        return this.elementProperties.get(t) ?? $19fe8e3abedf4df0$var$y;
+        return this.elementProperties.get(t) ?? y;
     }
     static _$Ei() {
-        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("elementProperties"))) return;
-        const t = $19fe8e3abedf4df0$var$n(this);
+        if (this.hasOwnProperty(d("elementProperties"))) return;
+        const t = n(this);
         t.finalize(), void 0 !== t.l && (this.l = [
             ...t.l
         ]), this.elementProperties = new Map(t.elementProperties);
     }
     static finalize() {
-        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("finalized"))) return;
-        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty($19fe8e3abedf4df0$var$d("properties"))) {
+        if (this.hasOwnProperty(d("finalized"))) return;
+        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(d("properties"))) {
             const t = this.properties, s = [
-                ...$19fe8e3abedf4df0$var$h(t),
-                ...$19fe8e3abedf4df0$var$o(t)
+                ...h(t),
+                ...o(t)
             ];
             for (const i of s)this.createProperty(i, t[i]);
         }
@@ -695,8 +938,8 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         const i = [];
         if (Array.isArray(s)) {
             const e = new Set(s.flat(1 / 0).reverse());
-            for (const s of e)i.unshift((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
-        } else void 0 !== s && i.push((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
+            for (const s of e)i.unshift((0, _cssTagJs.getCompatibleStyle)(s));
+        } else void 0 !== s && i.push((0, _cssTagJs.getCompatibleStyle)(s));
         return i;
     }
     static _$Eu(t, s) {
@@ -722,7 +965,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     }
     createRenderRoot() {
         const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-        return (0, $def2de46b9306e8a$export$2ca4a66ec4cecb90)(t, this.constructor.elementStyles), t;
+        return (0, _cssTagJs.adoptStyles)(t, this.constructor.elementStyles), t;
     }
     connectedCallback() {
         this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t)=>t.hostConnected?.());
@@ -737,7 +980,7 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     _$EC(t, s) {
         const i = this.constructor.elementProperties.get(t), e = this.constructor._$Eu(t, i);
         if (void 0 !== e && !0 === i.reflect) {
-            const r = (void 0 !== i.converter?.toAttribute ? i.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb).toAttribute(s, i.type);
+            const r = (void 0 !== i.converter?.toAttribute ? i.converter : u).toAttribute(s, i.type);
             this._$Em = t, null == r ? this.removeAttribute(e) : this.setAttribute(e, r), this._$Em = null;
         }
     }
@@ -746,13 +989,13 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
         if (void 0 !== e && this._$Em !== e) {
             const t = i.getPropertyOptions(e), r = "function" == typeof t.converter ? {
                 fromAttribute: t.converter
-            } : void 0 !== t.converter?.fromAttribute ? t.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb;
+            } : void 0 !== t.converter?.fromAttribute ? t.converter : u;
             this._$Em = e, this[e] = r.fromAttribute(s, t.type), this._$Em = null;
         }
     }
     requestUpdate(t, s, i) {
         if (void 0 !== t) {
-            if (i ??= this.constructor.getPropertyOptions(t), !(i.hasChanged ?? $19fe8e3abedf4df0$export$53a6892c50694894)(this[t], s)) return;
+            if (i ??= this.constructor.getPropertyOptions(t), !(i.hasChanged ?? f)(this[t], s)) return;
             this.P(t, s, i);
         }
         !1 === this.isUpdatePending && (this._$ES = this._$ET());
@@ -814,107 +1057,197 @@ class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
     updated(t) {}
     firstUpdated(t) {}
 }
-$19fe8e3abedf4df0$export$c7c07a37856565d.elementStyles = [], $19fe8e3abedf4df0$export$c7c07a37856565d.shadowRootOptions = {
+b.elementStyles = [], b.shadowRootOptions = {
     mode: "open"
-}, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("elementProperties")] = new Map, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("finalized")] = new Map, $19fe8e3abedf4df0$var$p?.({
-    ReactiveElement: $19fe8e3abedf4df0$export$c7c07a37856565d
-}), ($19fe8e3abedf4df0$var$a.reactiveElementVersions ??= []).push("2.0.4");
+}, b[d("elementProperties")] = new Map, b[d("finalized")] = new Map, p?.({
+    ReactiveElement: b
+}), (a.reactiveElementVersions ??= []).push("2.0.4");
 
+},{"./css-tag.js":"gkZsf","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkZsf":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "CSSResult", ()=>n);
+parcelHelpers.export(exports, "adoptStyles", ()=>S);
+parcelHelpers.export(exports, "css", ()=>i);
+parcelHelpers.export(exports, "getCompatibleStyle", ()=>c);
+parcelHelpers.export(exports, "supportsAdoptingStyleSheets", ()=>e);
+parcelHelpers.export(exports, "unsafeCSS", ()=>r);
+const t = globalThis, e = t.ShadowRoot && (void 0 === t.ShadyCSS || t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, s = Symbol(), o = new WeakMap;
+class n {
+    constructor(t, e, o){
+        if (this._$cssResult$ = !0, o !== s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+        this.cssText = t, this.t = e;
+    }
+    get styleSheet() {
+        let t = this.o;
+        const s = this.t;
+        if (e && void 0 === t) {
+            const e = void 0 !== s && 1 === s.length;
+            e && (t = o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && o.set(s, t));
+        }
+        return t;
+    }
+    toString() {
+        return this.cssText;
+    }
+}
+const r = (t)=>new n("string" == typeof t ? t : t + "", void 0, s), i = (t, ...e)=>{
+    const o = 1 === t.length ? t[0] : e.reduce((e, s, o)=>e + ((t)=>{
+            if (!0 === t._$cssResult$) return t.cssText;
+            if ("number" == typeof t) return t;
+            throw Error("Value passed to 'css' function must be a 'css' function result: " + t + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
+        })(s) + t[o + 1], t[0]);
+    return new n(o, t, s);
+}, S = (s, o)=>{
+    if (e) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
+    else for (const e of o){
+        const o = document.createElement("style"), n = t.litNonce;
+        void 0 !== n && o.setAttribute("nonce", n), o.textContent = e.cssText, s.appendChild(o);
+    }
+}, c = e ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
+        let e = "";
+        for (const s of t.cssRules)e += s.cssText;
+        return r(e);
+    })(t) : t;
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"1cmQt":[function(require,module,exports,__globalThis) {
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $f58f44579a4747ac$var$t = globalThis, $f58f44579a4747ac$var$i = $f58f44579a4747ac$var$t.trustedTypes, $f58f44579a4747ac$var$s = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.createPolicy("lit-html", {
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "_$LH", ()=>Z);
+parcelHelpers.export(exports, "html", ()=>x);
+parcelHelpers.export(exports, "mathml", ()=>w);
+parcelHelpers.export(exports, "noChange", ()=>T);
+parcelHelpers.export(exports, "nothing", ()=>E);
+parcelHelpers.export(exports, "render", ()=>B);
+parcelHelpers.export(exports, "svg", ()=>b);
+const t = globalThis, i = t.trustedTypes, s = i ? i.createPolicy("lit-html", {
     createHTML: (t)=>t
-}) : void 0, $f58f44579a4747ac$var$e = "$lit$", $f58f44579a4747ac$var$h = `lit$${Math.random().toFixed(9).slice(2)}$`, $f58f44579a4747ac$var$o = "?" + $f58f44579a4747ac$var$h, $f58f44579a4747ac$var$n = `<${$f58f44579a4747ac$var$o}>`, $f58f44579a4747ac$var$r = document, $f58f44579a4747ac$var$l = ()=>$f58f44579a4747ac$var$r.createComment(""), $f58f44579a4747ac$var$c = (t)=>null === t || "object" != typeof t && "function" != typeof t, $f58f44579a4747ac$var$a = Array.isArray, $f58f44579a4747ac$var$u = (t)=>$f58f44579a4747ac$var$a(t) || "function" == typeof t?.[Symbol.iterator], $f58f44579a4747ac$var$d = "[ \t\n\f\r]", $f58f44579a4747ac$var$f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $f58f44579a4747ac$var$v = /-->/g, $f58f44579a4747ac$var$_ = />/g, $f58f44579a4747ac$var$m = RegExp(`>|${$f58f44579a4747ac$var$d}(?:([^\\s"'>=/]+)(${$f58f44579a4747ac$var$d}*=${$f58f44579a4747ac$var$d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), $f58f44579a4747ac$var$p = /'/g, $f58f44579a4747ac$var$g = /"/g, $f58f44579a4747ac$var$$ = /^(?:script|style|textarea|title)$/i, $f58f44579a4747ac$var$y = (t)=>(i, ...s)=>({
+}) : void 0, e = "$lit$", h = `lit$${Math.random().toFixed(9).slice(2)}$`, o = "?" + h, n = `<${o}>`, r = document, l = ()=>r.createComment(""), c = (t)=>null === t || "object" != typeof t && "function" != typeof t, a = Array.isArray, u = (t)=>a(t) || "function" == typeof t?.[Symbol.iterator], d = "[ \t\n\f\r]", f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, v = /-->/g, _ = />/g, m = RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), p = /'/g, g = /"/g, $ = /^(?:script|style|textarea|title)$/i, y = (t)=>(i, ...s)=>({
             _$litType$: t,
             strings: i,
             values: s
-        }), $f58f44579a4747ac$export$c0bb0b647f701bb5 = $f58f44579a4747ac$var$y(1), $f58f44579a4747ac$export$7ed1367e7fa1ad68 = $f58f44579a4747ac$var$y(2), $f58f44579a4747ac$export$47d5b44d225be5b4 = $f58f44579a4747ac$var$y(3), $f58f44579a4747ac$export$9c068ae9cc5db4e8 = Symbol.for("lit-noChange"), $f58f44579a4747ac$export$45b790e32b2810ee = Symbol.for("lit-nothing"), $f58f44579a4747ac$var$A = new WeakMap, $f58f44579a4747ac$var$C = $f58f44579a4747ac$var$r.createTreeWalker($f58f44579a4747ac$var$r, 129);
-function $f58f44579a4747ac$var$P(t, i) {
-    if (!$f58f44579a4747ac$var$a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
-    return void 0 !== $f58f44579a4747ac$var$s ? $f58f44579a4747ac$var$s.createHTML(i) : i;
+        }), x = y(1), b = y(2), w = y(3), T = Symbol.for("lit-noChange"), E = Symbol.for("lit-nothing"), A = new WeakMap, C = r.createTreeWalker(r, 129);
+function P(t, i) {
+    if (!a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+    return void 0 !== s ? s.createHTML(i) : i;
 }
-const $f58f44579a4747ac$var$V = (t, i)=>{
+const V = (t, i)=>{
     const s = t.length - 1, o = [];
-    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = $f58f44579a4747ac$var$f;
+    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = f;
     for(let i = 0; i < s; i++){
         const s = t[i];
         let a, u, d = -1, y = 0;
-        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === $f58f44579a4747ac$var$f ? "!--" === u[1] ? c = $f58f44579a4747ac$var$v : void 0 !== u[1] ? c = $f58f44579a4747ac$var$_ : void 0 !== u[2] ? ($f58f44579a4747ac$var$$.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = $f58f44579a4747ac$var$m) : void 0 !== u[3] && (c = $f58f44579a4747ac$var$m) : c === $f58f44579a4747ac$var$m ? ">" === u[0] ? (c = r ?? $f58f44579a4747ac$var$f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? $f58f44579a4747ac$var$m : '"' === u[3] ? $f58f44579a4747ac$var$g : $f58f44579a4747ac$var$p) : c === $f58f44579a4747ac$var$g || c === $f58f44579a4747ac$var$p ? c = $f58f44579a4747ac$var$m : c === $f58f44579a4747ac$var$v || c === $f58f44579a4747ac$var$_ ? c = $f58f44579a4747ac$var$f : (c = $f58f44579a4747ac$var$m, r = void 0);
-        const x = c === $f58f44579a4747ac$var$m && t[i + 1].startsWith("/>") ? " " : "";
-        l += c === $f58f44579a4747ac$var$f ? s + $f58f44579a4747ac$var$n : d >= 0 ? (o.push(a), s.slice(0, d) + $f58f44579a4747ac$var$e + s.slice(d) + $f58f44579a4747ac$var$h + x) : s + $f58f44579a4747ac$var$h + (-2 === d ? i : x);
+        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === f ? "!--" === u[1] ? c = v : void 0 !== u[1] ? c = _ : void 0 !== u[2] ? ($.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = m) : void 0 !== u[3] && (c = m) : c === m ? ">" === u[0] ? (c = r ?? f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? m : '"' === u[3] ? g : p) : c === g || c === p ? c = m : c === v || c === _ ? c = f : (c = m, r = void 0);
+        const x = c === m && t[i + 1].startsWith("/>") ? " " : "";
+        l += c === f ? s + n : d >= 0 ? (o.push(a), s.slice(0, d) + e + s.slice(d) + h + x) : s + h + (-2 === d ? i : x);
     }
     return [
-        $f58f44579a4747ac$var$P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
+        P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
         o
     ];
 };
-class $f58f44579a4747ac$var$N {
+class N {
     constructor({ strings: t, _$litType$: s }, n){
         let r;
         this.parts = [];
         let c = 0, a = 0;
-        const u = t.length - 1, d = this.parts, [f, v] = $f58f44579a4747ac$var$V(t, s);
-        if (this.el = $f58f44579a4747ac$var$N.createElement(f, n), $f58f44579a4747ac$var$C.currentNode = this.el.content, 2 === s || 3 === s) {
+        const u = t.length - 1, d = this.parts, [f, v] = V(t, s);
+        if (this.el = N.createElement(f, n), C.currentNode = this.el.content, 2 === s || 3 === s) {
             const t = this.el.content.firstChild;
             t.replaceWith(...t.childNodes);
         }
-        for(; null !== (r = $f58f44579a4747ac$var$C.nextNode()) && d.length < u;){
+        for(; null !== (r = C.nextNode()) && d.length < u;){
             if (1 === r.nodeType) {
-                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith($f58f44579a4747ac$var$e)) {
-                    const i = v[a++], s = r.getAttribute(t).split($f58f44579a4747ac$var$h), e = /([.?@])?(.*)/.exec(i);
+                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith(e)) {
+                    const i = v[a++], s = r.getAttribute(t).split(h), e = /([.?@])?(.*)/.exec(i);
                     d.push({
                         type: 1,
                         index: c,
                         name: e[2],
                         strings: s,
-                        ctor: "." === e[1] ? $f58f44579a4747ac$var$H : "?" === e[1] ? $f58f44579a4747ac$var$I : "@" === e[1] ? $f58f44579a4747ac$var$L : $f58f44579a4747ac$var$k
+                        ctor: "." === e[1] ? H : "?" === e[1] ? I : "@" === e[1] ? L : k
                     }), r.removeAttribute(t);
-                } else t.startsWith($f58f44579a4747ac$var$h) && (d.push({
+                } else t.startsWith(h) && (d.push({
                     type: 6,
                     index: c
                 }), r.removeAttribute(t));
-                if ($f58f44579a4747ac$var$$.test(r.tagName)) {
-                    const t = r.textContent.split($f58f44579a4747ac$var$h), s = t.length - 1;
+                if ($.test(r.tagName)) {
+                    const t = r.textContent.split(h), s = t.length - 1;
                     if (s > 0) {
-                        r.textContent = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.emptyScript : "";
-                        for(let i = 0; i < s; i++)r.append(t[i], $f58f44579a4747ac$var$l()), $f58f44579a4747ac$var$C.nextNode(), d.push({
+                        r.textContent = i ? i.emptyScript : "";
+                        for(let i = 0; i < s; i++)r.append(t[i], l()), C.nextNode(), d.push({
                             type: 2,
                             index: ++c
                         });
-                        r.append(t[s], $f58f44579a4747ac$var$l());
+                        r.append(t[s], l());
                     }
                 }
             } else if (8 === r.nodeType) {
-                if (r.data === $f58f44579a4747ac$var$o) d.push({
+                if (r.data === o) d.push({
                     type: 2,
                     index: c
                 });
                 else {
                     let t = -1;
-                    for(; -1 !== (t = r.data.indexOf($f58f44579a4747ac$var$h, t + 1));)d.push({
+                    for(; -1 !== (t = r.data.indexOf(h, t + 1));)d.push({
                         type: 7,
                         index: c
-                    }), t += $f58f44579a4747ac$var$h.length - 1;
+                    }), t += h.length - 1;
                 }
             }
             c++;
         }
     }
     static createElement(t, i) {
-        const s = $f58f44579a4747ac$var$r.createElement("template");
+        const s = r.createElement("template");
         return s.innerHTML = t, s;
     }
 }
-function $f58f44579a4747ac$var$S(t, i, s = t, e) {
-    if (i === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return i;
+function S(t, i, s = t, e) {
+    if (i === T) return i;
     let h = void 0 !== e ? s._$Co?.[e] : s._$Cl;
-    const o = $f58f44579a4747ac$var$c(i) ? void 0 : i._$litDirective$;
-    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = $f58f44579a4747ac$var$S(t, h._$AS(t, i.values), h, e)), i;
+    const o = c(i) ? void 0 : i._$litDirective$;
+    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = S(t, h._$AS(t, i.values), h, e)), i;
 }
-class $f58f44579a4747ac$var$M {
+class M {
     constructor(t, i){
         this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
     }
@@ -925,29 +1258,29 @@ class $f58f44579a4747ac$var$M {
         return this._$AM._$AU;
     }
     u(t) {
-        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? $f58f44579a4747ac$var$r).importNode(i, !0);
-        $f58f44579a4747ac$var$C.currentNode = e;
-        let h = $f58f44579a4747ac$var$C.nextNode(), o = 0, n = 0, l = s[0];
+        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? r).importNode(i, !0);
+        C.currentNode = e;
+        let h = C.nextNode(), o = 0, n = 0, l = s[0];
         for(; void 0 !== l;){
             if (o === l.index) {
                 let i;
-                2 === l.type ? i = new $f58f44579a4747ac$var$R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new $f58f44579a4747ac$var$z(h, this, t)), this._$AV.push(i), l = s[++n];
+                2 === l.type ? i = new R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new z(h, this, t)), this._$AV.push(i), l = s[++n];
             }
-            o !== l?.index && (h = $f58f44579a4747ac$var$C.nextNode(), o++);
+            o !== l?.index && (h = C.nextNode(), o++);
         }
-        return $f58f44579a4747ac$var$C.currentNode = $f58f44579a4747ac$var$r, e;
+        return C.currentNode = r, e;
     }
     p(t) {
         let i = 0;
         for (const s of this._$AV)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
     }
 }
-class $f58f44579a4747ac$var$R {
+class R {
     get _$AU() {
         return this._$AM?._$AU ?? this._$Cv;
     }
     constructor(t, i, s, e){
-        this.type = 2, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
+        this.type = 2, this._$AH = E, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
     }
     get parentNode() {
         let t = this._$AA.parentNode;
@@ -961,7 +1294,7 @@ class $f58f44579a4747ac$var$R {
         return this._$AB;
     }
     _$AI(t, i = this) {
-        t = $f58f44579a4747ac$var$S(this, t, i), $f58f44579a4747ac$var$c(t) ? t === $f58f44579a4747ac$export$45b790e32b2810ee || null == t || "" === t ? (this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && this._$AR(), this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee) : t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8 && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : $f58f44579a4747ac$var$u(t) ? this.k(t) : this._(t);
+        t = S(this, t, i), c(t) ? t === E || null == t || "" === t ? (this._$AH !== E && this._$AR(), this._$AH = E) : t !== this._$AH && t !== T && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : u(t) ? this.k(t) : this._(t);
     }
     O(t) {
         return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -970,25 +1303,25 @@ class $f58f44579a4747ac$var$R {
         this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
     }
     _(t) {
-        this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && $f58f44579a4747ac$var$c(this._$AH) ? this._$AA.nextSibling.data = t : this.T($f58f44579a4747ac$var$r.createTextNode(t)), this._$AH = t;
+        this._$AH !== E && c(this._$AH) ? this._$AA.nextSibling.data = t : this.T(r.createTextNode(t)), this._$AH = t;
     }
     $(t) {
-        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = $f58f44579a4747ac$var$N.createElement($f58f44579a4747ac$var$P(s.h, s.h[0]), this.options)), s);
+        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = N.createElement(P(s.h, s.h[0]), this.options)), s);
         if (this._$AH?._$AD === e) this._$AH.p(i);
         else {
-            const t = new $f58f44579a4747ac$var$M(e, this), s = t.u(this.options);
+            const t = new M(e, this), s = t.u(this.options);
             t.p(i), this.T(s), this._$AH = t;
         }
     }
     _$AC(t) {
-        let i = $f58f44579a4747ac$var$A.get(t.strings);
-        return void 0 === i && $f58f44579a4747ac$var$A.set(t.strings, i = new $f58f44579a4747ac$var$N(t)), i;
+        let i = A.get(t.strings);
+        return void 0 === i && A.set(t.strings, i = new N(t)), i;
     }
     k(t) {
-        $f58f44579a4747ac$var$a(this._$AH) || (this._$AH = [], this._$AR());
+        a(this._$AH) || (this._$AH = [], this._$AR());
         const i = this._$AH;
         let s, e = 0;
-        for (const h of t)e === i.length ? i.push(s = new $f58f44579a4747ac$var$R(this.O($f58f44579a4747ac$var$l()), this.O($f58f44579a4747ac$var$l()), this, this.options)) : s = i[e], s._$AI(h), e++;
+        for (const h of t)e === i.length ? i.push(s = new R(this.O(l()), this.O(l()), this, this.options)) : s = i[e], s._$AI(h), e++;
         e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
     }
     _$AR(t = this._$AA.nextSibling, i) {
@@ -1001,7 +1334,7 @@ class $f58f44579a4747ac$var$R {
         void 0 === this._$AM && (this._$Cv = t, this._$AP?.(t));
     }
 }
-class $f58f44579a4747ac$var$k {
+class k {
     get tagName() {
         return this.element.tagName;
     }
@@ -1009,53 +1342,53 @@ class $f58f44579a4747ac$var$k {
         return this._$AM._$AU;
     }
     constructor(t, i, s, e, h){
-        this.type = 1, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee;
+        this.type = 1, this._$AH = E, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = E;
     }
     _$AI(t, i = this, s, e) {
         const h = this.strings;
         let o = !1;
-        if (void 0 === h) t = $f58f44579a4747ac$var$S(this, t, i, 0), o = !$f58f44579a4747ac$var$c(t) || t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8, o && (this._$AH = t);
+        if (void 0 === h) t = S(this, t, i, 0), o = !c(t) || t !== this._$AH && t !== T, o && (this._$AH = t);
         else {
             const e = t;
             let n, r;
-            for(t = h[0], n = 0; n < h.length - 1; n++)r = $f58f44579a4747ac$var$S(this, e[s + n], i, n), r === $f58f44579a4747ac$export$9c068ae9cc5db4e8 && (r = this._$AH[n]), o ||= !$f58f44579a4747ac$var$c(r) || r !== this._$AH[n], r === $f58f44579a4747ac$export$45b790e32b2810ee ? t = $f58f44579a4747ac$export$45b790e32b2810ee : t !== $f58f44579a4747ac$export$45b790e32b2810ee && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
+            for(t = h[0], n = 0; n < h.length - 1; n++)r = S(this, e[s + n], i, n), r === T && (r = this._$AH[n]), o ||= !c(r) || r !== this._$AH[n], r === E ? t = E : t !== E && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
         }
         o && !e && this.j(t);
     }
     j(t) {
-        t === $f58f44579a4747ac$export$45b790e32b2810ee ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+        t === E ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
     }
 }
-class $f58f44579a4747ac$var$H extends $f58f44579a4747ac$var$k {
+class H extends k {
     constructor(){
         super(...arguments), this.type = 3;
     }
     j(t) {
-        this.element[this.name] = t === $f58f44579a4747ac$export$45b790e32b2810ee ? void 0 : t;
+        this.element[this.name] = t === E ? void 0 : t;
     }
 }
-class $f58f44579a4747ac$var$I extends $f58f44579a4747ac$var$k {
+class I extends k {
     constructor(){
         super(...arguments), this.type = 4;
     }
     j(t) {
-        this.element.toggleAttribute(this.name, !!t && t !== $f58f44579a4747ac$export$45b790e32b2810ee);
+        this.element.toggleAttribute(this.name, !!t && t !== E);
     }
 }
-class $f58f44579a4747ac$var$L extends $f58f44579a4747ac$var$k {
+class L extends k {
     constructor(t, i, s, e, h){
         super(t, i, s, e, h), this.type = 5;
     }
     _$AI(t, i = this) {
-        if ((t = $f58f44579a4747ac$var$S(this, t, i, 0) ?? $f58f44579a4747ac$export$45b790e32b2810ee) === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return;
-        const s = this._$AH, e = t === $f58f44579a4747ac$export$45b790e32b2810ee && s !== $f58f44579a4747ac$export$45b790e32b2810ee || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== $f58f44579a4747ac$export$45b790e32b2810ee && (s === $f58f44579a4747ac$export$45b790e32b2810ee || e);
+        if ((t = S(this, t, i, 0) ?? E) === T) return;
+        const s = this._$AH, e = t === E && s !== E || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== E && (s === E || e);
         e && this.element.removeEventListener(this.name, this, s), h && this.element.addEventListener(this.name, this, t), this._$AH = t;
     }
     handleEvent(t) {
         "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
     }
 }
-class $f58f44579a4747ac$var$z {
+class z {
     constructor(t, i, s){
         this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
     }
@@ -1063,44 +1396,50 @@ class $f58f44579a4747ac$var$z {
         return this._$AM._$AU;
     }
     _$AI(t) {
-        $f58f44579a4747ac$var$S(this, t);
+        S(this, t);
     }
 }
-const $f58f44579a4747ac$export$8613d1ca9052b22e = {
-    M: $f58f44579a4747ac$var$e,
-    P: $f58f44579a4747ac$var$h,
-    A: $f58f44579a4747ac$var$o,
+const Z = {
+    M: e,
+    P: h,
+    A: o,
     C: 1,
-    L: $f58f44579a4747ac$var$V,
-    R: $f58f44579a4747ac$var$M,
-    D: $f58f44579a4747ac$var$u,
-    V: $f58f44579a4747ac$var$S,
-    I: $f58f44579a4747ac$var$R,
-    H: $f58f44579a4747ac$var$k,
-    N: $f58f44579a4747ac$var$I,
-    U: $f58f44579a4747ac$var$L,
-    B: $f58f44579a4747ac$var$H,
-    F: $f58f44579a4747ac$var$z
-}, $f58f44579a4747ac$var$j = $f58f44579a4747ac$var$t.litHtmlPolyfillSupport;
-$f58f44579a4747ac$var$j?.($f58f44579a4747ac$var$N, $f58f44579a4747ac$var$R), ($f58f44579a4747ac$var$t.litHtmlVersions ??= []).push("3.2.1");
-const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
+    L: V,
+    R: M,
+    D: u,
+    V: S,
+    I: R,
+    H: k,
+    N: I,
+    U: L,
+    B: H,
+    F: z
+}, j = t.litHtmlPolyfillSupport;
+j?.(N, R), (t.litHtmlVersions ??= []).push("3.2.1");
+const B = (t, i, s)=>{
     const e = s?.renderBefore ?? i;
     let h = e._$litPart$;
     if (void 0 === h) {
         const t = s?.renderBefore ?? null;
-        e._$litPart$ = h = new $f58f44579a4747ac$var$R(i.insertBefore($f58f44579a4747ac$var$l(), t), t, void 0, s ?? {});
+        e._$litPart$ = h = new R(i.insertBefore(l(), t), t, void 0, s ?? {});
     }
     return h._$AI(t), h;
 };
 
-
-
-
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9YxkX":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "LitElement", ()=>r);
+parcelHelpers.export(exports, "_$LE", ()=>o);
+var _reactiveElement = require("@lit/reactive-element");
+parcelHelpers.exportAll(_reactiveElement, exports);
+var _litHtml = require("lit-html");
+parcelHelpers.exportAll(_litHtml, exports);
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ class $ab210b2da7b39b9d$export$3f2f9f5909897157 extends (0, $19fe8e3abedf4df0$export$c7c07a37856565d) {
+ */ class r extends (0, _reactiveElement.ReactiveElement) {
     constructor(){
         super(...arguments), this.renderOptions = {
             host: this
@@ -1112,7 +1451,7 @@ const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
     }
     update(t) {
         const s = this.render();
-        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, $f58f44579a4747ac$export$b3890eb0ae9dca99)(s, this.renderRoot, this.renderOptions);
+        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, _litHtml.render)(s, this.renderRoot, this.renderOptions);
     }
     connectedCallback() {
         super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -1121,17 +1460,17 @@ const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
         super.disconnectedCallback(), this._$Do?.setConnected(!1);
     }
     render() {
-        return 0, $f58f44579a4747ac$export$9c068ae9cc5db4e8;
+        return 0, _litHtml.noChange;
     }
 }
-$ab210b2da7b39b9d$export$3f2f9f5909897157._$litElement$ = !0, $ab210b2da7b39b9d$export$3f2f9f5909897157["finalized"] = !0, globalThis.litElementHydrateSupport?.({
-    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+r._$litElement$ = !0, r["finalized"] = !0, globalThis.litElementHydrateSupport?.({
+    LitElement: r
 });
-const $ab210b2da7b39b9d$var$i = globalThis.litElementPolyfillSupport;
-$ab210b2da7b39b9d$var$i?.({
-    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+const i = globalThis.litElementPolyfillSupport;
+i?.({
+    LitElement: r
 });
-const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
+const o = {
     _$AK: (t, e, s)=>{
         t._$AK(e, s);
     },
@@ -1139,79 +1478,21 @@ const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
 };
 (globalThis.litElementVersions ??= []).push("4.1.1");
 
-
+},{"@lit/reactive-element":"hypet","lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e2OXP":[function(require,module,exports,__globalThis) {
 /**
  * @license
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */ const $a00bca1a101a9088$export$6acf61af03e62db = !1;
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isServer", ()=>o);
+const o = !1;
 
-
-
-
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const $9cd908ed2625c047$var$o = {
-    attribute: !0,
-    type: String,
-    converter: (0, $19fe8e3abedf4df0$export$7312b35fbf521afb),
-    reflect: !1,
-    hasChanged: (0, $19fe8e3abedf4df0$export$53a6892c50694894)
-}, $9cd908ed2625c047$export$8d623b1670eb40f4 = (t = $9cd908ed2625c047$var$o, e, r)=>{
-    const { kind: n, metadata: i } = r;
-    let s = globalThis.litPropertyMetadata.get(i);
-    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
-        const { name: o } = r;
-        return {
-            set (r) {
-                const n = e.get.call(this);
-                e.set.call(this, r), this.requestUpdate(o, n, t);
-            },
-            init (e) {
-                return void 0 !== e && this.P(o, void 0, t), e;
-            }
-        };
-    }
-    if ("setter" === n) {
-        const { name: o } = r;
-        return function(r) {
-            const n = this[o];
-            e.call(this, r), this.requestUpdate(o, n, t);
-        };
-    }
-    throw Error("Unsupported decorator location: " + n);
-};
-function $9cd908ed2625c047$export$d541bacb2bda4494(t) {
-    return (e, o)=>"object" == typeof o ? $9cd908ed2625c047$export$8d623b1670eb40f4(t, e, o) : ((t, e, o)=>{
-            const r = e.hasOwnProperty(o);
-            return e.constructor.createProperty(o, r ? {
-                ...t,
-                wrapped: !0
-            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
-        })(t, e, o);
-}
-
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function $04c21ea1ce1f6057$export$ca000e230c0caa3e(r) {
-    return (0, $9cd908ed2625c047$export$d541bacb2bda4494)({
-        ...r,
-        state: !0,
-        attribute: !1
-    });
-}
-
-
-
-
-
-var $af2e54d923abca22$export$2e2bcd8739ae039 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aTxNe":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _lit = require("lit");
+exports.default = (0, _lit.css)`
     .error {
         color: red;
         position: absolute;
@@ -1432,350 +1713,829 @@ li {
 }
 `;
 
+},{"lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lX6TJ":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "_", ()=>(0, _tslib.__decorate));
+var _tslib = require("tslib");
 
-class $dc03dc8aeb30ad35$export$b085454a5d0b0b56 extends (0, $ab210b2da7b39b9d$export$3f2f9f5909897157) {
-    static get properties() {
-        return {
-            electricity_price: {
-                state: true
-            },
-            date_time_iso: {
-                type: String
-            }
+},{"tslib":"lRdW5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lRdW5":[function(require,module,exports,__globalThis) {
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */ /* global Reflect, Promise, SuppressedError, Symbol, Iterator */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "__extends", ()=>__extends);
+parcelHelpers.export(exports, "__assign", ()=>__assign);
+parcelHelpers.export(exports, "__rest", ()=>__rest);
+parcelHelpers.export(exports, "__decorate", ()=>__decorate);
+parcelHelpers.export(exports, "__param", ()=>__param);
+parcelHelpers.export(exports, "__esDecorate", ()=>__esDecorate);
+parcelHelpers.export(exports, "__runInitializers", ()=>__runInitializers);
+parcelHelpers.export(exports, "__propKey", ()=>__propKey);
+parcelHelpers.export(exports, "__setFunctionName", ()=>__setFunctionName);
+parcelHelpers.export(exports, "__metadata", ()=>__metadata);
+parcelHelpers.export(exports, "__awaiter", ()=>__awaiter);
+parcelHelpers.export(exports, "__generator", ()=>__generator);
+parcelHelpers.export(exports, "__createBinding", ()=>__createBinding);
+parcelHelpers.export(exports, "__exportStar", ()=>__exportStar);
+parcelHelpers.export(exports, "__values", ()=>__values);
+parcelHelpers.export(exports, "__read", ()=>__read);
+/** @deprecated */ parcelHelpers.export(exports, "__spread", ()=>__spread);
+/** @deprecated */ parcelHelpers.export(exports, "__spreadArrays", ()=>__spreadArrays);
+parcelHelpers.export(exports, "__spreadArray", ()=>__spreadArray);
+parcelHelpers.export(exports, "__await", ()=>__await);
+parcelHelpers.export(exports, "__asyncGenerator", ()=>__asyncGenerator);
+parcelHelpers.export(exports, "__asyncDelegator", ()=>__asyncDelegator);
+parcelHelpers.export(exports, "__asyncValues", ()=>__asyncValues);
+parcelHelpers.export(exports, "__makeTemplateObject", ()=>__makeTemplateObject);
+parcelHelpers.export(exports, "__importStar", ()=>__importStar);
+parcelHelpers.export(exports, "__importDefault", ()=>__importDefault);
+parcelHelpers.export(exports, "__classPrivateFieldGet", ()=>__classPrivateFieldGet);
+parcelHelpers.export(exports, "__classPrivateFieldSet", ()=>__classPrivateFieldSet);
+parcelHelpers.export(exports, "__classPrivateFieldIn", ()=>__classPrivateFieldIn);
+parcelHelpers.export(exports, "__addDisposableResource", ()=>__addDisposableResource);
+parcelHelpers.export(exports, "__disposeResources", ()=>__disposeResources);
+parcelHelpers.export(exports, "__rewriteRelativeImportExtension", ()=>__rewriteRelativeImportExtension);
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || ({
+        __proto__: []
+    }) instanceof Array && function(d, b) {
+        d.__proto__ = b;
+    } || function(d, b) {
+        for(var p in b)if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+    };
+    return extendStatics(d, b);
+};
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() {
+        this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for(var s, i = 1, n = arguments.length; i < n; i++){
+            s = arguments[i];
+            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+function __rest(s, e) {
+    var t = {};
+    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") {
+        for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++)if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+    }
+    return t;
+}
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+function __param(paramIndex, decorator) {
+    return function(target, key) {
+        decorator(target, key, paramIndex);
+    };
+}
+function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) {
+        if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected");
+        return f;
+    }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for(var i = decorators.length - 1; i >= 0; i--){
+        var context = {};
+        for(var p in contextIn)context[p] = p === "access" ? {} : contextIn[p];
+        for(var p in contextIn.access)context.access[p] = contextIn.access[p];
+        context.addInitializer = function(f) {
+            if (done) throw new TypeError("Cannot add initializers after decoration has completed");
+            extraInitializers.push(accept(f || null));
         };
-    }
-    setConfig(config) {
-        this.electricity_price = config.electricity_price;
-        this.date_time_iso = config.date_time_iso;
-        if (this._hass) this.hass = this._hass;
-    }
-    set hass(hass) {
-        if (!hass) return;
-        if (this._hass !== hass) {
-            console.log(this.tag + ": hass has changed...");
-            this._hass = hass;
-            this.checkDependencies();
+        var result = (0, decorators[i])(kind === "accessor" ? {
+            get: descriptor.get,
+            set: descriptor.set
+        } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        } else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
         }
     }
-    checkDependencies() {
-        console.log(this.tag + ": Checking dependencies...");
-        this._dependencyMet = this._hass?.config?.components?.includes('electricitypricelevels');
-        if (this._dependencyMet === false) {
-            console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
-            console.error("Installed HACS integrations:", this._hass.config.components);
-        }
-    }
-    getCardSize() {
-        return 5;
-    }
-    static{
-        this.styles = (0, $af2e54d923abca22$export$2e2bcd8739ae039);
-    }
-    getLayoutOptions() {
-        return {
-            grid_rows: 8,
-            grid_columns: 12
-        };
-    }
-    electricityPriceSensorUpdated() {
-        //console.log(this.tag + "Electricity price entity changed: ", this.electricity_price);
-        //console.log(this.tag + "Current electricity price: ", this._hass.states[this.electricity_price]);
-        const prices = this._hass.states[this.electricity_price];
-        if (prices && prices.attributes && prices.attributes.rates) {
-            //console.log(this.tag + "Electricity prices: ", prices.attributes.rates.length);
-            let priceLevels = "";
-            let rates = [];
-            const firstRateStart = new Date(prices.attributes.rates[0].start);
-            const midnight = new Date(firstRateStart);
-            midnight.setHours(0, 0, 0, 0);
-            for (const rate of prices.attributes.rates){
-                const start = new Date(rate.start);
-                const end = new Date(rate.end);
-                const cost = rate.cost;
-                let millis = end.getTime() - start.getTime();
-                while(millis > 0){
-                    rates.push(cost);
-                    millis -= 60000;
-                }
-            }
-            for(let i = 0; i < rates.length; i += this.minutesPerLevel){
-                const chunk = rates.slice(i, i + this.minutesPerLevel);
-                // All entries must be below the thresholds to be considered low, medium or high.
-                if (chunk.length === 0) priceLevels += 'E';
-                else if (chunk.every((rate)=>rate < prices.attributes.low_threshold)) priceLevels += 'L';
-                else if (chunk.every((rate)=>rate < prices.attributes.high_threshold)) priceLevels += 'M';
-                else priceLevels += 'H';
-            }
-            //console.log(this.tag + "Electricity price levels: ", priceLevels.length);
-            priceLevels = priceLevels.padEnd(this.NUMBER_OF_LEVELS * 4, 'U');
-            this.updateLevels(priceLevels, this.now);
-        }
-    }
-    dateTimeUpdated() {
-        console.log(this.tag + ": Date time entity changed: ", this.date_time_iso);
-        const dateTimeSensor = this._hass.states[this.date_time_iso];
-        if (dateTimeSensor) {
-            const currentTime = new Date(dateTimeSensor.state);
-            console.log(this.tag + ": Current time from date_time_iso sensor: ", currentTime);
-            this.setClock(currentTime);
-        } else console.error(this.tag + " Date time sensor not found: ", this.date_time_iso);
-    }
-    updated(changedProperties) {
-        super.updated(changedProperties);
-        console.log(this.tag + ": Updated properties: ", changedProperties);
-        if (!this.isSimulating) {
-            if (changedProperties.has('electricity_price')) this.electricityPriceSensorUpdated();
-            if (changedProperties.has('date_time_iso')) this.dateTimeUpdated();
-        }
-    }
-    updateLevels(priceLevels, currentTime) {
-        // The clock will show 12 hours at a time, so we need to know levels from midnight and 36 hours ahead. Or 3 revolutions.
-        const clock = this.shadowRoot.querySelector('.clock');
-        if (clock && priceLevels.length > 0) {
-            const currentLevel = Math.floor((currentTime.getHours() * 60 + currentTime.getMinutes()) / this.minutesPerLevel);
-            let startIndex = currentLevel - this.HISTORY;
-            let endIndex = startIndex + this.NUMBER_OF_LEVELS - 1;
-            if (startIndex < 0) startIndex = 0;
-            for(let i = startIndex; i < endIndex; i++){
-                const slotIndex = i % this.NUMBER_OF_LEVELS;
-                this.levels[slotIndex] = priceLevels[i];
-            }
-            this.levels[endIndex % this.NUMBER_OF_LEVELS] = 'E';
-            const gradient = this.levels.map((level, index)=>{
-                const startAngle = index * this.degreesPerLevel;
-                const endAngle = startAngle + this.degreesPerLevel;
-                let color;
-                switch(level){
-                    case "L":
-                        color = "green";
-                        break;
-                    case "M":
-                        color = "yellow";
-                        break;
-                    case "H":
-                        color = "red";
-                        break;
-                    case "U":
-                        color = "magenta";
-                        break;
-                    case "S":
-                        color = "blue";
-                        break;
-                    case "E":
-                        color = "white";
-                        break;
-                    default:
-                        color = "grey";
-                }
-                return `${color} ${startAngle}deg ${endAngle}deg`;
-            }).join(', ');
-            clock.style.background = `conic-gradient(${gradient})`;
-        }
-    }
-    setAngle(hand, angle) {
-        this.shadowRoot.querySelector("." + hand).style.transform = "rotate(" + angle + "deg)";
-    }
-    setClock(currentTime) {
-        const currentHour = currentTime.getHours();
-        const currentMinute = currentTime.getMinutes();
-        const hrAngle = currentHour * 30 + currentMinute * 6 / 12;
-        const minAngle = currentMinute * 6;
-        this.setAngle("hour-hand", hrAngle);
-        this.setAngle("minute-hand", minAngle);
-    }
-    render() {
-        return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
-            <ha-card>
-                <div class="card-content">
-                    <div class="clock">
-                        <ul class='hours'>
-                            <li><span>1</span></li>
-                            <li><span>2</span></li>
-                            <li><span>3</span></li>
-                            <li><span>4</span></li>
-                            <li><span>5</span></li>
-                            <li><span>6</span></li>
-                            <li><span>7</span></li>
-                            <li><span>8</span></li>
-                            <li><span>9</span></li>
-                            <li><span>10</span></li>
-                            <li><span>11</span></li>
-                            <li><span>12</span></li>
-                        </ul>
-                        <div class="gradient-cover"></div>
-                        <div class='hour-hand'></div>
-                        <div class='minute-hand'></div>
-                        ${!this._dependencyMet ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
-                                    <div class="error">
-                                        <p>HACS integration 'electricitypricelevels' is not installed or loaded.</p>
-                                    </div>
-                                ` : ''}
-                        <!--
-                        ${this._dependencyMet && !this.electricity_price ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
-                                    <div class="error">
-                                        <p>electricity_price is not set.</p>
-                                    </div>
-                                ` : ''}
-                        -->
-                    </div>
-                </div>
-            </ha-card>
-        `;
-    }
-    static getConfigForm() {
-        return {
-            schema: [
-                {
-                    name: 'electricity_price',
-                    selector: {
-                        entity: {
-                            domain: 'sensor'
-                        }
-                    }
-                },
-                {
-                    name: 'date_time_iso',
-                    selector: {
-                        entity: {
-                            domain: 'sensor'
-                        }
-                    }
-                }
-            ]
-        };
-    }
-    // Retrieve levels from the electricitypricelevels service.
-    // Returns a LevelsResponse object with level_length, levels, low_threshold, and high_threshold.
-    // If the service call fails, returns a default LevelsResponse object with level_length 0
-    getLevels() {
-        console.log(this.tag + ": Fetching levels from electricitypricelevels service...");
-        if (this._hass) this._hass.callWS({
-            type: 'call_service',
-            domain: 'electricitypricelevels',
-            service: 'get_levels',
-            return_response: true
-        }).then((response)=>{
-            console.log(this.tag + " Service electricitypricelevels.get_levels called successfully.");
-            if (response) return response;
-            else return {
-                level_length: 0,
-                levels: "",
-                low_threshold: 0,
-                high_threshold: 0
-            };
-        }).catch((error)=>{
-            console.error(this.tag + " Error calling service electricitypricelevels.get_levels:", error);
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+}
+function __runInitializers(thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for(var i = 0; i < initializers.length; i++)value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    return useValue ? value : void 0;
+}
+function __propKey(x) {
+    return typeof x === "symbol" ? x : "".concat(x);
+}
+function __setFunctionName(f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", {
+        configurable: true,
+        value: prefix ? "".concat(prefix, " ", name) : name
+    });
+}
+function __metadata(metadataKey, metadataValue) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+}
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve) {
+            resolve(value);
         });
-        return {
-            level_length: 0,
-            levels: "",
-            low_threshold: 0,
-            high_threshold: 0
+    }
+    return new (P || (P = Promise))(function(resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+function __generator(thisArg, body) {
+    var _ = {
+        label: 0,
+        sent: function() {
+            if (t[0] & 1) throw t[1];
+            return t[1];
+        },
+        trys: [],
+        ops: []
+    }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+        return this;
+    }), g;
+    function verb(n) {
+        return function(v) {
+            return step([
+                n,
+                v
+            ]);
         };
     }
-    firstUpdated() {
-        console.log(this.tag + " First updated, initializing clock...");
-        let millisecondsUntilNextMinute = 0;
-        if (this.isSimulating) {
-            this.fakeLevels = "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS";
-            this.now.setHours(23, 50, 0, 0);
-        }
-        const scheduleNextTick = ()=>{
-            if (!this.isSimulating) {
-                this.now = new Date();
-                const nextMinute = new Date(this.now.getTime());
-                nextMinute.setSeconds(0, 0);
-                nextMinute.setMinutes(nextMinute.getMinutes() + 1);
-                millisecondsUntilNextMinute = nextMinute.getMilliseconds() - this.now.getMilliseconds();
-            } else {
-                // Simulating: just add 1 minute to the current time.
-                this.now.setMinutes(this.now.getMinutes() + 1);
-                // Time flies when simulating, one minute every 1000 milliseconds.
-                millisecondsUntilNextMinute = 50;
-                if (this.now.getHours() === 0 && this.now.getMinutes() === 0) {
-                    this.fakeLevels = this.fakeLevels.slice(120);
-                    this.fakeLevels += 'U'.repeat(120);
-                    console.log(this.tag + "New day: " + this.fakeLevels);
-                } else if (this.now.getHours() === 15 && this.now.getMinutes() === 0) {
-                    this.fakeLevels = this.fakeLevels.slice(0, -120);
-                    let newLevels = '';
-                    const levels = [
-                        'L',
-                        'M',
-                        'H'
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while(g && (g = 0, op[0] && (_ = 0)), _)try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [
+                op[0] & 2,
+                t.value
+            ];
+            switch(op[0]){
+                case 0:
+                case 1:
+                    t = op;
+                    break;
+                case 4:
+                    _.label++;
+                    return {
+                        value: op[1],
+                        done: false
+                    };
+                case 5:
+                    _.label++;
+                    y = op[1];
+                    op = [
+                        0
                     ];
-                    for(let i = 0; i < 24; i++){
-                        const level = levels[Math.floor(Math.random() * levels.length)];
-                        newLevels += level.repeat(5); // 5 slots per hour
+                    continue;
+                case 7:
+                    op = _.ops.pop();
+                    _.trys.pop();
+                    continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                        _ = 0;
+                        continue;
                     }
-                    this.fakeLevels += newLevels;
-                    console.log(this.tag + "New 24 hours: " + this.fakeLevels);
-                }
+                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                        _.label = op[1];
+                        break;
+                    }
+                    if (op[0] === 6 && _.label < t[1]) {
+                        _.label = t[1];
+                        t = op;
+                        break;
+                    }
+                    if (t && _.label < t[2]) {
+                        _.label = t[2];
+                        _.ops.push(op);
+                        break;
+                    }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop();
+                    continue;
             }
-            this.updateLevels(this.fakeLevels, this.now);
-            this.setClock(this.now);
-            this.intervalId = window.setTimeout(()=>{
-                scheduleNextTick();
-            }, millisecondsUntilNextMinute);
+            op = body.call(thisArg, _);
+        } catch (e) {
+            op = [
+                6,
+                e
+            ];
+            y = 0;
+        } finally{
+            f = t = 0;
+        }
+        if (op[0] & 5) throw op[1];
+        return {
+            value: op[0] ? op[1] : void 0,
+            done: true
         };
-        scheduleNextTick();
-        const clock = this.shadowRoot.querySelector('.clock');
-        if (clock) {
-            this.resizeObserver = new ResizeObserver(()=>{
-                this.updateHoursFontSize();
-            });
-            this.resizeObserver.observe(clock);
-        }
-    }
-    connectedCallback() {
-        super.connectedCallback();
-        requestAnimationFrame(()=>{
-            this.updateHoursFontSize();
-        });
-    }
-    disconnectedCallback() {
-        if (this.resizeObserver) this.resizeObserver.disconnect();
-        if (this.intervalId) clearTimeout(this.intervalId);
-        super.disconnectedCallback();
-    }
-    updateHoursFontSize() {
-        const cover = this.shadowRoot.querySelector('.gradient-cover');
-        const clock = this.shadowRoot.querySelector('.clock');
-        const hours = this.shadowRoot.querySelector('.hours');
-        if (cover && clock && hours) {
-            const clockRadius = clock.getBoundingClientRect().width / 2;
-            const coverRadius = cover.getBoundingClientRect().width / 2;
-            const sizeDiff = clockRadius - coverRadius;
-            if (sizeDiff > 0) {
-                const fontSize = Math.max(22, sizeDiff * 0.6);
-                hours.style.setProperty('font-size', `${fontSize}px`, 'important');
-            }
-        }
-    }
-    constructor(...args){
-        super(...args), this.tag = "LevelIndicatorClockCard", this.NUMBER_OF_LEVELS = 240, this.HISTORY = this.NUMBER_OF_LEVELS / 12 - 1, this.degreesPerLevel = 360 / this.NUMBER_OF_LEVELS, this.minutesPerLevel = 720 / this.NUMBER_OF_LEVELS, this.levels = new Array(this.NUMBER_OF_LEVELS).fill('U'), this._dependencyMet = false, this.now = new Date(), this.isSimulating = false, this.fakeLevels = "";
     }
 }
-(0, $24c52f343453d62d$export$29e00dfd3077644b)([
-    (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
-], $dc03dc8aeb30ad35$export$b085454a5d0b0b56.prototype, "electricity_price", void 0);
-(0, $24c52f343453d62d$export$29e00dfd3077644b)([
-    (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
-], $dc03dc8aeb30ad35$export$b085454a5d0b0b56.prototype, "date_time_iso", void 0);
-(0, $24c52f343453d62d$export$29e00dfd3077644b)([
-    (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
-], $dc03dc8aeb30ad35$export$b085454a5d0b0b56.prototype, "_dependencyMet", void 0);
+var __createBinding = Object.create ? function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) desc = {
+        enumerable: true,
+        get: function() {
+            return m[k];
+        }
+    };
+    Object.defineProperty(o, k2, desc);
+} : function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+};
+function __exportStar(m, o) {
+    for(var p in m)if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
+}
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function() {
+            if (o && i >= o.length) o = void 0;
+            return {
+                value: o && o[i++],
+                done: !o
+            };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
+    } catch (error) {
+        e = {
+            error: error
+        };
+    } finally{
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        } finally{
+            if (e) throw e.error;
+        }
+    }
+    return ar;
+}
+function __spread() {
+    for(var ar = [], i = 0; i < arguments.length; i++)ar = ar.concat(__read(arguments[i]));
+    return ar;
+}
+function __spreadArrays() {
+    for(var s = 0, i = 0, il = arguments.length; i < il; i++)s += arguments[i].length;
+    for(var r = Array(s), k = 0, i = 0; i < il; i++)for(var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)r[k] = a[j];
+    return r;
+}
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) {
+        for(var i = 0, l = from.length, ar; i < l; i++)if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
+        return this;
+    }, i;
+    function awaitReturn(f) {
+        return function(v) {
+            return Promise.resolve(v).then(f, reject);
+        };
+    }
+    function verb(n, f) {
+        if (g[n]) {
+            i[n] = function(v) {
+                return new Promise(function(a, b) {
+                    q.push([
+                        n,
+                        v,
+                        a,
+                        b
+                    ]) > 1 || resume(n, v);
+                });
+            };
+            if (f) i[n] = f(i[n]);
+        }
+    }
+    function resume(n, v) {
+        try {
+            step(g[n](v));
+        } catch (e) {
+            settle(q[0][3], e);
+        }
+    }
+    function step(r) {
+        r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
+    }
+    function fulfill(value) {
+        resume("next", value);
+    }
+    function reject(value) {
+        resume("throw", value);
+    }
+    function settle(f, v) {
+        if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+    }
+}
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function(e) {
+        throw e;
+    }), verb("return"), i[Symbol.iterator] = function() {
+        return this;
+    }, i;
+    function verb(n, f) {
+        i[n] = o[n] ? function(v) {
+            return (p = !p) ? {
+                value: __await(o[n](v)),
+                done: false
+            } : f ? f(v) : v;
+        } : f;
+    }
+}
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
+        return this;
+    }, i);
+    function verb(n) {
+        i[n] = o[n] && function(v) {
+            return new Promise(function(resolve, reject) {
+                v = o[n](v), settle(resolve, reject, v.done, v.value);
+            });
+        };
+    }
+    function settle(resolve, reject, d, v) {
+        Promise.resolve(v).then(function(v) {
+            resolve({
+                value: v,
+                done: d
+            });
+        }, reject);
+    }
+}
+function __makeTemplateObject(cooked, raw) {
+    if (Object.defineProperty) Object.defineProperty(cooked, "raw", {
+        value: raw
+    });
+    else cooked.raw = raw;
+    return cooked;
+}
+var __setModuleDefault = Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {
+        enumerable: true,
+        value: v
+    });
+} : function(o, v) {
+    o["default"] = v;
+};
+var ownKeys = function(o) {
+    ownKeys = Object.getOwnPropertyNames || function(o) {
+        var ar = [];
+        for(var k in o)if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+        return ar;
+    };
+    return ownKeys(o);
+};
+function __importStar(mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) {
+        for(var k = ownKeys(mod), i = 0; i < k.length; i++)if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+}
+function __importDefault(mod) {
+    return mod && mod.__esModule ? mod : {
+        default: mod
+    };
+}
+function __classPrivateFieldGet(receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+}
+function __classPrivateFieldSet(receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
+}
+function __classPrivateFieldIn(state, receiver) {
+    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function") throw new TypeError("Cannot use 'in' operator on non-object");
+    return typeof state === "function" ? receiver === state : state.has(receiver);
+}
+function __addDisposableResource(env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() {
+            try {
+                inner.call(this);
+            } catch (e) {
+                return Promise.reject(e);
+            }
+        };
+        env.stack.push({
+            value: value,
+            dispose: dispose,
+            async: async
+        });
+    } else if (async) env.stack.push({
+        async: true
+    });
+    return value;
+}
+var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+function __disposeResources(env) {
+    function fail(e) {
+        env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+        env.hasError = true;
+    }
+    var r, s = 0;
+    function next() {
+        while(r = env.stack.pop())try {
+            if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+            if (r.dispose) {
+                var result = r.dispose.call(r.value);
+                if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) {
+                    fail(e);
+                    return next();
+                });
+            } else s |= 1;
+        } catch (e) {
+            fail(e);
+        }
+        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+        if (env.hasError) throw env.error;
+    }
+    return next();
+}
+function __rewriteRelativeImportExtension(path, preserveJsx) {
+    if (typeof path === "string" && /^\.\.?\//.test(path)) return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
+        return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
+    });
+    return path;
+}
+exports.default = {
+    __extends: __extends,
+    __assign: __assign,
+    __rest: __rest,
+    __decorate: __decorate,
+    __param: __param,
+    __esDecorate: __esDecorate,
+    __runInitializers: __runInitializers,
+    __propKey: __propKey,
+    __setFunctionName: __setFunctionName,
+    __metadata: __metadata,
+    __awaiter: __awaiter,
+    __generator: __generator,
+    __createBinding: __createBinding,
+    __exportStar: __exportStar,
+    __values: __values,
+    __read: __read,
+    __spread: __spread,
+    __spreadArrays: __spreadArrays,
+    __spreadArray: __spreadArray,
+    __await: __await,
+    __asyncGenerator: __asyncGenerator,
+    __asyncDelegator: __asyncDelegator,
+    __asyncValues: __asyncValues,
+    __makeTemplateObject: __makeTemplateObject,
+    __importStar: __importStar,
+    __importDefault: __importDefault,
+    __classPrivateFieldGet: __classPrivateFieldGet,
+    __classPrivateFieldSet: __classPrivateFieldSet,
+    __classPrivateFieldIn: __classPrivateFieldIn,
+    __addDisposableResource: __addDisposableResource,
+    __disposeResources: __disposeResources,
+    __rewriteRelativeImportExtension: __rewriteRelativeImportExtension
+};
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bCPKi":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _customElementJs = require("@lit/reactive-element/decorators/custom-element.js");
+parcelHelpers.exportAll(_customElementJs, exports);
+var _propertyJs = require("@lit/reactive-element/decorators/property.js");
+parcelHelpers.exportAll(_propertyJs, exports);
+var _stateJs = require("@lit/reactive-element/decorators/state.js");
+parcelHelpers.exportAll(_stateJs, exports);
+var _eventOptionsJs = require("@lit/reactive-element/decorators/event-options.js");
+parcelHelpers.exportAll(_eventOptionsJs, exports);
+var _queryJs = require("@lit/reactive-element/decorators/query.js");
+parcelHelpers.exportAll(_queryJs, exports);
+var _queryAllJs = require("@lit/reactive-element/decorators/query-all.js");
+parcelHelpers.exportAll(_queryAllJs, exports);
+var _queryAsyncJs = require("@lit/reactive-element/decorators/query-async.js");
+parcelHelpers.exportAll(_queryAsyncJs, exports);
+var _queryAssignedElementsJs = require("@lit/reactive-element/decorators/query-assigned-elements.js");
+parcelHelpers.exportAll(_queryAssignedElementsJs, exports);
+var _queryAssignedNodesJs = require("@lit/reactive-element/decorators/query-assigned-nodes.js");
+parcelHelpers.exportAll(_queryAssignedNodesJs, exports);
 
+},{"@lit/reactive-element/decorators/custom-element.js":"cMf50","@lit/reactive-element/decorators/property.js":"ipYYa","@lit/reactive-element/decorators/state.js":"goyf7","@lit/reactive-element/decorators/event-options.js":"8b5ex","@lit/reactive-element/decorators/query.js":"kzuRy","@lit/reactive-element/decorators/query-all.js":"krNkJ","@lit/reactive-element/decorators/query-async.js":"a6gRJ","@lit/reactive-element/decorators/query-assigned-elements.js":"kKpwU","@lit/reactive-element/decorators/query-assigned-nodes.js":"2F824","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMf50":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "customElement", ()=>t);
+const t = (t)=>(e, o)=>{
+        void 0 !== o ? o.addInitializer(()=>{
+            customElements.define(t, e);
+        }) : customElements.define(t, e);
+    };
 
-customElements.define("level-indicator-clock", (0, $dc03dc8aeb30ad35$export$b085454a5d0b0b56));
-window.customCards = window.customCards || [];
-window.customCards.push({
-    type: "level-indicator-clock",
-    name: "LevelIndicatorClock",
-    description: "Clock with level indicators",
-    preview: true
-});
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ipYYa":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "property", ()=>n);
+parcelHelpers.export(exports, "standardProperty", ()=>r);
+var _reactiveElementJs = require("../reactive-element.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const o = {
+    attribute: !0,
+    type: String,
+    converter: (0, _reactiveElementJs.defaultConverter),
+    reflect: !1,
+    hasChanged: (0, _reactiveElementJs.notEqual)
+}, r = (t = o, e, r)=>{
+    const { kind: n, metadata: i } = r;
+    let s = globalThis.litPropertyMetadata.get(i);
+    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
+        const { name: o } = r;
+        return {
+            set (r) {
+                const n = e.get.call(this);
+                e.set.call(this, r), this.requestUpdate(o, n, t);
+            },
+            init (e) {
+                return void 0 !== e && this.P(o, void 0, t), e;
+            }
+        };
+    }
+    if ("setter" === n) {
+        const { name: o } = r;
+        return function(r) {
+            const n = this[o];
+            e.call(this, r), this.requestUpdate(o, n, t);
+        };
+    }
+    throw Error("Unsupported decorator location: " + n);
+};
+function n(t) {
+    return (e, o)=>"object" == typeof o ? r(t, e, o) : ((t, e, o)=>{
+            const r = e.hasOwnProperty(o);
+            return e.constructor.createProperty(o, r ? {
+                ...t,
+                wrapped: !0
+            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
+        })(t, e, o);
+}
 
+},{"../reactive-element.js":"hypet","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"goyf7":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "state", ()=>r);
+var _propertyJs = require("./property.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function r(r) {
+    return (0, _propertyJs.property)({
+        ...r,
+        state: !0,
+        attribute: !1
+    });
+}
+
+},{"./property.js":"ipYYa","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8b5ex":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "eventOptions", ()=>t);
+function t(t) {
+    return (n, o)=>{
+        const c = "function" == typeof n ? n : n[o];
+        Object.assign(c, t);
+    };
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kzuRy":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "query", ()=>e);
+var _baseJs = require("./base.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function e(e, r) {
+    return (n, s, i)=>{
+        const o = (t)=>t.renderRoot?.querySelector(e) ?? null;
+        if (r) {
+            const { get: e, set: r } = "object" == typeof s ? n : i ?? (()=>{
+                const t = Symbol();
+                return {
+                    get () {
+                        return this[t];
+                    },
+                    set (e) {
+                        this[t] = e;
+                    }
+                };
+            })();
+            return (0, _baseJs.desc)(n, s, {
+                get () {
+                    let t = e.call(this);
+                    return void 0 === t && (t = o(this), (null !== t || this.hasUpdated) && r.call(this, t)), t;
+                }
+            });
+        }
+        return (0, _baseJs.desc)(n, s, {
+            get () {
+                return o(this);
+            }
+        });
+    };
+}
+
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d0R9Y":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "desc", ()=>e);
+const e = (e, t, c)=>(c.configurable = !0, c.enumerable = !0, Reflect.decorate && "object" != typeof t && Object.defineProperty(e, t, c), c);
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"krNkJ":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "queryAll", ()=>r);
+var _baseJs = require("./base.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ let e;
+function r(r) {
+    return (n, o)=>(0, _baseJs.desc)(n, o, {
+            get () {
+                return (this.renderRoot ?? (e ??= document.createDocumentFragment())).querySelectorAll(r);
+            }
+        });
+}
+
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a6gRJ":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "queryAsync", ()=>r);
+var _baseJs = require("./base.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function r(r) {
+    return (n, e)=>(0, _baseJs.desc)(n, e, {
+            async get () {
+                return await this.updateComplete, this.renderRoot?.querySelector(r) ?? null;
+            }
+        });
+}
+
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKpwU":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "queryAssignedElements", ()=>o);
+var _baseJs = require("./base.js");
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function o(o) {
+    return (e, n)=>{
+        const { slot: r, selector: s } = o ?? {}, c = "slot" + (r ? `[name=${r}]` : ":not([name])");
+        return (0, _baseJs.desc)(e, n, {
+            get () {
+                const t = this.renderRoot?.querySelector(c), e = t?.assignedElements(o) ?? [];
+                return void 0 === s ? e : e.filter((t)=>t.matches(s));
+            }
+        });
+    };
+}
+
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2F824":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "queryAssignedNodes", ()=>n);
+var _baseJs = require("./base.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function n(n) {
+    return (o, r)=>{
+        const { slot: e } = n ?? {}, s = "slot" + (e ? `[name=${e}]` : ":not([name])");
+        return (0, _baseJs.desc)(o, r, {
+            get () {
+                const t = this.renderRoot?.querySelector(s);
+                return t?.assignedNodes(n) ?? [];
+            }
+        });
+    };
+}
+
+},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=LevelIndicatorClock.js.map
