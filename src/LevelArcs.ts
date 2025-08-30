@@ -1,4 +1,5 @@
 import {LevelIndicatorClockCard} from "./LevelIndicatorClockCard";
+import { minutesToAngle } from './utils';
 
 export class LevelArc {
     color: string;
@@ -67,6 +68,12 @@ export class LevelArcs {
                 }
             }
         }
+    }
+
+    insertLevelAtMinute(startMinute: number, lengthMinutes: number, color: string) {
+        const startAngle = minutesToAngle(startMinute);
+        const endAngle = minutesToAngle(startMinute + lengthMinutes);
+        this.insertLevelArc(color, startAngle, endAngle);
     }
 
     private insertAndMergeLevelArc(color: string, startAngle: number, endAngle: number) {

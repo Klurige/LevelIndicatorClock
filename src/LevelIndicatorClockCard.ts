@@ -3,31 +3,14 @@ import {property, state} from "lit/decorators.js";
 import styles from './levelindicatorclockcard.styles';
 import {HomeAssistant} from "custom-card-helpers";
 import {Config} from "./Config";
-import { LevelArc, LevelArcs } from './LevelArcs';
-
-interface LevelsResponse {
-    minutes_since_midnight: number;
-    level_length: number;
-    passed_levels: string;
-    future_levels: string;
-}
-
-interface Timestamp {
-    state: string;
-}
-
-const DEFAULT_LEVELS_RESPONSE: LevelsResponse = {
-    minutes_since_midnight: 0,
-    level_length: 0,
-    passed_levels: '',
-    future_levels: ''
-};
+import {LevelArcs} from './LevelArcs';
+import { compactToLevels, LevelsResponse } from './utils';
 
 export class LevelIndicatorClockCard extends LitElement {
     private intervalId: number | undefined;
     private isSimulating = false;
     private readonly SIMULATION_STEP_MINUTES = 1;
-    private readonly SIMULATION_UPDATE_PERIOD_MS = 1000;
+    private readonly SIMULATION_UPDATE_PERIOD_MS = 200;
 
     private current_time_minutes = 0;
     @property({type: String}) electricity_price = '';
@@ -53,6 +36,9 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private currentTime = new Date();
     private static MARKER_WIDTH_MINUTES: number = 3;
+    private static HISTORY_LENGTH_MINUTES = 60;
+    private passedColor: string;
+    private futureColor: string;
 
     static get properties() {
         return {
@@ -69,8 +55,9 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     set hass(hass: HomeAssistant) {
+        this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
         if (this.isSimulating || !hass) {
-            console.debug("[ClockCard] Skipping update: simulating or hass not available.");
+            console.error("[ClockCard] Skipping update: simulating or hass not available.");
             return;
         }
         const timestamp = hass.states[this.date_time_iso] as Timestamp;
@@ -78,9 +65,9 @@ export class LevelIndicatorClockCard extends LitElement {
         if (now.getTime() !== this.currentTime.getTime()) {
             this.currentTime = now;
             console.debug('[ClockCard] Current time: ', this.currentTime);
-            this.setClock(this.currentTime);
+            const currentMinutes = this.currentTime.getHours() * 60 + this.currentTime.getMinutes();
+            this.setCurrentMinute(currentMinutes);
         }
-        this._dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
         if (this._dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
         } else {
@@ -89,32 +76,10 @@ export class LevelIndicatorClockCard extends LitElement {
             if (compactLevels !== this.compactlevels) {
                 this.compactlevels = compactLevels ?? '';
                 console.debug('[ClockCard] sensor.compactlevels state:', this.compactlevels);
-                const result = this._compactToLevels(compactLevels);
+                const result = compactToLevels(compactLevels);
                 this._updateLevels(result);
             }
         }
-    }
-
-    private _compactToLevels(compactLevels: string | undefined): LevelsResponse {
-        // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
-        if (!compactLevels) {
-            return DEFAULT_LEVELS_RESPONSE;
-        }
-        const parts = compactLevels.split(":");
-        if (parts.length < 4) {
-            console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
-            return DEFAULT_LEVELS_RESPONSE;
-        }
-        const minutes_since_midnight = parseInt(parts[0], 10);
-        const level_length = parseInt(parts[1], 10);
-        const passed_levels = parts[2];
-        const future_levels = parts[3];
-        return {
-            minutes_since_midnight: minutes_since_midnight,
-            level_length: level_length,
-            passed_levels: passed_levels,
-            future_levels: future_levels
-        };
     }
 
     getCardSize() {
@@ -134,79 +99,58 @@ export class LevelIndicatorClockCard extends LitElement {
 
     updated(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
         super.updated(changedProperties);
-        console.debug('[ClockCard] Updated: ', changedProperties);
     }
 
     @state() private levelArcs: LevelArcs = new LevelArcs(this.getLevelColor('U'));
 
-    private static minutesToTime(minutes: number): string {
-        let hours = Math.floor(minutes / 60);
-        let mins = minutes % 60;
-        if (hours < 0) hours += 24;
-        if (mins < 0) mins += 60;
-        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-    }
-
-    private static minutesToAngle(minutes: number): number {
-        let angle = minutes / 2;
-        while (angle < 0) {
-            angle += 360;
-        }
-        while (angle > 360) {
-            angle -= 360;
-        }
-        return angle;
-    }
-
     private _updateLevels(levels: LevelsResponse) {
+        //console.debug('[ClockCard] Updating levels: ', levels);
         const currentMinute = this.current_time_minutes;
         const startOfCurrentSlot = Math.floor(levels.minutes_since_midnight / levels.level_length) * levels.level_length;
+        //console.debug("[ClockCard] Current minute:", currentMinute, "Start of current slot:", startOfCurrentSlot, "Minutes since midnight:", levels.minutes_since_midnight);
         const endOfCurrentSlot = startOfCurrentSlot + levels.level_length;
         const levelsHistoryLength = levels.passed_levels.length * levels.level_length
         const historyStartMinute = currentMinute - levelsHistoryLength;
         const futureEndMinute = historyStartMinute + 12 * 60;
         const startOfHistorySlot = Math.floor(historyStartMinute / levels.level_length) * levels.level_length;
         let endOfHistorySlot = startOfHistorySlot + levels.level_length;
+        //console.debug("[ClockCard] Start of history slot:", startOfHistorySlot, "End of history slot:", endOfHistorySlot, "Future end minute:", futureEndMinute);
+
+        // Fill in all passed levels
         let slotIndex = 0;
         let slotStartMinute = historyStartMinute;
-        let slotEndMinute = endOfHistorySlot;
-        while (slotStartMinute < startOfCurrentSlot) {
-            const levelChar = levels.passed_levels.charAt(slotIndex);
+        while (slotStartMinute < endOfHistorySlot) {
+            const  levelChar = (slotIndex < levels.passed_levels.length)?levels.passed_levels.charAt(slotIndex):'U';
             const color = this.getLevelColor(levelChar.toLowerCase());
             slotIndex++;
-            const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
-            const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
-            this.levelArcs.insertLevelArc(color, startAngle, endAngle);
-            slotStartMinute = endOfHistorySlot;
-            slotEndMinute += levels.level_length;
+            this.levelArcs.insertLevelAtMinute(slotStartMinute, levels.level_length, color);
+            slotStartMinute += levels.level_length;
         }
-        slotStartMinute = startOfCurrentSlot;
-        slotEndMinute = currentMinute;
-        slotIndex = 0;
+        // Also fill in any remaining part of the current slot that has passed
+        const currentLevelChar = (levels.future_levels.length > 0)?levels.future_levels.charAt(0):'U';
+        this.passedColor = this.getLevelColor(currentLevelChar.toLowerCase());
+        this.levelArcs.insertLevelAtMinute(startOfCurrentSlot, currentMinute - startOfCurrentSlot, this.passedColor);
 
-        const levelChar = levels.future_levels.charAt(slotIndex);
-        const color = this.getLevelColor(levelChar.toLowerCase());
-        slotIndex++;
-
-        const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
-        const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
-        this.levelArcs.insertLevelArc(color, startAngle, endAngle);
-        slotStartMinute = slotEndMinute;
-        slotEndMinute = endOfCurrentSlot;
-
-        while (slotStartMinute < futureEndMinute) {
-            //console.debug(`Slot ${slotIndex}: ${LevelIndicatorClockCard.minutesToTime(slotStartMinute)} - ${LevelIndicatorClockCard.minutesToTime(slotEndMinute)}`);
-            const levelChar = levels.future_levels.charAt(slotIndex);
-            //console.debug(`Slot ${slotIndex}:  Level char: ${levelChar}`);
+        // Fill in part of current slot that has not passed
+        const currentColor = this.getLevelColor(currentLevelChar);
+        this.levelArcs.insertLevelAtMinute(currentMinute, endOfCurrentSlot - currentMinute, currentColor);
+        // Fill in all future levels, until we reach currentMinute - HISTORY_LENGTH + 12*60
+        slotIndex = 1; // First future slot is already handled above
+        slotStartMinute = endOfCurrentSlot;
+        const slotEndMinute = slotStartMinute + 11 * 60 -  LevelIndicatorClockCard.HISTORY_LENGTH_MINUTES
+        while (slotStartMinute < slotEndMinute) {
+            const levelChar = (slotIndex < levels.future_levels.length)?levels.future_levels.charAt(slotIndex):'U';
             const color = this.getLevelColor(levelChar);
             slotIndex++;
-
-            const startAngle = LevelIndicatorClockCard.minutesToAngle(slotStartMinute);
-            const endAngle = LevelIndicatorClockCard.minutesToAngle(slotEndMinute);
-            this.levelArcs.insertLevelArc(color, startAngle, endAngle);
-            slotStartMinute = slotEndMinute;
-            slotEndMinute += levels.level_length;
+            this.levelArcs.insertLevelAtMinute(slotStartMinute, levels.level_length, color);
+            slotStartMinute += levels.level_length;
         }
+        // Fill in remaining part to reach futureEndMinute
+        const  futureLevelChar = (slotIndex < levels.future_levels.length)?levels.future_levels.charAt(slotIndex):'U';
+        this.futureColor = this.getLevelColor(futureLevelChar);
+        this.levelArcs.insertLevelAtMinute(slotStartMinute, futureEndMinute - slotStartMinute, this.futureColor);
+
+        this.setCurrentMinute(this.current_time_minutes)
     }
 
     private setAngle(hand, angle) {
@@ -218,65 +162,75 @@ export class LevelIndicatorClockCard extends LitElement {
         }
     }
 
-    private setClock(currentTime: Date) {
-        const currentHour = currentTime.getHours();
-        const currentMinute = currentTime.getMinutes();
+    private setCurrentMinute(currentMinutes: number) {
+        const previousCurrentTime = this.current_time_minutes;
+        const currentHour = currentMinutes % 60;
+        const currentMinute = currentMinutes - currentHour * 60;
         const hrAngle = currentHour * 30 + (currentMinute * 6 / 12);
         const minAngle = currentMinute * 6;
         this.setAngle("hour-hand", hrAngle);
         this.setAngle("minute-hand", minAngle);
         this.current_time_minutes = (currentHour * 60 + currentMinute) % 1440;
+
+
+        const passedStart = previousCurrentTime - LevelIndicatorClockCard.HISTORY_LENGTH_MINUTES;
+        const passedMinutes = (this.current_time_minutes - previousCurrentTime + 1440) % 1440;
+
+        // Change old minutes to future minutes.
+        this.levelArcs.insertLevelAtMinute(passedStart, passedMinutes, this.futureColor);
+        // Change passed minutes in current slot to passed color.
+        this.levelArcs.insertLevelAtMinute(previousCurrentTime, passedMinutes, this.passedColor);
+        // Add marker between past and future.
+        this.levelArcs.insertLevelAtMinute(passedStart + passedMinutes, LevelIndicatorClockCard.MARKER_WIDTH_MINUTES, this.getLevelColor('P'));
+        this.requestUpdate();
     }
-        private getLevelColor(level: string): string {
-                switch (level) {
-                    case "L":
-                        return "green"; // Green for low
-                    case "l":
-                        return "darkgreen"; // Dark green for low
-                    case "M":
-                        return "yellow"; // Yellow for medium
-                    case "m":
-                        return "olive"; // Dark yellow for medium
-                    case "H":
-                        return "red"; // Red for high
-                    case "h":
-                        return "maroon"; // Dark red for high
-                    case "S":
-                        return "blue"; // Blue for solar
-                    case "s":
-                        return "navy"; // Dark blue for solar
-                    case "U":
-                        return "magenta"; // Magenta for unknown
-                    case "u":
-                        return "purple"; // Dark magenta for unknown
-                    case "E":
-                        return "cyan"; // Cyan for error
-                    case "e":
-                        return "teal"; // Dark cyan for error
-                    case "P":
-                        return "white"; // White for passed
-                    case "p":
-                        return "gray"; // Dark grey for passed
-                    default:
-                        return "black"; // Black for other
-                }
-            }
+
+    private getLevelColor(level: string): string {
+        switch (level) {
+            case "L":
+                return "green"; // Green for low
+            case "l":
+                return "darkgreen"; // Dark green for low
+            case "M":
+                return "yellow"; // Yellow for medium
+            case "m":
+                return "olive"; // Dark yellow for medium
+            case "H":
+                return "red"; // Red for high
+            case "h":
+                return "maroon"; // Dark red for high
+            case "S":
+                return "blue"; // Blue for solar
+            case "s":
+                return "navy"; // Dark blue for solar
+            case "U":
+                return "magenta"; // Magenta for unknown
+            case "u":
+                return "purple"; // Dark magenta for unknown
+            case "E":
+                return "cyan"; // Cyan for error
+            case "e":
+                return "teal"; // Dark cyan for error
+            case "P":
+                return "white"; // White for passed
+            case "p":
+                return "gray"; // Dark grey for passed
+            default:
+                console.debug(`Unknown level character '${level}', defaulting to black.`);
+                return "black"; // Black for other
+        }
+    }
 
     render() {
-                const markerStartMinute = this.current_time_minutes - 60;
-                const markerEndMinute = markerStartMinute + LevelIndicatorClockCard.MARKER_WIDTH_MINUTES;
-                const markerStartAngle = LevelIndicatorClockCard.minutesToAngle(markerStartMinute);
-                const markerEndAngle = LevelIndicatorClockCard.minutesToAngle(markerEndMinute);
-                this.levelArcs.insertLevelArc(this.getLevelColor('E'), markerStartAngle, markerEndAngle);
-                const arcPaths = this.levelArcs.getArcs().map(levelArc => {
-                    const path = levelArc.arcToPath(
-                        LevelIndicatorClockCard.centerX,
-                        LevelIndicatorClockCard.centerY,
-                        LevelIndicatorClockCard.arcRadius
-                    );
-                    return svg`<path d="${path}" stroke="${levelArc.color}" stroke-width="${LevelIndicatorClockCard.arcStrokeWidth}" fill="none" />`;
-                });
-                return html`
+        const arcPaths = this.levelArcs.getArcs().map(levelArc => {
+            const path = levelArc.arcToPath(
+                LevelIndicatorClockCard.centerX,
+                LevelIndicatorClockCard.centerY,
+                LevelIndicatorClockCard.arcRadius
+            );
+            return svg`<path d="${path}" stroke="${levelArc.color}" stroke-width="${LevelIndicatorClockCard.arcStrokeWidth}" fill="none" />`;
+        });
+        return html`
             <ha-card>
                 ${!this._dependencyMet ?
                         html`
@@ -337,17 +291,44 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
+    _generateCompactLevels(currentMinutes: number): string {
+        // Should generate a string of format minutes_since_midnight:level_length:passed_levels:future_levels
+        // from the static data string that covers two full days.
+        // Result is for example 120:60:L:LLLLMMMMLLLL
+        const level_length = 60;
+        const static_data = "LMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMHMLMH"
+        const current_level_index = Math.floor(currentMinutes / level_length);
+        const passed_levels = (current_level_index > 0)?static_data.charAt(current_level_index-1):'U';
+        const future_levels = static_data.substring(current_level_index, current_level_index + 12);
+        return "" + currentMinutes + ":" + level_length + ":" + passed_levels + ":" + future_levels;
+
+    }
+
     firstUpdated() {
         console.log("[ClockCard] First updated, initializing clock...");
 
         if (this.isSimulating) {
+            console.debug("[ClockCard] Starting in simulation mode.");
             this.currentTime = new Date();
             this.currentTime.setHours(0, 0, 0, 0);
-
+            const minutesPassed = this.currentTime.getHours() * 60 + this.currentTime.getMinutes();
+                const levels = this._generateCompactLevels(minutesPassed)
+                const result = compactToLevels(levels);
+                console.debug("[ClockCard] Getting levels: ", levels, result);
+                this._updateLevels(result);
+                this.requestUpdate();
             const scheduleNextTick = () => {
                 this.currentTime.setMinutes(this.currentTime.getMinutes() + this.SIMULATION_STEP_MINUTES);
-
-                this.setClock(this.currentTime);
+                const currentMinutes = this.currentTime.getHours() * 60 + this.currentTime.getMinutes();
+                this.setCurrentMinute(currentMinutes);
+                if (this.currentTime.getMinutes() === 0) {
+                    const minutesPassed = this.currentTime.getHours() * 60 + this.currentTime.getMinutes();
+                    const levels = this._generateCompactLevels(minutesPassed)
+                    const result = compactToLevels(levels);
+                    console.debug("[ClockCard] Getting levels: ", levels, result);
+                    this._updateLevels(result);
+                    this.requestUpdate();
+                }
 
                 this.intervalId = window.setTimeout(() => {
                     scheduleNextTick();
@@ -357,8 +338,8 @@ export class LevelIndicatorClockCard extends LitElement {
             scheduleNextTick();
         }
 
-        this.setClock(this.currentTime);
-
+        const currentMinutes = this.currentTime.getHours() * 60 + this.currentTime.getMinutes();
+        this.setCurrentMinute(currentMinutes);
     }
 
     connectedCallback() {
@@ -372,4 +353,8 @@ export class LevelIndicatorClockCard extends LitElement {
         super.disconnectedCallback();
     }
 
+}
+
+interface Timestamp {
+    state: string;
 }
