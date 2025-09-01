@@ -1,5 +1,5 @@
 import {LevelIndicatorClockCard} from "./LevelIndicatorClockCard";
-import { minutesToAngle } from './utils';
+import {getCaller, getLevelColor, minutesToAngle} from './utils';
 
 export class LevelArc {
     color: string;
@@ -46,8 +46,8 @@ export class LevelArc {
 export class LevelArcs {
     private readonly arcs: LevelArc[] = [];
 
-    constructor(initialColor: string = 'magenta') {
-        this.arcs = [new LevelArc(initialColor, 0, 360)];
+    constructor(initialLevel: string = 'U') {
+        this.arcs = [new LevelArc(getLevelColor(initialLevel), 0, 360)];
     }
 
     getArcs(): LevelArc[] {
@@ -55,7 +55,7 @@ export class LevelArcs {
     }
 
     insertLevelArc(color: string, startAngle: number, endAngle: number) {
-//        console.debug(`Inserting level arc: color=${color}, startAngle=${startAngle}, endAngle=${endAngle}`);
+        //console.debug(`Inserting level arc: color=${color}, startAngle=${startAngle}, endAngle=${endAngle}`);
         if (startAngle >= 0 && startAngle <= 360 && endAngle >= 0 && endAngle <= 360) {
             if (startAngle < endAngle) {
                 this.insertAndMergeLevelArc(color, startAngle, endAngle);
@@ -70,10 +70,10 @@ export class LevelArcs {
         }
     }
 
-    insertLevelAtMinute(startMinute: number, lengthMinutes: number, color: string) {
+    insertLevelAtMinute(startMinute: number, lengthMinutes: number, level: string) {
         const startAngle = minutesToAngle(startMinute);
         const endAngle = minutesToAngle(startMinute + lengthMinutes);
-        this.insertLevelArc(color, startAngle, endAngle);
+        this.insertLevelArc(getLevelColor(level), startAngle, endAngle);
     }
 
     private insertAndMergeLevelArc(color: string, startAngle: number, endAngle: number) {

@@ -46,3 +46,59 @@ export function compactToLevels(compactLevels: string | undefined): LevelsRespon
         future_levels: future_levels
     };
 }
+
+function extractFunctionName(line: string): string {
+    const atIndex = line.indexOf('at ');
+    if (atIndex === -1) return 'unknown';
+    let afterAt = line.substring(atIndex + 3);
+    const parenIndex = afterAt.indexOf('(');
+    const spaceIndex = afterAt.indexOf(' ');
+    let endIndex = parenIndex !== -1 ? parenIndex : (spaceIndex !== -1 ? spaceIndex : afterAt.length);
+    return afterAt.substring(0, endIndex).trim() + "()";
+}
+
+export function getCaller(): string {
+    const stack = new Error().stack;
+    if (stack) {
+        const lines = stack.split('\n');
+        const functionName = lines[2] ? extractFunctionName(lines[2]) : 'unknown';
+        const callerLine = lines[3] ? extractFunctionName(lines[3]) : 'unknown';
+        return functionName + " called from " + callerLine;
+    }
+    return 'unknown caller';
+}
+export function getLevelColor(level: string): string {
+     switch (level) {
+        case "L":
+            return "green"; // Green for low
+        case "l":
+            return "darkgreen"; // Dark green for low
+        case "M":
+            return "yellow"; // Yellow for medium
+        case "m":
+            return "olive"; // Dark yellow for medium
+        case "H":
+            return "red"; // Red for high
+        case "h":
+            return "maroon"; // Dark red for high
+        case "S":
+            return "blue"; // Blue for solar
+        case "s":
+            return "navy"; // Dark blue for solar
+        case "U":
+            return "magenta"; // Magenta for unknown
+        case "u":
+            return "purple"; // Dark magenta for unknown
+        case "E":
+            return "cyan"; // Cyan for error
+        case "e":
+            return "teal"; // Dark cyan for error
+        case "P":
+            return "white"; // White for passed
+        case "p":
+            return "gray"; // Dark grey for passed
+        default:
+            console.debug(`Unknown level character '${level}', defaulting to black.`);
+            return "black"; // Black for other
+    }
+}
