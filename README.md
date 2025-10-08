@@ -17,7 +17,7 @@ There is also a white delimiter marking the breakpoint between the past and the 
 
 ## Prerequisites
 This card is tightly coupled with the **[electricitypricelevels](https://github.com/Klurige/electricitypricelevels)** integration.
-Install that integration, including its dependencies, first.
+Install that integration, including its dependencies, first. Also make sure that the diagnostic entity "Compact Levels" is enabled.
 
 ## Installation
 ### HACS (Home Assistant Community Store)
@@ -99,29 +99,30 @@ Other browsers may have different shortcuts.
 
 Unit tests are written using [Jest](https://jestjs.io/).
 
-To run all unit tests, execute:
-
-```sh
-npx jest
+```bash
+npm test
 ```
 
-You can also run tests with coverage:
+## Code Quality
 
-```sh
-npx jest --coverage
+### Naming Conventions Audit
+
+This project follows strict naming conventions for consistency and maintainability. You can run an automated audit to check compliance:
+
+```bash
+npm run audit:naming
 ```
 
-Ensure you have installed all dependencies first:
+The audit checks for:
+- ✅ Variables use `camelCase`
+- ✅ Constants use `UPPER_SNAKE_CASE`
+- ✅ Classes/Interfaces use `PascalCase`
+- ✅ Methods use `camelCase` (no underscore prefixes)
+- ✅ CSS selectors use `kebab-case`
 
-```sh
-npm install
-```
+The tool will report any naming issues with file locations and provide a score out of 100.
 
-## Troubleshooting
-If you have issues, please [open an issue on GitHub](https://github.com/Klurige/levelindicatorclock/issues).
-
-## Contributing
-Contributions are welcome! Please open a pull request with your changes.
+For detailed naming conventions, see [NAMING_CONVENTIONS.md](NAMING_CONVENTIONS.md).
 
 ## License
 This project is licensed under the GNU General Public License (GPL). See the [LICENSE](LICENSE) file for details.

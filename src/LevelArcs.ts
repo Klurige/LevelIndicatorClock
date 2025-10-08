@@ -1,5 +1,4 @@
-import {LevelIndicatorClockCard} from "./LevelIndicatorClockCard";
-import {getCaller, getLevelColor, minutesToAngle} from './utils';
+import {getLevelColor, minutesToAngle} from './utils';
 
 export class LevelArc {
     color: string;

@@ -35,16 +35,21 @@ export function compactToLevels(compactLevels: string | undefined): LevelsRespon
         console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
         return DEFAULT_LEVELS_RESPONSE;
     }
-    const minutes_since_midnight = parseInt(parts[0], 10);
-    const level_length = parseInt(parts[1], 10);
-    const passed_levels = parts[2];
-    const future_levels = parts[3];
+    const minutesSinceMidnight = parseInt(parts[0], 10);
+    const levelLength = parseInt(parts[1], 10);
+    const passedLevels = parts[2];
+    const futureLevels = parts[3];
     return {
-        minutes_since_midnight: minutes_since_midnight,
-        level_length: level_length,
-        passed_levels: passed_levels,
-        future_levels: future_levels
+        minutes_since_midnight: minutesSinceMidnight,
+        level_length: levelLength,
+        passed_levels: passedLevels,
+        future_levels: futureLevels
     };
+}
+
+export function getCurrentMinutesSinceMidnight(): number {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
 }
 
 function extractFunctionName(line: string): string {
