@@ -15,6 +15,9 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private currentTimeMinutes = 0;
     @property({type: String}) compactLevels = '';
+    private compactLevelsEntity = '';
+    private hasReceivedData = false;
+    private _hass: HomeAssistant | undefined;
     @state() private dependencyMet = false;
     @state() private hourHandEnd = {x: 100, y: 55};
     @state() private minuteHandEnd = {x: 100, y: 40};
@@ -52,10 +55,19 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     setConfig(config: Config) {
-        this.compactLevels = config.compact_levels;
+        const newEntity = config.compact_levels ?? '';
+        if (newEntity !== this.compactLevelsEntity) {
+            this.compactLevelsEntity = newEntity;
+            this.compactLevels = '';
+            this.hasReceivedData = false;
+            if (this._hass && this.compactLevelsEntity) {
+                this.updateFromHass(this._hass);
+            }
+        }
     }
 
     set hass(hass: HomeAssistant) {
+        this._hass = hass;
         this.dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
         if (this.isSimulating || !hass) {
             console.error("[ClockCard] Skipping update: simulating or hass not available.");
@@ -63,15 +75,20 @@ export class LevelIndicatorClockCard extends LitElement {
         }
         if (this.dependencyMet === false) {
             console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
-        } else {
-            const compactLevelsState = hass.states?.['sensor.compactlevels'];
-            const compactLevels = compactLevelsState?.attributes?.compact ?? undefined;
-            if (compactLevels !== this.compactLevels) {
-                this.compactLevels = compactLevels ?? '';
-                console.debug('[ClockCard] sensor.compactlevels state:', this.compactLevels);
-                const result = compactToLevels(compactLevels);
-                this.updateLevels(result);
-            }
+        } else if (this.compactLevelsEntity) {
+            this.updateFromHass(hass);
+        }
+    }
+
+    private updateFromHass(hass: HomeAssistant) {
+        const compactLevelsState = hass.states?.[this.compactLevelsEntity];
+        const compactLevels = compactLevelsState?.attributes?.compact ?? undefined;
+        if (compactLevels !== this.compactLevels) {
+            this.hasReceivedData = true;
+            this.compactLevels = compactLevels ?? '';
+            console.debug(`[ClockCard] ${this.compactLevelsEntity} state:`, this.compactLevels);
+            const result = compactToLevels(compactLevels);
+            this.updateLevels(result);
         }
     }
 
@@ -297,23 +314,7 @@ export class LevelIndicatorClockCard extends LitElement {
         return {
             schema: [
                 {
-                    name: 'electricity_price',
-                    selector: {
-                        entity: {
-                            domain: 'sensor',
-                        },
-                    },
-                },
-                {
-                    name: 'compactlevels',
-                    selector: {
-                        entity: {
-                            domain: 'sensor',
-                        },
-                    },
-                },
-                {
-                    name: 'date_time_iso',
+                    name: 'compact_levels',
                     selector: {
                         entity: {
                             domain: 'sensor',
@@ -321,6 +322,13 @@ export class LevelIndicatorClockCard extends LitElement {
                     },
                 },
             ],
+        };
+    }
+
+    static getStubConfig() {
+        return {
+            type: 'custom:level-indicator-clock',
+            compact_levels: '',
         };
     }
 
@@ -373,6 +381,18 @@ export class LevelIndicatorClockCard extends LitElement {
             };
 
             scheduleNextTick();
+        } else if (!this.hasReceivedData) {
+            // No real sensor data yet (e.g. card picker preview). Show demo arcs.
+            const now = getCurrentMinutesSinceMidnight();
+            const demoLevelLength = 60;
+            const pattern = 'LLLMMHHMMMHMMMLLLLMHMLLL';
+            const numPassed = Math.ceil(60 / demoLevelLength);
+            const numFuture = Math.ceil(12 * 60 / demoLevelLength);
+            const passed = pattern.substring(0, numPassed);
+            const future = pattern.substring(0, numFuture);
+            const demoCompact = `${now}:${demoLevelLength}:${passed}:${future}`;
+            const result = compactToLevels(demoCompact);
+            this.updateLevels(result);
         } else {
             this.setCurrentMinute(this.currentTimeMinutes);
         }
