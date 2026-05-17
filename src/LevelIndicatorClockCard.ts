@@ -1,4 +1,4 @@
-import {html, LitElement, PropertyValueMap, svg} from "lit";
+import {html, LitElement, svg} from "lit";
 import {property, state} from "lit/decorators.js";
 import styles from './levelindicatorclockcard.styles';
 import {HomeAssistant} from "custom-card-helpers";
@@ -38,23 +38,22 @@ export class LevelIndicatorClockCard extends LitElement {
 
     private static readonly MARKER_WIDTH_MINUTES = 3;
     private static readonly HISTORY_LENGTH_MINUTES = 60;
-    private levelLength: number;
-    private currentLevels: string;
-    private currentStartMinute: number;
-    private futureLevels: string;
-    private futureStartMinute: number;
+    private levelLength: number = 0;
+    private currentLevels: string = '';
+    private currentStartMinute: number = 0;
+    private futureLevels: string = '';
+    private futureStartMinute: number = 0;
     private isFirstUpdate: boolean = true;
 
     // New: ticker for advancing the clock every minute (real mode)
     private minuteTickerId: number | undefined;
 
-    static get properties() {
-        return {
-            compactlevels: {type: String},
-        };
-    }
+
 
     setConfig(config: Config) {
+        if (!config) {
+            throw new Error('No configuration provided.');
+        }
         const newEntity = config.compact_levels ?? '';
         if (newEntity !== this.compactLevelsEntity) {
             this.compactLevelsEntity = newEntity;
@@ -69,8 +68,13 @@ export class LevelIndicatorClockCard extends LitElement {
     set hass(hass: HomeAssistant) {
         this._hass = hass;
         this.dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
+
+        // Toggle dark mode class based on HA theme
+        const isDark = !!(hass?.themes as any)?.darkMode;
+        this.classList.toggle('dark', isDark);
+
         if (this.isSimulating || !hass) {
-            console.error("[ClockCard] Skipping update: simulating or hass not available.");
+            console.debug("[ClockCard] Skipping update: simulating or hass not available.");
             return;
         }
         if (this.dependencyMet === false) {
@@ -107,10 +111,6 @@ export class LevelIndicatorClockCard extends LitElement {
         };
     }
 
-    updated(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
-        super.updated(changedProperties);
-    }
-
     // Level to show for passed and future levels. requestUpdate() must be called to display any changes.
     private levelArcs: LevelArcs = new LevelArcs('U');
 
@@ -118,12 +118,13 @@ export class LevelIndicatorClockCard extends LitElement {
     private stopMinuteTicker() {
         if (this.minuteTickerId !== undefined) {
             console.debug('[ClockCard] Stopping existing minute ticker:', this.minuteTickerId);
-            clearInterval(this.minuteTickerId);
+            clearTimeout(this.minuteTickerId);
             this.minuteTickerId = undefined;
         }
     }
 
-    // Helper to start the minute ticker. Immediately sets the current minute and then increments once per real minute.
+    // Helper to start the minute ticker. Immediately sets the current minute and then
+    // schedules the next tick aligned to the wall-clock minute boundary to avoid drift.
     private startMinuteTicker(startMinutes: number) {
         if (this.isSimulating) {
             console.debug('[ClockCard] Simulation mode active; skipping startMinuteTicker.');
@@ -131,13 +132,17 @@ export class LevelIndicatorClockCard extends LitElement {
         }
         this.stopMinuteTicker();
         console.debug('[ClockCard] Starting minute ticker at', startMinutes);
-        // Immediately render the provided start minute
         this.setCurrentMinute(startMinutes);
-        // Then advance once every real minute
-        this.minuteTickerId = window.setInterval(() => {
-            // Use the existing current_time_minutes so it continues from the last value
-            this.setCurrentMinute(this.currentTimeMinutes + 1);
-        }, 60 * 1000);
+        this.scheduleNextMinuteTick();
+    }
+
+    private scheduleNextMinuteTick() {
+        const now = new Date();
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        this.minuteTickerId = window.setTimeout(() => {
+            this.setCurrentMinute(getCurrentMinutesSinceMidnight());
+            this.scheduleNextMinuteTick();
+        }, msUntilNextMinute);
     }
 
     /**
@@ -214,7 +219,7 @@ export class LevelIndicatorClockCard extends LitElement {
         this.startMinuteTicker(this.currentTimeMinutes);
     }
 
-    private setAngle(hand, angle) {
+    private setAngle(hand: string, angle: number): void {
         const handElement = this.shadowRoot?.querySelector("." + hand) as HTMLElement;
         if (handElement) {
             handElement.style.transform = "rotate(" + angle + "deg)";
@@ -291,19 +296,19 @@ export class LevelIndicatorClockCard extends LitElement {
                 }
                 ${svg`
                 <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="100" cy="100" r="95" fill="#f0f0f0" stroke="#333" stroke-width="2.5" />
+                    <circle cx="100" cy="100" r="95" class="clock-face" />
 
                     ${arcPaths}
 
-                    <g font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
+                    <g class="hour-digits" font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
                         ${LevelIndicatorClockCard.hourDigits}
                     </g>
 
                     <line class="hour-hand" x1="100" y1="100" x2="${this.hourHandEnd.x}" y2="${this.hourHandEnd.y}"
-                          stroke="#000" stroke-width="5" stroke-linecap="round" />
+                          stroke-width="5" stroke-linecap="round" />
                     <line class="minute-hand" x1="100" y1="100" x2="${this.minuteHandEnd.x}" y2="${this.minuteHandEnd.y}"
-                          stroke="#000" stroke-width="3" stroke-linecap="round" />
-                    <circle cx="100" cy="100" r="4" fill="#000" />
+                          stroke-width="3" stroke-linecap="round" />
+                    <circle cx="100" cy="100" r="4" class="center-dot" />
                 </svg>
             `}
             </ha-card>
@@ -400,6 +405,10 @@ export class LevelIndicatorClockCard extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        // Restart the minute ticker when the card is reconnected (e.g. tab switch)
+        if (!this.isSimulating && this.currentTimeMinutes > 0) {
+            this.startMinuteTicker(getCurrentMinutesSinceMidnight());
+        }
     }
 
     disconnectedCallback() {

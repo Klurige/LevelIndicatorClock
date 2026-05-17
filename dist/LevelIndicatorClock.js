@@ -804,18 +804,18 @@ function $ed34c589b230c255$export$dcd0d083aa86c355(r) {
 
 var $af2e54d923abca22$export$2e2bcd8739ae039 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
     .error {
-        color: red;
+        color: var(--error-color, crimson);
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 3;
         text-align: center;
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: var(--card-background-color, rgba(255, 255, 255, 0.7));
         padding: 1em;
         border-radius: 1em;
     }
-    
+
     ha-card {
         display: flex;
         position: relative;
@@ -823,24 +823,62 @@ var $af2e54d923abca22$export$2e2bcd8739ae039 = (0, $def2de46b9306e8a$export$dbf3
         align-items: center;
         font-family: Helvetica, sans-serif;
         aspect-ratio: 1 / 1;
-}
-    
-.hour-hand {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-    z-index: 2;
-}
+    }
 
-.minute-hand {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center;
-    z-index: 2;
-}
+    /* Light mode (default) */
+    .clock-face {
+        fill: var(--card-background-color, whitesmoke);
+        stroke: var(--secondary-text-color, darkslategray);
+        stroke-width: 2.5;
+    }
 
+    .hour-digits {
+        fill: var(--primary-text-color, black);
+    }
+
+    .hour-hand {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: center;
+        z-index: 2;
+        stroke: #333;
+    }
+
+    .minute-hand {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: center;
+        z-index: 2;
+        stroke: #333;
+    }
+
+    .center-dot {
+        fill: #333;
+    }
+
+    /* Dark mode overrides */
+    :host(.dark) .clock-face {
+        fill: var(--secondary-text-color, gray);
+        stroke: #333;
+    }
+
+    :host(.dark) .hour-digits {
+        fill: #222;
+    }
+
+    :host(.dark) .hour-hand {
+        stroke: var(--card-background-color, whitesmoke);
+    }
+
+    :host(.dark) .minute-hand {
+        stroke: var(--card-background-color, whitesmoke);
+    }
+
+    :host(.dark) .center-dot {
+        fill: var(--card-background-color, whitesmoke);
+    }
 `;
 
 
@@ -867,6 +905,10 @@ function $60b09ee0d5d2adab$export$c46cf0b3c9436807(compactLevels) {
     }
     const minutesSinceMidnight = parseInt(parts[0], 10);
     const levelLength = parseInt(parts[1], 10);
+    if (isNaN(minutesSinceMidnight) || isNaN(levelLength)) {
+        console.error('[ClockCard] Invalid numeric values in compactLevels:', compactLevels);
+        return $60b09ee0d5d2adab$export$a05a539118602648;
+    }
     const passedLevels = parts[2];
     const futureLevels = parts[3];
     return {
@@ -879,25 +921,6 @@ function $60b09ee0d5d2adab$export$c46cf0b3c9436807(compactLevels) {
 function $60b09ee0d5d2adab$export$615f3482ca768fa4() {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
-}
-function $60b09ee0d5d2adab$var$extractFunctionName(line) {
-    const atIndex = line.indexOf('at ');
-    if (atIndex === -1) return 'unknown';
-    let afterAt = line.substring(atIndex + 3);
-    const parenIndex = afterAt.indexOf('(');
-    const spaceIndex = afterAt.indexOf(' ');
-    let endIndex = parenIndex !== -1 ? parenIndex : spaceIndex !== -1 ? spaceIndex : afterAt.length;
-    return afterAt.substring(0, endIndex).trim() + "()";
-}
-function $60b09ee0d5d2adab$export$2b79df552e3bc652() {
-    const stack = new Error().stack;
-    if (stack) {
-        const lines = stack.split('\n');
-        const functionName = lines[2] ? $60b09ee0d5d2adab$var$extractFunctionName(lines[2]) : 'unknown';
-        const callerLine = lines[3] ? $60b09ee0d5d2adab$var$extractFunctionName(lines[3]) : 'unknown';
-        return functionName + " called from " + callerLine;
-    }
-    return 'unknown caller';
 }
 function $60b09ee0d5d2adab$export$398e9b43dc594d8e(level) {
     switch(level){
@@ -938,11 +961,9 @@ function $60b09ee0d5d2adab$export$398e9b43dc594d8e(level) {
             return "teal";
         // Dark cyan for error
         case "P":
-            return "white";
-        // White for passed
+            return "transparent";
         case "p":
-            return "gray";
-        // Dark grey for passed
+            return "transparent";
         default:
             console.debug(`Unknown level character '${level}', defaulting to black.`);
             return "black";
@@ -1108,25 +1129,19 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
         $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "dependencyMet", $dc03dc8aeb30ad35$var$_descriptor2, this);
         $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "hourHandEnd", $dc03dc8aeb30ad35$var$_descriptor3, this);
         $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "minuteHandEnd", $dc03dc8aeb30ad35$var$_descriptor4, this);
-        this.levelLength = void 0;
-        this.currentLevels = void 0;
-        this.currentStartMinute = void 0;
-        this.futureLevels = void 0;
-        this.futureStartMinute = void 0;
+        this.levelLength = 0;
+        this.currentLevels = '';
+        this.currentStartMinute = 0;
+        this.futureLevels = '';
+        this.futureStartMinute = 0;
         this.isFirstUpdate = true;
         // New: ticker for advancing the clock every minute (real mode)
         this.minuteTickerId = void 0;
         // Level to show for passed and future levels. requestUpdate() must be called to display any changes.
         this.levelArcs = new (0, $c0718f6920ed4f91$export$aa6be83ed25c328c)('U');
     }
-    static get properties() {
-        return {
-            compactlevels: {
-                type: String
-            }
-        };
-    }
     setConfig(config) {
+        if (!config) throw new Error('No configuration provided.');
         const newEntity = config.compact_levels ?? '';
         if (newEntity !== this.compactLevelsEntity) {
             this.compactLevelsEntity = newEntity;
@@ -1138,8 +1153,11 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
     set hass(hass) {
         this._hass = hass;
         this.dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
+        // Toggle dark mode class based on HA theme
+        const isDark = !!hass?.themes?.darkMode;
+        this.classList.toggle('dark', isDark);
         if (this.isSimulating || !hass) {
-            console.error("[ClockCard] Skipping update: simulating or hass not available.");
+            console.debug("[ClockCard] Skipping update: simulating or hass not available.");
             return;
         }
         if (this.dependencyMet === false) console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
@@ -1167,18 +1185,16 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
             grid_columns: 12
         };
     }
-    updated(changedProperties) {
-        super.updated(changedProperties);
-    }
     // Helper to stop the minute ticker
     stopMinuteTicker() {
         if (this.minuteTickerId !== undefined) {
             console.debug('[ClockCard] Stopping existing minute ticker:', this.minuteTickerId);
-            clearInterval(this.minuteTickerId);
+            clearTimeout(this.minuteTickerId);
             this.minuteTickerId = undefined;
         }
     }
-    // Helper to start the minute ticker. Immediately sets the current minute and then increments once per real minute.
+    // Helper to start the minute ticker. Immediately sets the current minute and then
+    // schedules the next tick aligned to the wall-clock minute boundary to avoid drift.
     startMinuteTicker(startMinutes) {
         if (this.isSimulating) {
             console.debug('[ClockCard] Simulation mode active; skipping startMinuteTicker.');
@@ -1186,13 +1202,16 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
         }
         this.stopMinuteTicker();
         console.debug('[ClockCard] Starting minute ticker at', startMinutes);
-        // Immediately render the provided start minute
         this.setCurrentMinute(startMinutes);
-        // Then advance once every real minute
-        this.minuteTickerId = window.setInterval(()=>{
-            // Use the existing current_time_minutes so it continues from the last value
-            this.setCurrentMinute(this.currentTimeMinutes + 1);
-        }, 60000);
+        this.scheduleNextMinuteTick();
+    }
+    scheduleNextMinuteTick() {
+        const now = new Date();
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        this.minuteTickerId = window.setTimeout(()=>{
+            this.setCurrentMinute((0, $60b09ee0d5d2adab$export$615f3482ca768fa4)());
+            this.scheduleNextMinuteTick();
+        }, msUntilNextMinute);
     }
     /**
    * Update levels based on new data from electricitypricelevels.
@@ -1319,19 +1338,19 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
                         ` : ''}
                 ${(0, $f58f44579a4747ac$export$7ed1367e7fa1ad68)`
                 <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="100" cy="100" r="95" fill="#f0f0f0" stroke="#333" stroke-width="2.5" />
+                    <circle cx="100" cy="100" r="95" class="clock-face" />
 
                     ${arcPaths}
 
-                    <g font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
+                    <g class="hour-digits" font-family="Helvetica, sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">
                         ${LevelIndicatorClockCard.hourDigits}
                     </g>
 
                     <line class="hour-hand" x1="100" y1="100" x2="${this.hourHandEnd.x}" y2="${this.hourHandEnd.y}"
-                          stroke="#000" stroke-width="5" stroke-linecap="round" />
+                          stroke-width="5" stroke-linecap="round" />
                     <line class="minute-hand" x1="100" y1="100" x2="${this.minuteHandEnd.x}" y2="${this.minuteHandEnd.y}"
-                          stroke="#000" stroke-width="3" stroke-linecap="round" />
-                    <circle cx="100" cy="100" r="4" fill="#000" />
+                          stroke-width="3" stroke-linecap="round" />
+                    <circle cx="100" cy="100" r="4" class="center-dot" />
                 </svg>
             `}
             </ha-card>
@@ -1414,6 +1433,8 @@ let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0
     }
     connectedCallback() {
         super.connectedCallback();
+        // Restart the minute ticker when the card is reconnected (e.g. tab switch)
+        if (!this.isSimulating && this.currentTimeMinutes > 0) this.startMinuteTicker((0, $60b09ee0d5d2adab$export$615f3482ca768fa4)());
     }
     disconnectedCallback() {
         if (this.intervalId) clearTimeout(this.intervalId);

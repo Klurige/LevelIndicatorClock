@@ -37,6 +37,10 @@ export function compactToLevels(compactLevels: string | undefined): LevelsRespon
     }
     const minutesSinceMidnight = parseInt(parts[0], 10);
     const levelLength = parseInt(parts[1], 10);
+    if (isNaN(minutesSinceMidnight) || isNaN(levelLength)) {
+        console.error('[ClockCard] Invalid numeric values in compactLevels:', compactLevels);
+        return DEFAULT_LEVELS_RESPONSE;
+    }
     const passedLevels = parts[2];
     const futureLevels = parts[3];
     return {
@@ -52,26 +56,7 @@ export function getCurrentMinutesSinceMidnight(): number {
     return now.getHours() * 60 + now.getMinutes();
 }
 
-function extractFunctionName(line: string): string {
-    const atIndex = line.indexOf('at ');
-    if (atIndex === -1) return 'unknown';
-    let afterAt = line.substring(atIndex + 3);
-    const parenIndex = afterAt.indexOf('(');
-    const spaceIndex = afterAt.indexOf(' ');
-    let endIndex = parenIndex !== -1 ? parenIndex : (spaceIndex !== -1 ? spaceIndex : afterAt.length);
-    return afterAt.substring(0, endIndex).trim() + "()";
-}
 
-export function getCaller(): string {
-    const stack = new Error().stack;
-    if (stack) {
-        const lines = stack.split('\n');
-        const functionName = lines[2] ? extractFunctionName(lines[2]) : 'unknown';
-        const callerLine = lines[3] ? extractFunctionName(lines[3]) : 'unknown';
-        return functionName + " called from " + callerLine;
-    }
-    return 'unknown caller';
-}
 export function getLevelColor(level: string): string {
      switch (level) {
         case "L":
@@ -99,9 +84,9 @@ export function getLevelColor(level: string): string {
         case "e":
             return "teal"; // Dark cyan for error
         case "P":
-            return "white"; // White for passed
+            return "transparent";
         case "p":
-            return "gray"; // Dark grey for passed
+            return "transparent";
         default:
             console.debug(`Unknown level character '${level}', defaulting to black.`);
             return "black"; // Black for other
