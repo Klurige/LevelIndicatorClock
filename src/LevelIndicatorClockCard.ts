@@ -67,7 +67,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     set hass(hass: HomeAssistant) {
         this._hass = hass;
-        this.dependencyMet = hass?.config?.components?.includes('electricitypricelevels');
+        this.dependencyMet = hass?.config?.components?.includes('energyadvisor');
 
         // Toggle dark mode class based on HA theme
         const isDark = !!(hass?.themes as any)?.darkMode;
@@ -78,7 +78,7 @@ export class LevelIndicatorClockCard extends LitElement {
             return;
         }
         if (this.dependencyMet === false) {
-            console.error("HACS integration 'electricitypricelevels' is not installed or loaded.");
+            console.error("HACS integration 'energyadvisor' is not installed or loaded.");
         } else if (this.compactLevelsEntity) {
             this.updateFromHass(hass);
         }
@@ -146,7 +146,7 @@ export class LevelIndicatorClockCard extends LitElement {
     }
 
     /**
-     * Update levels based on new data from electricitypricelevels.
+     * Update levels based on new data from energyadvisor.
      *
      * When extracting the levels, there is always one level overlap since time could be in the middle of a level.
      * The current level is included in both passed_levels and future_levels. The first char of future_levels is at the end of current levels.
@@ -290,7 +290,7 @@ export class LevelIndicatorClockCard extends LitElement {
                 ${!this.dependencyMet ?
                         html`
                             <div class="error">
-                                <p>HACS integration 'electricitypricelevels' is not installed or loaded.</p>
+                                <p>HACS integration 'energyadvisor' is not installed or loaded.</p>
                             </div>
                         ` : ''
                 }

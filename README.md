@@ -7,7 +7,7 @@
 
 This card shows an analogue clock that presents current time and electricity price level for the next twelve hours.
 
-It is tightly coupled with the **[electricitypricelevels](https://github.com/Klurige/electricitypricelevels)** integration.
+It is tightly coupled with the **[energyadvisor](https://github.com/Klurige/energyadvisor)** integration.
 
 <img alt="Clock Image" src="./clock_image.png"/>
 
@@ -16,7 +16,7 @@ The outer circle shows red for high, yellow for medium and green for low electri
 There is also a white delimiter marking the breakpoint between the past and the future.
 
 ## Prerequisites
-This card is tightly coupled with the **[electricitypricelevels](https://github.com/Klurige/electricitypricelevels)** integration.
+This card is tightly coupled with the **[energyadvisor](https://github.com/Klurige/energyadvisor)** integration.
 Install that integration, including its dependencies, first. Also make sure that the diagnostic entity "Compact Levels" is enabled.
 
 ## Installation
@@ -47,7 +47,7 @@ entity: sensor.electricitypricelevels
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | type | string | **required** | `custom:level-indicator-clock-card` |
-| entity | string | **required** | The entity from the `electricitypricelevels` integration. |
+| entity | string | **required** | The entity from the `energyadvisor` integration. |
 
 ## Development
 ### Setup
