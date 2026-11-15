@@ -15,6 +15,30 @@ The outer circle shows red for high, yellow for medium and green for low electri
 
 There is also a white delimiter marking the breakpoint between the past and the future.
 
+## Level colours
+
+The sensor's compact levels use the following uppercase symbols. Past levels are displayed in darker shades.
+
+| Symbol | Colour | RGB | Meaning |
+|--------|--------|-----|---------|
+| `A` | Azure | `#0080ff` | Minutes indicator |
+| `B` | Teal | `#00665e` | Battery standby |
+| `C` | Cyan | `#00d9ff` | Battery charging |
+| `D` | Raspberry | `#c2185b` | Battery discharging |
+| `E` | Magenta | `#ff00ff` | Error |
+| `F` | Turquoise | `#00a88f` | Battery PV charging |
+| `H` | Red | `#ff0000` | High electricity price |
+| `I` | Amber | `#ffb000` | Seconds indicator |
+| `L` | Green | `#00c853` | Low electricity price |
+| `M` | Yellow | `#ffd600` | Medium electricity price |
+| `O` | Black | `#000000` | Off |
+| `P` | White | `#ffffff` | Current-time marker |
+| `S` | Blue | `#0066ff` | Solar electricity price |
+| `T` | Medium purple | `#9370db` | Battery selling |
+| `U` | Grey | `#808080` | Unknown or missing level |
+| `V` | Violet | `#8000ff` | Hours indicator |
+| `X` | Orange | `#ff8c00` | Battery maxuse |
+
 ## Prerequisites
 This card is tightly coupled with the **[energyadvisor](https://github.com/Klurige/energyadvisor)** integration.
 Install that integration, including its dependencies, first. Also make sure that the diagnostic entity "Compact Levels" is enabled.
@@ -40,14 +64,23 @@ Install that integration, including its dependencies, first. Also make sure that
 ## Configuration
 Add the card to your Lovelace dashboard:
 ```yaml
-type: custom:level-indicator-clock-card
-entity: sensor.electricitypricelevels
+type: custom:level-indicator-clock
+compact_levels: sensor.electricitypricelevels
+show_legend: true
 ```
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| type | string | **required** | `custom:level-indicator-clock-card` |
-| entity | string | **required** | The entity from the `energyadvisor` integration. |
+| type | string | **required** | `custom:level-indicator-clock` |
+| compact_levels | string | **required** | The compact levels sensor from the `energyadvisor` integration. |
+| show_legend | boolean | `false` | Show the colour legend below the clock. |
+
+The legend groups price or battery modes separately from common colours. A sensor
+whose entity ID contains `battery` (case-insensitive) is treated as a battery
+mode sensor; other sensors are treated as price sensors. Battery mode symbols
+are translated to the battery colours listed above: `S` → `B`, `P` → `F`,
+`E` → `T`, and `M` → `X`; `C` and `D` stay unchanged. Choose an entity ID
+containing `battery` when renaming the battery sensor.
 
 ## Development
 ### Setup

@@ -4,7 +4,29 @@ import styles from './levelindicatorclockcard.styles';
 import {HomeAssistant} from "custom-card-helpers";
 import {Config} from "./Config";
 import {LevelArcs} from './LevelArcs';
-import {compactToLevels, getCurrentMinutesSinceMidnight, LevelsResponse} from './utils';
+import {batteryModesToLevels, compactToLevels, getCurrentMinutesSinceMidnight, getLevelColor, LevelsResponse} from './utils';
+
+const PRICE_LEGEND = [
+    {level: 'L', label: 'Low'},
+    {level: 'M', label: 'Medium'},
+    {level: 'H', label: 'High'},
+    {level: 'S', label: 'Solar'},
+];
+
+const BATTERY_LEGEND = [
+    {level: 'B', label: 'Standby'},
+    {level: 'C', label: 'Charging'},
+    {level: 'D', label: 'Discharging'},
+    {level: 'F', label: 'PV charging'},
+    {level: 'T', label: 'Selling'},
+    {level: 'X', label: 'Maxuse'},
+];
+
+const COMMON_LEGEND = [
+    {level: 'E', label: 'Error'},
+    {level: 'U', label: 'Unknown or missing'},
+    {level: 'P', label: 'Time marker'},
+];
 
 export class LevelIndicatorClockCard extends LitElement {
     private intervalId: number | undefined;
@@ -19,6 +41,7 @@ export class LevelIndicatorClockCard extends LitElement {
     private hasReceivedData = false;
     private _hass: HomeAssistant | undefined;
     @state() private dependencyMet = false;
+    private showLegend = false;
     @state() private hourHandEnd = {x: 100, y: 55};
     @state() private minuteHandEnd = {x: 100, y: 40};
 
@@ -54,15 +77,28 @@ export class LevelIndicatorClockCard extends LitElement {
         if (!config) {
             throw new Error('No configuration provided.');
         }
+        const showLegend = config.show_legend === true;
+        if (showLegend !== this.showLegend) {
+            this.showLegend = showLegend;
+            this.requestUpdate();
+        }
         const newEntity = config.compact_levels ?? '';
         if (newEntity !== this.compactLevelsEntity) {
+            const wasBattery = this.isBatterySensor();
             this.compactLevelsEntity = newEntity;
+            if (wasBattery !== this.isBatterySensor()) {
+                this.requestUpdate();
+            }
             this.compactLevels = '';
             this.hasReceivedData = false;
             if (this._hass && this.compactLevelsEntity) {
                 this.updateFromHass(this._hass);
             }
         }
+    }
+
+    private isBatterySensor(): boolean {
+        return this.compactLevelsEntity.toLowerCase().includes('battery');
     }
 
     set hass(hass: HomeAssistant) {
@@ -98,7 +134,7 @@ export class LevelIndicatorClockCard extends LitElement {
 
     getCardSize() {
         console.debug("[ClockCard] getCardSize()");
-        return 5;
+        return this.showLegend ? 8 : 5;
     }
 
     static styles = styles;
@@ -106,7 +142,7 @@ export class LevelIndicatorClockCard extends LitElement {
     public getLayoutOptions() {
         console.debug("[ClockCard] getLayoutOptions");
         return {
-            grid_rows: 8,
+            grid_rows: this.showLegend ? 13 : 8,
             grid_columns: 12,
         };
     }
@@ -154,6 +190,13 @@ export class LevelIndicatorClockCard extends LitElement {
      * @private
      */
     private updateLevels(levels: LevelsResponse) {
+        if (this.isBatterySensor()) {
+            levels = {
+                ...levels,
+                passed_levels: batteryModesToLevels(levels.passed_levels),
+                future_levels: batteryModesToLevels(levels.future_levels),
+            };
+        }
         this.currentTimeMinutes = this.isFirstUpdate ? getCurrentMinutesSinceMidnight() : levels.minutes_since_midnight;
         if (this.isFirstUpdate) {
             console.debug('[ClockCard] First update - using actual current time:', this.currentTimeMinutes, 'instead of levels time:', levels.minutes_since_midnight);
@@ -295,7 +338,7 @@ export class LevelIndicatorClockCard extends LitElement {
                         ` : ''
                 }
                 ${svg`
-                <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <svg class="clock" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="100" cy="100" r="95" class="clock-face" />
 
                     ${arcPaths}
@@ -311,6 +354,27 @@ export class LevelIndicatorClockCard extends LitElement {
                     <circle cx="100" cy="100" r="4" class="center-dot" />
                 </svg>
             `}
+                ${this.showLegend ? html`
+                    <div class="legend">
+                        ${[
+                            {title: this.isBatterySensor() ? 'Battery modes' : 'Electricity prices', levels: this.isBatterySensor() ? BATTERY_LEGEND : PRICE_LEGEND},
+                            {title: 'Other colours', levels: COMMON_LEGEND},
+                        ].map(group => html`
+                            <div class="legend-group">
+                                <div class="legend-title">${group.title}</div>
+                                <div class="legend-items">
+                                    ${group.levels.map(({level, label}) => html`
+                                        <div class="legend-item">
+                                            <span class="legend-swatch" style="background-color: ${getLevelColor(level)}"></span>
+                                            <span>${label}</span>
+                                        </div>
+                                    `)}
+                                </div>
+                            </div>
+                        `)}
+                        <div class="legend-note">Past levels are shown in darker shades.</div>
+                    </div>
+                ` : ''}
             </ha-card>
         `;
     }
@@ -325,6 +389,11 @@ export class LevelIndicatorClockCard extends LitElement {
                             domain: 'sensor',
                         },
                     },
+                },
+                {
+                    name: 'show_legend',
+                    label: 'Show colour legend',
+                    selector: {boolean: {}},
                 },
             ],
         };
@@ -390,7 +459,7 @@ export class LevelIndicatorClockCard extends LitElement {
             // No real sensor data yet (e.g. card picker preview). Show demo arcs.
             const now = getCurrentMinutesSinceMidnight();
             const demoLevelLength = 60;
-            const pattern = 'LLLMMHHMMMHMMMLLLLMHMLLL';
+            const pattern = this.isBatterySensor() ? 'SSSCCCPPDDDEEMMMSSSCCCPP' : 'LLLMMHHMMMHMMMLLLLMHMLLL';
             const numPassed = Math.ceil(60 / demoLevelLength);
             const numFuture = Math.ceil(12 * 60 / demoLevelLength);
             const passed = pattern.substring(0, numPassed);

@@ -20,7 +20,55 @@ export default css`
         flex-direction: column;
         align-items: center;
         font-family: Helvetica, sans-serif;
+    }
+
+    .clock {
+        display: block;
+        width: 100%;
+        height: auto;
         aspect-ratio: 1 / 1;
+    }
+
+    .legend {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 0 16px 16px;
+        color: var(--primary-text-color, black);
+        font-size: 0.875rem;
+    }
+
+    .legend-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .legend-group + .legend-group {
+        margin-top: 12px;
+    }
+
+    .legend-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+        gap: 6px 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .legend-swatch {
+        box-sizing: border-box;
+        flex: 0 0 14px;
+        height: 14px;
+        border: 1px solid var(--secondary-text-color, gray);
+        border-radius: 50%;
+    }
+
+    .legend-note {
+        color: var(--secondary-text-color, gray);
+        margin-top: 8px;
     }
 
     /* Light mode (default) */

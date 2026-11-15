@@ -1,624 +1,1185 @@
-// modules are defined as an array
-// [ module function, map of requires ]
-//
-// map of requires is short require name -> numeric require
-//
-// anything defined in a previous bundle is accessed via the
-// orig method which is the require for previous bundles
-
-(function (modules, entry, mainEntry, parcelRequireName, globalName) {
-  /* eslint-disable no-undef */
-  var globalObject =
-    typeof globalThis !== 'undefined'
-      ? globalThis
-      : typeof self !== 'undefined'
-      ? self
-      : typeof window !== 'undefined'
-      ? window
-      : typeof global !== 'undefined'
-      ? global
-      : {};
-  /* eslint-enable no-undef */
-
-  // Save the require from previous bundle to this closure if any
-  var previousRequire =
-    typeof globalObject[parcelRequireName] === 'function' &&
-    globalObject[parcelRequireName];
-
-  var cache = previousRequire.cache || {};
-  // Do not use `require` to prevent Webpack from trying to bundle this call
-  var nodeRequire =
-    typeof module !== 'undefined' &&
-    typeof module.require === 'function' &&
-    module.require.bind(module);
-
-  function newRequire(name, jumped) {
-    if (!cache[name]) {
-      if (!modules[name]) {
-        // if we cannot find the module within our internal map or
-        // cache jump to the current global require ie. the last bundle
-        // that was added to the page.
-        var currentRequire =
-          typeof globalObject[parcelRequireName] === 'function' &&
-          globalObject[parcelRequireName];
-        if (!jumped && currentRequire) {
-          return currentRequire(name, true);
-        }
-
-        // If there are other bundles on this page the require from the
-        // previous one is saved to 'previousRequire'. Repeat this as
-        // many times as there are bundles until the module is found or
-        // we exhaust the require chain.
-        if (previousRequire) {
-          return previousRequire(name, true);
-        }
-
-        // Try the node require function if it exists.
-        if (nodeRequire && typeof name === 'string') {
-          return nodeRequire(name);
-        }
-
-        var err = new Error("Cannot find module '" + name + "'");
-        err.code = 'MODULE_NOT_FOUND';
-        throw err;
-      }
-
-      localRequire.resolve = resolve;
-      localRequire.cache = {};
-
-      var module = (cache[name] = new newRequire.Module(name));
-
-      modules[name][0].call(
-        module.exports,
-        localRequire,
-        module,
-        module.exports,
-        globalObject
-      );
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $def2de46b9306e8a$var$t = globalThis, $def2de46b9306e8a$export$b4d10f6001c083c2 = $def2de46b9306e8a$var$t.ShadowRoot && (void 0 === $def2de46b9306e8a$var$t.ShadyCSS || $def2de46b9306e8a$var$t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $def2de46b9306e8a$var$s = Symbol(), $def2de46b9306e8a$var$o = new WeakMap;
+class $def2de46b9306e8a$export$505d1e8739bad805 {
+    constructor(t, e, o){
+        if (this._$cssResult$ = !0, o !== $def2de46b9306e8a$var$s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+        this.cssText = t, this.t = e;
     }
-
-    return cache[name].exports;
-
-    function localRequire(x) {
-      var res = localRequire.resolve(x);
-      return res === false ? {} : newRequire(res);
+    get styleSheet() {
+        let t = this.o;
+        const s = this.t;
+        if ($def2de46b9306e8a$export$b4d10f6001c083c2 && void 0 === t) {
+            const e = void 0 !== s && 1 === s.length;
+            e && (t = $def2de46b9306e8a$var$o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && $def2de46b9306e8a$var$o.set(s, t));
+        }
+        return t;
     }
-
-    function resolve(x) {
-      var id = modules[name][1][x];
-      return id != null ? id : x;
+    toString() {
+        return this.cssText;
     }
-  }
+}
+const $def2de46b9306e8a$export$8d80f9cac07cdb3 = (t)=>new $def2de46b9306e8a$export$505d1e8739bad805("string" == typeof t ? t : t + "", void 0, $def2de46b9306e8a$var$s), $def2de46b9306e8a$export$dbf350e5966cf602 = (t, ...e)=>{
+    const o = 1 === t.length ? t[0] : e.reduce((e, s, o)=>e + ((t)=>{
+            if (!0 === t._$cssResult$) return t.cssText;
+            if ("number" == typeof t) return t;
+            throw Error("Value passed to 'css' function must be a 'css' function result: " + t + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
+        })(s) + t[o + 1], t[0]);
+    return new $def2de46b9306e8a$export$505d1e8739bad805(o, t, $def2de46b9306e8a$var$s);
+}, $def2de46b9306e8a$export$2ca4a66ec4cecb90 = (s, o)=>{
+    if ($def2de46b9306e8a$export$b4d10f6001c083c2) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
+    else for (const e of o){
+        const o = document.createElement("style"), n = $def2de46b9306e8a$var$t.litNonce;
+        void 0 !== n && o.setAttribute("nonce", n), o.textContent = e.cssText, s.appendChild(o);
+    }
+}, $def2de46b9306e8a$export$ee69dfd951e24778 = $def2de46b9306e8a$export$b4d10f6001c083c2 ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
+        let e = "";
+        for (const s of t.cssRules)e += s.cssText;
+        return $def2de46b9306e8a$export$8d80f9cac07cdb3(e);
+    })(t) : t;
 
-  function Module(moduleName) {
-    this.id = moduleName;
-    this.bundle = newRequire;
-    this.exports = {};
-  }
 
-  newRequire.isParcelRequire = true;
-  newRequire.Module = Module;
-  newRequire.modules = modules;
-  newRequire.cache = cache;
-  newRequire.parent = previousRequire;
-  newRequire.register = function (id, exports) {
-    modules[id] = [
-      function (require, module) {
-        module.exports = exports;
-      },
-      {},
-    ];
-  };
-
-  Object.defineProperty(newRequire, 'root', {
-    get: function () {
-      return globalObject[parcelRequireName];
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const { is: $19fe8e3abedf4df0$var$i, defineProperty: $19fe8e3abedf4df0$var$e, getOwnPropertyDescriptor: $19fe8e3abedf4df0$var$r, getOwnPropertyNames: $19fe8e3abedf4df0$var$h, getOwnPropertySymbols: $19fe8e3abedf4df0$var$o, getPrototypeOf: $19fe8e3abedf4df0$var$n } = Object, $19fe8e3abedf4df0$var$a = globalThis, $19fe8e3abedf4df0$var$c = $19fe8e3abedf4df0$var$a.trustedTypes, $19fe8e3abedf4df0$var$l = $19fe8e3abedf4df0$var$c ? $19fe8e3abedf4df0$var$c.emptyScript : "", $19fe8e3abedf4df0$var$p = $19fe8e3abedf4df0$var$a.reactiveElementPolyfillSupport, $19fe8e3abedf4df0$var$d = (t, s)=>t, $19fe8e3abedf4df0$export$7312b35fbf521afb = {
+    toAttribute (t, s) {
+        switch(s){
+            case Boolean:
+                t = t ? $19fe8e3abedf4df0$var$l : null;
+                break;
+            case Object:
+            case Array:
+                t = null == t ? t : JSON.stringify(t);
+        }
+        return t;
     },
-  });
-
-  globalObject[parcelRequireName] = newRequire;
-
-  for (var i = 0; i < entry.length; i++) {
-    newRequire(entry[i]);
-  }
-
-  if (mainEntry) {
-    // Expose entry point to Node, AMD or browser globals
-    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
-    var mainExports = newRequire(mainEntry);
-
-    // CommonJS
-    if (typeof exports === 'object' && typeof module !== 'undefined') {
-      module.exports = mainExports;
-
-      // RequireJS
-    } else if (typeof define === 'function' && define.amd) {
-      define(function () {
-        return mainExports;
-      });
-
-      // <script>
-    } else if (globalName) {
-      this[globalName] = mainExports;
-    }
-  }
-})({"bTHtU":[function(require,module,exports,__globalThis) {
-var global = arguments[3];
-var HMR_HOST = null;
-var HMR_PORT = null;
-var HMR_SECURE = false;
-var HMR_ENV_HASH = "d6ea1d42532a7575";
-var HMR_USE_SSE = false;
-module.bundle.HMR_BUNDLE_ID = "5c1b77e3b71e74eb";
-"use strict";
-/* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE, HMR_USE_SSE, chrome, browser, __parcel__import__, __parcel__importScripts__, ServiceWorkerGlobalScope */ /*::
-import type {
-  HMRAsset,
-  HMRMessage,
-} from '@parcel/reporter-dev-server/src/HMRServer.js';
-interface ParcelRequire {
-  (string): mixed;
-  cache: {|[string]: ParcelModule|};
-  hotData: {|[string]: mixed|};
-  Module: any;
-  parent: ?ParcelRequire;
-  isParcelRequire: true;
-  modules: {|[string]: [Function, {|[string]: string|}]|};
-  HMR_BUNDLE_ID: string;
-  root: ParcelRequire;
-}
-interface ParcelModule {
-  hot: {|
-    data: mixed,
-    accept(cb: (Function) => void): void,
-    dispose(cb: (mixed) => void): void,
-    // accept(deps: Array<string> | string, cb: (Function) => void): void,
-    // decline(): void,
-    _acceptCallbacks: Array<(Function) => void>,
-    _disposeCallbacks: Array<(mixed) => void>,
-  |};
-}
-interface ExtensionContext {
-  runtime: {|
-    reload(): void,
-    getURL(url: string): string;
-    getManifest(): {manifest_version: number, ...};
-  |};
-}
-declare var module: {bundle: ParcelRequire, ...};
-declare var HMR_HOST: string;
-declare var HMR_PORT: string;
-declare var HMR_ENV_HASH: string;
-declare var HMR_SECURE: boolean;
-declare var HMR_USE_SSE: boolean;
-declare var chrome: ExtensionContext;
-declare var browser: ExtensionContext;
-declare var __parcel__import__: (string) => Promise<void>;
-declare var __parcel__importScripts__: (string) => Promise<void>;
-declare var globalThis: typeof self;
-declare var ServiceWorkerGlobalScope: Object;
-*/ var OVERLAY_ID = '__parcel__error__overlay__';
-var OldModule = module.bundle.Module;
-function Module(moduleName) {
-    OldModule.call(this, moduleName);
-    this.hot = {
-        data: module.bundle.hotData[moduleName],
-        _acceptCallbacks: [],
-        _disposeCallbacks: [],
-        accept: function(fn) {
-            this._acceptCallbacks.push(fn || function() {});
-        },
-        dispose: function(fn) {
-            this._disposeCallbacks.push(fn);
-        }
-    };
-    module.bundle.hotData[moduleName] = undefined;
-}
-module.bundle.Module = Module;
-module.bundle.hotData = {};
-var checkedAssets /*: {|[string]: boolean|} */ , disposedAssets /*: {|[string]: boolean|} */ , assetsToDispose /*: Array<[ParcelRequire, string]> */ , assetsToAccept /*: Array<[ParcelRequire, string]> */ ;
-function getHostname() {
-    return HMR_HOST || (location.protocol.indexOf('http') === 0 ? location.hostname : 'localhost');
-}
-function getPort() {
-    return HMR_PORT || location.port;
-}
-// eslint-disable-next-line no-redeclare
-var parent = module.bundle.parent;
-if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
-    var hostname = getHostname();
-    var port = getPort();
-    var protocol = HMR_SECURE || location.protocol == 'https:' && ![
-        'localhost',
-        '127.0.0.1',
-        '0.0.0.0'
-    ].includes(hostname) ? 'wss' : 'ws';
-    var ws;
-    if (HMR_USE_SSE) ws = new EventSource('/__parcel_hmr');
-    else try {
-        ws = new WebSocket(protocol + '://' + hostname + (port ? ':' + port : '') + '/');
-    } catch (err) {
-        if (err.message) console.error(err.message);
-        ws = {};
-    }
-    // Web extension context
-    var extCtx = typeof browser === 'undefined' ? typeof chrome === 'undefined' ? null : chrome : browser;
-    // Safari doesn't support sourceURL in error stacks.
-    // eval may also be disabled via CSP, so do a quick check.
-    var supportsSourceURL = false;
-    try {
-        (0, eval)('throw new Error("test"); //# sourceURL=test.js');
-    } catch (err) {
-        supportsSourceURL = err.stack.includes('test.js');
-    }
-    // $FlowFixMe
-    ws.onmessage = async function(event /*: {data: string, ...} */ ) {
-        checkedAssets = {} /*: {|[string]: boolean|} */ ;
-        disposedAssets = {} /*: {|[string]: boolean|} */ ;
-        assetsToAccept = [];
-        assetsToDispose = [];
-        var data /*: HMRMessage */  = JSON.parse(event.data);
-        if (data.type === 'reload') fullReload();
-        else if (data.type === 'update') {
-            // Remove error overlay if there is one
-            if (typeof document !== 'undefined') removeErrorOverlay();
-            let assets = data.assets.filter((asset)=>asset.envHash === HMR_ENV_HASH);
-            // Handle HMR Update
-            let handled = assets.every((asset)=>{
-                return asset.type === 'css' || asset.type === 'js' && hmrAcceptCheck(module.bundle.root, asset.id, asset.depsByBundle);
-            });
-            if (handled) {
-                console.clear();
-                // Dispatch custom event so other runtimes (e.g React Refresh) are aware.
-                if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') window.dispatchEvent(new CustomEvent('parcelhmraccept'));
-                await hmrApplyUpdates(assets);
-                hmrDisposeQueue();
-                // Run accept callbacks. This will also re-execute other disposed assets in topological order.
-                let processedAssets = {};
-                for(let i = 0; i < assetsToAccept.length; i++){
-                    let id = assetsToAccept[i][1];
-                    if (!processedAssets[id]) {
-                        hmrAccept(assetsToAccept[i][0], id);
-                        processedAssets[id] = true;
-                    }
-                }
-            } else fullReload();
-        }
-        if (data.type === 'error') {
-            // Log parcel errors to console
-            for (let ansiDiagnostic of data.diagnostics.ansi){
-                let stack = ansiDiagnostic.codeframe ? ansiDiagnostic.codeframe : ansiDiagnostic.stack;
-                console.error("\uD83D\uDEA8 [parcel]: " + ansiDiagnostic.message + '\n' + stack + '\n\n' + ansiDiagnostic.hints.join('\n'));
-            }
-            if (typeof document !== 'undefined') {
-                // Render the fancy html overlay
-                removeErrorOverlay();
-                var overlay = createErrorOverlay(data.diagnostics.html);
-                // $FlowFixMe
-                document.body.appendChild(overlay);
-            }
-        }
-    };
-    if (ws instanceof WebSocket) {
-        ws.onerror = function(e) {
-            if (e.message) console.error(e.message);
-        };
-        ws.onclose = function() {
-            console.warn("[parcel] \uD83D\uDEA8 Connection to the HMR server was lost");
-        };
-    }
-}
-function removeErrorOverlay() {
-    var overlay = document.getElementById(OVERLAY_ID);
-    if (overlay) {
-        overlay.remove();
-        console.log("[parcel] \u2728 Error resolved");
-    }
-}
-function createErrorOverlay(diagnostics) {
-    var overlay = document.createElement('div');
-    overlay.id = OVERLAY_ID;
-    let errorHTML = '<div style="background: black; opacity: 0.85; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; font-family: Menlo, Consolas, monospace; z-index: 9999;">';
-    for (let diagnostic of diagnostics){
-        let stack = diagnostic.frames.length ? diagnostic.frames.reduce((p, frame)=>{
-            return `${p}
-<a href="/__parcel_launch_editor?file=${encodeURIComponent(frame.location)}" style="text-decoration: underline; color: #888" onclick="fetch(this.href); return false">${frame.location}</a>
-${frame.code}`;
-        }, '') : diagnostic.stack;
-        errorHTML += `
-      <div>
-        <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">
-          \u{1F6A8} ${diagnostic.message}
-        </div>
-        <pre>${stack}</pre>
-        <div>
-          ${diagnostic.hints.map((hint)=>"<div>\uD83D\uDCA1 " + hint + '</div>').join('')}
-        </div>
-        ${diagnostic.documentation ? `<div>\u{1F4DD} <a style="color: violet" href="${diagnostic.documentation}" target="_blank">Learn more</a></div>` : ''}
-      </div>
-    `;
-    }
-    errorHTML += '</div>';
-    overlay.innerHTML = errorHTML;
-    return overlay;
-}
-function fullReload() {
-    if ('reload' in location) location.reload();
-    else if (extCtx && extCtx.runtime && extCtx.runtime.reload) extCtx.runtime.reload();
-}
-function getParents(bundle, id) /*: Array<[ParcelRequire, string]> */ {
-    var modules = bundle.modules;
-    if (!modules) return [];
-    var parents = [];
-    var k, d, dep;
-    for(k in modules)for(d in modules[k][1]){
-        dep = modules[k][1][d];
-        if (dep === id || Array.isArray(dep) && dep[dep.length - 1] === id) parents.push([
-            bundle,
-            k
-        ]);
-    }
-    if (bundle.parent) parents = parents.concat(getParents(bundle.parent, id));
-    return parents;
-}
-function updateLink(link) {
-    var href = link.getAttribute('href');
-    if (!href) return;
-    var newLink = link.cloneNode();
-    newLink.onload = function() {
-        if (link.parentNode !== null) // $FlowFixMe
-        link.parentNode.removeChild(link);
-    };
-    newLink.setAttribute('href', // $FlowFixMe
-    href.split('?')[0] + '?' + Date.now());
-    // $FlowFixMe
-    link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-var cssTimeout = null;
-function reloadCSS() {
-    if (cssTimeout) return;
-    cssTimeout = setTimeout(function() {
-        var links = document.querySelectorAll('link[rel="stylesheet"]');
-        for(var i = 0; i < links.length; i++){
-            // $FlowFixMe[incompatible-type]
-            var href /*: string */  = links[i].getAttribute('href');
-            var hostname = getHostname();
-            var servedFromHMRServer = hostname === 'localhost' ? new RegExp('^(https?:\\/\\/(0.0.0.0|127.0.0.1)|localhost):' + getPort()).test(href) : href.indexOf(hostname + ':' + getPort());
-            var absolute = /^https?:\/\//i.test(href) && href.indexOf(location.origin) !== 0 && !servedFromHMRServer;
-            if (!absolute) updateLink(links[i]);
-        }
-        cssTimeout = null;
-    }, 50);
-}
-function hmrDownload(asset) {
-    if (asset.type === 'js') {
-        if (typeof document !== 'undefined') {
-            let script = document.createElement('script');
-            script.src = asset.url + '?t=' + Date.now();
-            if (asset.outputFormat === 'esmodule') script.type = 'module';
-            return new Promise((resolve, reject)=>{
-                var _document$head;
-                script.onload = ()=>resolve(script);
-                script.onerror = reject;
-                (_document$head = document.head) === null || _document$head === void 0 || _document$head.appendChild(script);
-            });
-        } else if (typeof importScripts === 'function') {
-            // Worker scripts
-            if (asset.outputFormat === 'esmodule') return import(asset.url + '?t=' + Date.now());
-            else return new Promise((resolve, reject)=>{
+    fromAttribute (t, s) {
+        let i = t;
+        switch(s){
+            case Boolean:
+                i = null !== t;
+                break;
+            case Number:
+                i = null === t ? null : Number(t);
+                break;
+            case Object:
+            case Array:
                 try {
-                    importScripts(asset.url + '?t=' + Date.now());
-                    resolve();
-                } catch (err) {
-                    reject(err);
+                    i = JSON.parse(t);
+                } catch (t) {
+                    i = null;
                 }
-            });
+        }
+        return i;
+    }
+}, $19fe8e3abedf4df0$export$53a6892c50694894 = (t, s)=>!$19fe8e3abedf4df0$var$i(t, s), $19fe8e3abedf4df0$var$y = {
+    attribute: !0,
+    type: String,
+    converter: $19fe8e3abedf4df0$export$7312b35fbf521afb,
+    reflect: !1,
+    hasChanged: $19fe8e3abedf4df0$export$53a6892c50694894
+};
+Symbol.metadata ??= Symbol("metadata"), $19fe8e3abedf4df0$var$a.litPropertyMetadata ??= new WeakMap;
+class $19fe8e3abedf4df0$export$c7c07a37856565d extends HTMLElement {
+    static addInitializer(t) {
+        this._$Ei(), (this.l ??= []).push(t);
+    }
+    static get observedAttributes() {
+        return this.finalize(), this._$Eh && [
+            ...this._$Eh.keys()
+        ];
+    }
+    static createProperty(t, s = $19fe8e3abedf4df0$var$y) {
+        if (s.state && (s.attribute = !1), this._$Ei(), this.elementProperties.set(t, s), !s.noAccessor) {
+            const i = Symbol(), r = this.getPropertyDescriptor(t, i, s);
+            void 0 !== r && $19fe8e3abedf4df0$var$e(this.prototype, t, r);
         }
     }
-}
-async function hmrApplyUpdates(assets) {
-    global.parcelHotUpdate = Object.create(null);
-    let scriptsToRemove;
-    try {
-        // If sourceURL comments aren't supported in eval, we need to load
-        // the update from the dev server over HTTP so that stack traces
-        // are correct in errors/logs. This is much slower than eval, so
-        // we only do it if needed (currently just Safari).
-        // https://bugs.webkit.org/show_bug.cgi?id=137297
-        // This path is also taken if a CSP disallows eval.
-        if (!supportsSourceURL) {
-            let promises = assets.map((asset)=>{
-                var _hmrDownload;
-                return (_hmrDownload = hmrDownload(asset)) === null || _hmrDownload === void 0 ? void 0 : _hmrDownload.catch((err)=>{
-                    // Web extension fix
-                    if (extCtx && extCtx.runtime && extCtx.runtime.getManifest().manifest_version == 3 && typeof ServiceWorkerGlobalScope != 'undefined' && global instanceof ServiceWorkerGlobalScope) {
-                        extCtx.runtime.reload();
-                        return;
-                    }
-                    throw err;
-                });
-            });
-            scriptsToRemove = await Promise.all(promises);
-        }
-        assets.forEach(function(asset) {
-            hmrApply(module.bundle.root, asset);
-        });
-    } finally{
-        delete global.parcelHotUpdate;
-        if (scriptsToRemove) scriptsToRemove.forEach((script)=>{
-            if (script) {
-                var _document$head2;
-                (_document$head2 = document.head) === null || _document$head2 === void 0 || _document$head2.removeChild(script);
+    static getPropertyDescriptor(t, s, i) {
+        const { get: e, set: h } = $19fe8e3abedf4df0$var$r(this.prototype, t) ?? {
+            get () {
+                return this[s];
+            },
+            set (t) {
+                this[s] = t;
             }
-        });
+        };
+        return {
+            get () {
+                return e?.call(this);
+            },
+            set (s) {
+                const r = e?.call(this);
+                h.call(this, s), this.requestUpdate(t, r, i);
+            },
+            configurable: !0,
+            enumerable: !0
+        };
     }
-}
-function hmrApply(bundle /*: ParcelRequire */ , asset /*:  HMRAsset */ ) {
-    var modules = bundle.modules;
-    if (!modules) return;
-    if (asset.type === 'css') reloadCSS();
-    else if (asset.type === 'js') {
-        let deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
-        if (deps) {
-            if (modules[asset.id]) {
-                // Remove dependencies that are removed and will become orphaned.
-                // This is necessary so that if the asset is added back again, the cache is gone, and we prevent a full page reload.
-                let oldDeps = modules[asset.id][1];
-                for(let dep in oldDeps)if (!deps[dep] || deps[dep] !== oldDeps[dep]) {
-                    let id = oldDeps[dep];
-                    let parents = getParents(module.bundle.root, id);
-                    if (parents.length === 1) hmrDelete(module.bundle.root, id);
-                }
-            }
-            if (supportsSourceURL) // Global eval. We would use `new Function` here but browser
-            // support for source maps is better with eval.
-            (0, eval)(asset.output);
-            // $FlowFixMe
-            let fn = global.parcelHotUpdate[asset.id];
-            modules[asset.id] = [
-                fn,
-                deps
+    static getPropertyOptions(t) {
+        return this.elementProperties.get(t) ?? $19fe8e3abedf4df0$var$y;
+    }
+    static _$Ei() {
+        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("elementProperties"))) return;
+        const t = $19fe8e3abedf4df0$var$n(this);
+        t.finalize(), void 0 !== t.l && (this.l = [
+            ...t.l
+        ]), this.elementProperties = new Map(t.elementProperties);
+    }
+    static finalize() {
+        if (this.hasOwnProperty($19fe8e3abedf4df0$var$d("finalized"))) return;
+        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty($19fe8e3abedf4df0$var$d("properties"))) {
+            const t = this.properties, s = [
+                ...$19fe8e3abedf4df0$var$h(t),
+                ...$19fe8e3abedf4df0$var$o(t)
             ];
+            for (const i of s)this.createProperty(i, t[i]);
         }
-        // Always traverse to the parent bundle, even if we already replaced the asset in this bundle.
-        // This is required in case modules are duplicated. We need to ensure all instances have the updated code.
-        if (bundle.parent) hmrApply(bundle.parent, asset);
+        const t = this[Symbol.metadata];
+        if (null !== t) {
+            const s = litPropertyMetadata.get(t);
+            if (void 0 !== s) for (const [t, i] of s)this.elementProperties.set(t, i);
+        }
+        this._$Eh = new Map;
+        for (const [t, s] of this.elementProperties){
+            const i = this._$Eu(t, s);
+            void 0 !== i && this._$Eh.set(i, t);
+        }
+        this.elementStyles = this.finalizeStyles(this.styles);
+    }
+    static finalizeStyles(s) {
+        const i = [];
+        if (Array.isArray(s)) {
+            const e = new Set(s.flat(1 / 0).reverse());
+            for (const s of e)i.unshift((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
+        } else void 0 !== s && i.push((0, $def2de46b9306e8a$export$ee69dfd951e24778)(s));
+        return i;
+    }
+    static _$Eu(t, s) {
+        const i = s.attribute;
+        return !1 === i ? void 0 : "string" == typeof i ? i : "string" == typeof t ? t.toLowerCase() : void 0;
+    }
+    constructor(){
+        super(), this._$Ep = void 0, this.isUpdatePending = !1, this.hasUpdated = !1, this._$Em = null, this._$Ev();
+    }
+    _$Ev() {
+        this._$ES = new Promise((t)=>this.enableUpdating = t), this._$AL = new Map, this._$E_(), this.requestUpdate(), this.constructor.l?.forEach((t)=>t(this));
+    }
+    addController(t) {
+        (this._$EO ??= new Set).add(t), void 0 !== this.renderRoot && this.isConnected && t.hostConnected?.();
+    }
+    removeController(t) {
+        this._$EO?.delete(t);
+    }
+    _$E_() {
+        const t = new Map, s = this.constructor.elementProperties;
+        for (const i of s.keys())this.hasOwnProperty(i) && (t.set(i, this[i]), delete this[i]);
+        t.size > 0 && (this._$Ep = t);
+    }
+    createRenderRoot() {
+        const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
+        return (0, $def2de46b9306e8a$export$2ca4a66ec4cecb90)(t, this.constructor.elementStyles), t;
+    }
+    connectedCallback() {
+        this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t)=>t.hostConnected?.());
+    }
+    enableUpdating(t) {}
+    disconnectedCallback() {
+        this._$EO?.forEach((t)=>t.hostDisconnected?.());
+    }
+    attributeChangedCallback(t, s, i) {
+        this._$AK(t, i);
+    }
+    _$EC(t, s) {
+        const i = this.constructor.elementProperties.get(t), e = this.constructor._$Eu(t, i);
+        if (void 0 !== e && !0 === i.reflect) {
+            const r = (void 0 !== i.converter?.toAttribute ? i.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb).toAttribute(s, i.type);
+            this._$Em = t, null == r ? this.removeAttribute(e) : this.setAttribute(e, r), this._$Em = null;
+        }
+    }
+    _$AK(t, s) {
+        const i = this.constructor, e = i._$Eh.get(t);
+        if (void 0 !== e && this._$Em !== e) {
+            const t = i.getPropertyOptions(e), r = "function" == typeof t.converter ? {
+                fromAttribute: t.converter
+            } : void 0 !== t.converter?.fromAttribute ? t.converter : $19fe8e3abedf4df0$export$7312b35fbf521afb;
+            this._$Em = e, this[e] = r.fromAttribute(s, t.type), this._$Em = null;
+        }
+    }
+    requestUpdate(t, s, i) {
+        if (void 0 !== t) {
+            if (i ??= this.constructor.getPropertyOptions(t), !(i.hasChanged ?? $19fe8e3abedf4df0$export$53a6892c50694894)(this[t], s)) return;
+            this.P(t, s, i);
+        }
+        !1 === this.isUpdatePending && (this._$ES = this._$ET());
+    }
+    P(t, s, i) {
+        this._$AL.has(t) || this._$AL.set(t, s), !0 === i.reflect && this._$Em !== t && (this._$Ej ??= new Set).add(t);
+    }
+    async _$ET() {
+        this.isUpdatePending = !0;
+        try {
+            await this._$ES;
+        } catch (t) {
+            Promise.reject(t);
+        }
+        const t = this.scheduleUpdate();
+        return null != t && await t, !this.isUpdatePending;
+    }
+    scheduleUpdate() {
+        return this.performUpdate();
+    }
+    performUpdate() {
+        if (!this.isUpdatePending) return;
+        if (!this.hasUpdated) {
+            if (this.renderRoot ??= this.createRenderRoot(), this._$Ep) {
+                for (const [t, s] of this._$Ep)this[t] = s;
+                this._$Ep = void 0;
+            }
+            const t = this.constructor.elementProperties;
+            if (t.size > 0) for (const [s, i] of t)!0 !== i.wrapped || this._$AL.has(s) || void 0 === this[s] || this.P(s, this[s], i);
+        }
+        let t = !1;
+        const s = this._$AL;
+        try {
+            t = this.shouldUpdate(s), t ? (this.willUpdate(s), this._$EO?.forEach((t)=>t.hostUpdate?.()), this.update(s)) : this._$EU();
+        } catch (s) {
+            throw t = !1, this._$EU(), s;
+        }
+        t && this._$AE(s);
+    }
+    willUpdate(t) {}
+    _$AE(t) {
+        this._$EO?.forEach((t)=>t.hostUpdated?.()), this.hasUpdated || (this.hasUpdated = !0, this.firstUpdated(t)), this.updated(t);
+    }
+    _$EU() {
+        this._$AL = new Map, this.isUpdatePending = !1;
+    }
+    get updateComplete() {
+        return this.getUpdateComplete();
+    }
+    getUpdateComplete() {
+        return this._$ES;
+    }
+    shouldUpdate(t) {
+        return !0;
+    }
+    update(t) {
+        this._$Ej &&= this._$Ej.forEach((t)=>this._$EC(t, this[t])), this._$EU();
+    }
+    updated(t) {}
+    firstUpdated(t) {}
+}
+$19fe8e3abedf4df0$export$c7c07a37856565d.elementStyles = [], $19fe8e3abedf4df0$export$c7c07a37856565d.shadowRootOptions = {
+    mode: "open"
+}, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("elementProperties")] = new Map, $19fe8e3abedf4df0$export$c7c07a37856565d[$19fe8e3abedf4df0$var$d("finalized")] = new Map, $19fe8e3abedf4df0$var$p?.({
+    ReactiveElement: $19fe8e3abedf4df0$export$c7c07a37856565d
+}), ($19fe8e3abedf4df0$var$a.reactiveElementVersions ??= []).push("2.0.4");
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $f58f44579a4747ac$var$t = globalThis, $f58f44579a4747ac$var$i = $f58f44579a4747ac$var$t.trustedTypes, $f58f44579a4747ac$var$s = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.createPolicy("lit-html", {
+    createHTML: (t)=>t
+}) : void 0, $f58f44579a4747ac$var$e = "$lit$", $f58f44579a4747ac$var$h = `lit$${Math.random().toFixed(9).slice(2)}$`, $f58f44579a4747ac$var$o = "?" + $f58f44579a4747ac$var$h, $f58f44579a4747ac$var$n = `<${$f58f44579a4747ac$var$o}>`, $f58f44579a4747ac$var$r = document, $f58f44579a4747ac$var$l = ()=>$f58f44579a4747ac$var$r.createComment(""), $f58f44579a4747ac$var$c = (t)=>null === t || "object" != typeof t && "function" != typeof t, $f58f44579a4747ac$var$a = Array.isArray, $f58f44579a4747ac$var$u = (t)=>$f58f44579a4747ac$var$a(t) || "function" == typeof t?.[Symbol.iterator], $f58f44579a4747ac$var$d = "[ \t\n\f\r]", $f58f44579a4747ac$var$f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, $f58f44579a4747ac$var$v = /-->/g, $f58f44579a4747ac$var$_ = />/g, $f58f44579a4747ac$var$m = RegExp(`>|${$f58f44579a4747ac$var$d}(?:([^\\s"'>=/]+)(${$f58f44579a4747ac$var$d}*=${$f58f44579a4747ac$var$d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), $f58f44579a4747ac$var$p = /'/g, $f58f44579a4747ac$var$g = /"/g, $f58f44579a4747ac$var$$ = /^(?:script|style|textarea|title)$/i, $f58f44579a4747ac$var$y = (t)=>(i, ...s)=>({
+            _$litType$: t,
+            strings: i,
+            values: s
+        }), $f58f44579a4747ac$export$c0bb0b647f701bb5 = $f58f44579a4747ac$var$y(1), $f58f44579a4747ac$export$7ed1367e7fa1ad68 = $f58f44579a4747ac$var$y(2), $f58f44579a4747ac$export$47d5b44d225be5b4 = $f58f44579a4747ac$var$y(3), $f58f44579a4747ac$export$9c068ae9cc5db4e8 = Symbol.for("lit-noChange"), $f58f44579a4747ac$export$45b790e32b2810ee = Symbol.for("lit-nothing"), $f58f44579a4747ac$var$A = new WeakMap, $f58f44579a4747ac$var$C = $f58f44579a4747ac$var$r.createTreeWalker($f58f44579a4747ac$var$r, 129);
+function $f58f44579a4747ac$var$P(t, i) {
+    if (!$f58f44579a4747ac$var$a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+    return void 0 !== $f58f44579a4747ac$var$s ? $f58f44579a4747ac$var$s.createHTML(i) : i;
+}
+const $f58f44579a4747ac$var$V = (t, i)=>{
+    const s = t.length - 1, o = [];
+    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = $f58f44579a4747ac$var$f;
+    for(let i = 0; i < s; i++){
+        const s = t[i];
+        let a, u, d = -1, y = 0;
+        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === $f58f44579a4747ac$var$f ? "!--" === u[1] ? c = $f58f44579a4747ac$var$v : void 0 !== u[1] ? c = $f58f44579a4747ac$var$_ : void 0 !== u[2] ? ($f58f44579a4747ac$var$$.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = $f58f44579a4747ac$var$m) : void 0 !== u[3] && (c = $f58f44579a4747ac$var$m) : c === $f58f44579a4747ac$var$m ? ">" === u[0] ? (c = r ?? $f58f44579a4747ac$var$f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? $f58f44579a4747ac$var$m : '"' === u[3] ? $f58f44579a4747ac$var$g : $f58f44579a4747ac$var$p) : c === $f58f44579a4747ac$var$g || c === $f58f44579a4747ac$var$p ? c = $f58f44579a4747ac$var$m : c === $f58f44579a4747ac$var$v || c === $f58f44579a4747ac$var$_ ? c = $f58f44579a4747ac$var$f : (c = $f58f44579a4747ac$var$m, r = void 0);
+        const x = c === $f58f44579a4747ac$var$m && t[i + 1].startsWith("/>") ? " " : "";
+        l += c === $f58f44579a4747ac$var$f ? s + $f58f44579a4747ac$var$n : d >= 0 ? (o.push(a), s.slice(0, d) + $f58f44579a4747ac$var$e + s.slice(d) + $f58f44579a4747ac$var$h + x) : s + $f58f44579a4747ac$var$h + (-2 === d ? i : x);
+    }
+    return [
+        $f58f44579a4747ac$var$P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
+        o
+    ];
+};
+class $f58f44579a4747ac$var$N {
+    constructor({ strings: t, _$litType$: s }, n){
+        let r;
+        this.parts = [];
+        let c = 0, a = 0;
+        const u = t.length - 1, d = this.parts, [f, v] = $f58f44579a4747ac$var$V(t, s);
+        if (this.el = $f58f44579a4747ac$var$N.createElement(f, n), $f58f44579a4747ac$var$C.currentNode = this.el.content, 2 === s || 3 === s) {
+            const t = this.el.content.firstChild;
+            t.replaceWith(...t.childNodes);
+        }
+        for(; null !== (r = $f58f44579a4747ac$var$C.nextNode()) && d.length < u;){
+            if (1 === r.nodeType) {
+                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith($f58f44579a4747ac$var$e)) {
+                    const i = v[a++], s = r.getAttribute(t).split($f58f44579a4747ac$var$h), e = /([.?@])?(.*)/.exec(i);
+                    d.push({
+                        type: 1,
+                        index: c,
+                        name: e[2],
+                        strings: s,
+                        ctor: "." === e[1] ? $f58f44579a4747ac$var$H : "?" === e[1] ? $f58f44579a4747ac$var$I : "@" === e[1] ? $f58f44579a4747ac$var$L : $f58f44579a4747ac$var$k
+                    }), r.removeAttribute(t);
+                } else t.startsWith($f58f44579a4747ac$var$h) && (d.push({
+                    type: 6,
+                    index: c
+                }), r.removeAttribute(t));
+                if ($f58f44579a4747ac$var$$.test(r.tagName)) {
+                    const t = r.textContent.split($f58f44579a4747ac$var$h), s = t.length - 1;
+                    if (s > 0) {
+                        r.textContent = $f58f44579a4747ac$var$i ? $f58f44579a4747ac$var$i.emptyScript : "";
+                        for(let i = 0; i < s; i++)r.append(t[i], $f58f44579a4747ac$var$l()), $f58f44579a4747ac$var$C.nextNode(), d.push({
+                            type: 2,
+                            index: ++c
+                        });
+                        r.append(t[s], $f58f44579a4747ac$var$l());
+                    }
+                }
+            } else if (8 === r.nodeType) {
+                if (r.data === $f58f44579a4747ac$var$o) d.push({
+                    type: 2,
+                    index: c
+                });
+                else {
+                    let t = -1;
+                    for(; -1 !== (t = r.data.indexOf($f58f44579a4747ac$var$h, t + 1));)d.push({
+                        type: 7,
+                        index: c
+                    }), t += $f58f44579a4747ac$var$h.length - 1;
+                }
+            }
+            c++;
+        }
+    }
+    static createElement(t, i) {
+        const s = $f58f44579a4747ac$var$r.createElement("template");
+        return s.innerHTML = t, s;
     }
 }
-function hmrDelete(bundle, id) {
-    let modules = bundle.modules;
-    if (!modules) return;
-    if (modules[id]) {
-        // Collect dependencies that will become orphaned when this module is deleted.
-        let deps = modules[id][1];
-        let orphans = [];
-        for(let dep in deps){
-            let parents = getParents(module.bundle.root, deps[dep]);
-            if (parents.length === 1) orphans.push(deps[dep]);
-        }
-        // Delete the module. This must be done before deleting dependencies in case of circular dependencies.
-        delete modules[id];
-        delete bundle.cache[id];
-        // Now delete the orphans.
-        orphans.forEach((id)=>{
-            hmrDelete(module.bundle.root, id);
-        });
-    } else if (bundle.parent) hmrDelete(bundle.parent, id);
+function $f58f44579a4747ac$var$S(t, i, s = t, e) {
+    if (i === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return i;
+    let h = void 0 !== e ? s._$Co?.[e] : s._$Cl;
+    const o = $f58f44579a4747ac$var$c(i) ? void 0 : i._$litDirective$;
+    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = $f58f44579a4747ac$var$S(t, h._$AS(t, i.values), h, e)), i;
 }
-function hmrAcceptCheck(bundle /*: ParcelRequire */ , id /*: string */ , depsByBundle /*: ?{ [string]: { [string]: string } }*/ ) {
-    if (hmrAcceptCheckOne(bundle, id, depsByBundle)) return true;
-    // Traverse parents breadth first. All possible ancestries must accept the HMR update, or we'll reload.
-    let parents = getParents(module.bundle.root, id);
-    let accepted = false;
-    while(parents.length > 0){
-        let v = parents.shift();
-        let a = hmrAcceptCheckOne(v[0], v[1], null);
-        if (a) // If this parent accepts, stop traversing upward, but still consider siblings.
-        accepted = true;
+class $f58f44579a4747ac$var$M {
+    constructor(t, i){
+        this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
+    }
+    get parentNode() {
+        return this._$AM.parentNode;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    u(t) {
+        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? $f58f44579a4747ac$var$r).importNode(i, !0);
+        $f58f44579a4747ac$var$C.currentNode = e;
+        let h = $f58f44579a4747ac$var$C.nextNode(), o = 0, n = 0, l = s[0];
+        for(; void 0 !== l;){
+            if (o === l.index) {
+                let i;
+                2 === l.type ? i = new $f58f44579a4747ac$var$R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new $f58f44579a4747ac$var$z(h, this, t)), this._$AV.push(i), l = s[++n];
+            }
+            o !== l?.index && (h = $f58f44579a4747ac$var$C.nextNode(), o++);
+        }
+        return $f58f44579a4747ac$var$C.currentNode = $f58f44579a4747ac$var$r, e;
+    }
+    p(t) {
+        let i = 0;
+        for (const s of this._$AV)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
+    }
+}
+class $f58f44579a4747ac$var$R {
+    get _$AU() {
+        return this._$AM?._$AU ?? this._$Cv;
+    }
+    constructor(t, i, s, e){
+        this.type = 2, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
+    }
+    get parentNode() {
+        let t = this._$AA.parentNode;
+        const i = this._$AM;
+        return void 0 !== i && 11 === t?.nodeType && (t = i.parentNode), t;
+    }
+    get startNode() {
+        return this._$AA;
+    }
+    get endNode() {
+        return this._$AB;
+    }
+    _$AI(t, i = this) {
+        t = $f58f44579a4747ac$var$S(this, t, i), $f58f44579a4747ac$var$c(t) ? t === $f58f44579a4747ac$export$45b790e32b2810ee || null == t || "" === t ? (this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && this._$AR(), this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee) : t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8 && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : $f58f44579a4747ac$var$u(t) ? this.k(t) : this._(t);
+    }
+    O(t) {
+        return this._$AA.parentNode.insertBefore(t, this._$AB);
+    }
+    T(t) {
+        this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
+    }
+    _(t) {
+        this._$AH !== $f58f44579a4747ac$export$45b790e32b2810ee && $f58f44579a4747ac$var$c(this._$AH) ? this._$AA.nextSibling.data = t : this.T($f58f44579a4747ac$var$r.createTextNode(t)), this._$AH = t;
+    }
+    $(t) {
+        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = $f58f44579a4747ac$var$N.createElement($f58f44579a4747ac$var$P(s.h, s.h[0]), this.options)), s);
+        if (this._$AH?._$AD === e) this._$AH.p(i);
         else {
-            // Otherwise, queue the parents in the next level upward.
-            let p = getParents(module.bundle.root, v[1]);
-            if (p.length === 0) {
-                // If there are no parents, then we've reached an entry without accepting. Reload.
-                accepted = false;
+            const t = new $f58f44579a4747ac$var$M(e, this), s = t.u(this.options);
+            t.p(i), this.T(s), this._$AH = t;
+        }
+    }
+    _$AC(t) {
+        let i = $f58f44579a4747ac$var$A.get(t.strings);
+        return void 0 === i && $f58f44579a4747ac$var$A.set(t.strings, i = new $f58f44579a4747ac$var$N(t)), i;
+    }
+    k(t) {
+        $f58f44579a4747ac$var$a(this._$AH) || (this._$AH = [], this._$AR());
+        const i = this._$AH;
+        let s, e = 0;
+        for (const h of t)e === i.length ? i.push(s = new $f58f44579a4747ac$var$R(this.O($f58f44579a4747ac$var$l()), this.O($f58f44579a4747ac$var$l()), this, this.options)) : s = i[e], s._$AI(h), e++;
+        e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
+    }
+    _$AR(t = this._$AA.nextSibling, i) {
+        for(this._$AP?.(!1, !0, i); t && t !== this._$AB;){
+            const i = t.nextSibling;
+            t.remove(), t = i;
+        }
+    }
+    setConnected(t) {
+        void 0 === this._$AM && (this._$Cv = t, this._$AP?.(t));
+    }
+}
+class $f58f44579a4747ac$var$k {
+    get tagName() {
+        return this.element.tagName;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    constructor(t, i, s, e, h){
+        this.type = 1, this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = $f58f44579a4747ac$export$45b790e32b2810ee;
+    }
+    _$AI(t, i = this, s, e) {
+        const h = this.strings;
+        let o = !1;
+        if (void 0 === h) t = $f58f44579a4747ac$var$S(this, t, i, 0), o = !$f58f44579a4747ac$var$c(t) || t !== this._$AH && t !== $f58f44579a4747ac$export$9c068ae9cc5db4e8, o && (this._$AH = t);
+        else {
+            const e = t;
+            let n, r;
+            for(t = h[0], n = 0; n < h.length - 1; n++)r = $f58f44579a4747ac$var$S(this, e[s + n], i, n), r === $f58f44579a4747ac$export$9c068ae9cc5db4e8 && (r = this._$AH[n]), o ||= !$f58f44579a4747ac$var$c(r) || r !== this._$AH[n], r === $f58f44579a4747ac$export$45b790e32b2810ee ? t = $f58f44579a4747ac$export$45b790e32b2810ee : t !== $f58f44579a4747ac$export$45b790e32b2810ee && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
+        }
+        o && !e && this.j(t);
+    }
+    j(t) {
+        t === $f58f44579a4747ac$export$45b790e32b2810ee ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+    }
+}
+class $f58f44579a4747ac$var$H extends $f58f44579a4747ac$var$k {
+    constructor(){
+        super(...arguments), this.type = 3;
+    }
+    j(t) {
+        this.element[this.name] = t === $f58f44579a4747ac$export$45b790e32b2810ee ? void 0 : t;
+    }
+}
+class $f58f44579a4747ac$var$I extends $f58f44579a4747ac$var$k {
+    constructor(){
+        super(...arguments), this.type = 4;
+    }
+    j(t) {
+        this.element.toggleAttribute(this.name, !!t && t !== $f58f44579a4747ac$export$45b790e32b2810ee);
+    }
+}
+class $f58f44579a4747ac$var$L extends $f58f44579a4747ac$var$k {
+    constructor(t, i, s, e, h){
+        super(t, i, s, e, h), this.type = 5;
+    }
+    _$AI(t, i = this) {
+        if ((t = $f58f44579a4747ac$var$S(this, t, i, 0) ?? $f58f44579a4747ac$export$45b790e32b2810ee) === $f58f44579a4747ac$export$9c068ae9cc5db4e8) return;
+        const s = this._$AH, e = t === $f58f44579a4747ac$export$45b790e32b2810ee && s !== $f58f44579a4747ac$export$45b790e32b2810ee || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== $f58f44579a4747ac$export$45b790e32b2810ee && (s === $f58f44579a4747ac$export$45b790e32b2810ee || e);
+        e && this.element.removeEventListener(this.name, this, s), h && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    }
+    handleEvent(t) {
+        "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
+    }
+}
+class $f58f44579a4747ac$var$z {
+    constructor(t, i, s){
+        this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    _$AI(t) {
+        $f58f44579a4747ac$var$S(this, t);
+    }
+}
+const $f58f44579a4747ac$export$8613d1ca9052b22e = {
+    M: $f58f44579a4747ac$var$e,
+    P: $f58f44579a4747ac$var$h,
+    A: $f58f44579a4747ac$var$o,
+    C: 1,
+    L: $f58f44579a4747ac$var$V,
+    R: $f58f44579a4747ac$var$M,
+    D: $f58f44579a4747ac$var$u,
+    V: $f58f44579a4747ac$var$S,
+    I: $f58f44579a4747ac$var$R,
+    H: $f58f44579a4747ac$var$k,
+    N: $f58f44579a4747ac$var$I,
+    U: $f58f44579a4747ac$var$L,
+    B: $f58f44579a4747ac$var$H,
+    F: $f58f44579a4747ac$var$z
+}, $f58f44579a4747ac$var$j = $f58f44579a4747ac$var$t.litHtmlPolyfillSupport;
+$f58f44579a4747ac$var$j?.($f58f44579a4747ac$var$N, $f58f44579a4747ac$var$R), ($f58f44579a4747ac$var$t.litHtmlVersions ??= []).push("3.2.1");
+const $f58f44579a4747ac$export$b3890eb0ae9dca99 = (t, i, s)=>{
+    const e = s?.renderBefore ?? i;
+    let h = e._$litPart$;
+    if (void 0 === h) {
+        const t = s?.renderBefore ?? null;
+        e._$litPart$ = h = new $f58f44579a4747ac$var$R(i.insertBefore($f58f44579a4747ac$var$l(), t), t, void 0, s ?? {});
+    }
+    return h._$AI(t), h;
+};
+
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ class $ab210b2da7b39b9d$export$3f2f9f5909897157 extends (0, $19fe8e3abedf4df0$export$c7c07a37856565d) {
+    constructor(){
+        super(...arguments), this.renderOptions = {
+            host: this
+        }, this._$Do = void 0;
+    }
+    createRenderRoot() {
+        const t = super.createRenderRoot();
+        return this.renderOptions.renderBefore ??= t.firstChild, t;
+    }
+    update(t) {
+        const s = this.render();
+        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, $f58f44579a4747ac$export$b3890eb0ae9dca99)(s, this.renderRoot, this.renderOptions);
+    }
+    connectedCallback() {
+        super.connectedCallback(), this._$Do?.setConnected(!0);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback(), this._$Do?.setConnected(!1);
+    }
+    render() {
+        return 0, $f58f44579a4747ac$export$9c068ae9cc5db4e8;
+    }
+}
+$ab210b2da7b39b9d$export$3f2f9f5909897157._$litElement$ = !0, $ab210b2da7b39b9d$export$3f2f9f5909897157["finalized"] = !0, globalThis.litElementHydrateSupport?.({
+    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+});
+const $ab210b2da7b39b9d$var$i = globalThis.litElementPolyfillSupport;
+$ab210b2da7b39b9d$var$i?.({
+    LitElement: $ab210b2da7b39b9d$export$3f2f9f5909897157
+});
+const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
+    _$AK: (t, e, s)=>{
+        t._$AK(e, s);
+    },
+    _$AL: (t)=>t._$AL
+};
+(globalThis.litElementVersions ??= []).push("4.1.1");
+
+
+/**
+ * @license
+ * Copyright 2022 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $a00bca1a101a9088$export$6acf61af03e62db = !1;
+
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $14742f68afc766d6$export$da64fc29f17f9d0e = (t)=>(e, o)=>{
+        void 0 !== o ? o.addInitializer(()=>{
+            customElements.define(t, e);
+        }) : customElements.define(t, e);
+    };
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $9cd908ed2625c047$var$o = {
+    attribute: !0,
+    type: String,
+    converter: (0, $19fe8e3abedf4df0$export$7312b35fbf521afb),
+    reflect: !1,
+    hasChanged: (0, $19fe8e3abedf4df0$export$53a6892c50694894)
+}, $9cd908ed2625c047$export$8d623b1670eb40f4 = (t = $9cd908ed2625c047$var$o, e, r)=>{
+    const { kind: n, metadata: i } = r;
+    let s = globalThis.litPropertyMetadata.get(i);
+    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
+        const { name: o } = r;
+        return {
+            set (r) {
+                const n = e.get.call(this);
+                e.set.call(this, r), this.requestUpdate(o, n, t);
+            },
+            init (e) {
+                return void 0 !== e && this.P(o, void 0, t), e;
+            }
+        };
+    }
+    if ("setter" === n) {
+        const { name: o } = r;
+        return function(r) {
+            const n = this[o];
+            e.call(this, r), this.requestUpdate(o, n, t);
+        };
+    }
+    throw Error("Unsupported decorator location: " + n);
+};
+function $9cd908ed2625c047$export$d541bacb2bda4494(t) {
+    return (e, o)=>"object" == typeof o ? $9cd908ed2625c047$export$8d623b1670eb40f4(t, e, o) : ((t, e, o)=>{
+            const r = e.hasOwnProperty(o);
+            return e.constructor.createProperty(o, r ? {
+                ...t,
+                wrapped: !0
+            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
+        })(t, e, o);
+}
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $04c21ea1ce1f6057$export$ca000e230c0caa3e(r) {
+    return (0, $9cd908ed2625c047$export$d541bacb2bda4494)({
+        ...r,
+        state: !0,
+        attribute: !1
+    });
+}
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $b4269277b3c48b0c$export$b2b799818fbabcf3(t) {
+    return (n, o)=>{
+        const c = "function" == typeof n ? n : n[o];
+        Object.assign(c, t);
+    };
+}
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $25e9c5a8f7ecfc69$export$51987bb50e1f6752 = (e, t, c)=>(c.configurable = !0, c.enumerable = !0, Reflect.decorate && "object" != typeof t && Object.defineProperty(e, t, c), c);
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $02a1f3a787c54a30$export$2fa187e846a241c4(e, r) {
+    return (n, s, i)=>{
+        const o = (t)=>t.renderRoot?.querySelector(e) ?? null;
+        if (r) {
+            const { get: e, set: r } = "object" == typeof s ? n : i ?? (()=>{
+                const t = Symbol();
+                return {
+                    get () {
+                        return this[t];
+                    },
+                    set (e) {
+                        this[t] = e;
+                    }
+                };
+            })();
+            return (0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(n, s, {
+                get () {
+                    let t = e.call(this);
+                    return void 0 === t && (t = o(this), (null !== t || this.hasUpdated) && r.call(this, t)), t;
+                }
+            });
+        }
+        return (0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(n, s, {
+            get () {
+                return o(this);
+            }
+        });
+    };
+}
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ let $ed34c589b230c255$var$e;
+function $ed34c589b230c255$export$dcd0d083aa86c355(r) {
+    return (n, o)=>(0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(n, o, {
+            get () {
+                return (this.renderRoot ?? ($ed34c589b230c255$var$e ??= document.createDocumentFragment())).querySelectorAll(r);
+            }
+        });
+}
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $ea50f1870b80cbec$export$163dfc35cc43f240(r) {
+    return (n, e)=>(0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(n, e, {
+            async get () {
+                return await this.updateComplete, this.renderRoot?.querySelector(r) ?? null;
+            }
+        });
+}
+
+
+
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $563fcf7ce7e6c5aa$export$4682af2d9ee91415(o) {
+    return (e, n)=>{
+        const { slot: r, selector: s } = o ?? {}, c = "slot" + (r ? `[name=${r}]` : ":not([name])");
+        return (0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(e, n, {
+            get () {
+                const t = this.renderRoot?.querySelector(c), e = t?.assignedElements(o) ?? [];
+                return void 0 === s ? e : e.filter((t)=>t.matches(s));
+            }
+        });
+    };
+}
+
+
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $728f1385dd7bf557$export$1bdbe53f9df1b8(n) {
+    return (o, r)=>{
+        const { slot: e } = n ?? {}, s = "slot" + (e ? `[name=${e}]` : ":not([name])");
+        return (0, $25e9c5a8f7ecfc69$export$51987bb50e1f6752)(o, r, {
+            get () {
+                const t = this.renderRoot?.querySelector(s);
+                return t?.assignedNodes(n) ?? [];
+            }
+        });
+    };
+}
+
+
+
+
+
+var $af2e54d923abca22$export$2e2bcd8739ae039 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
+    .error {
+        color: var(--error-color, crimson);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        text-align: center;
+        background-color: var(--card-background-color, rgba(255, 255, 255, 0.7));
+        padding: 1em;
+        border-radius: 1em;
+    }
+
+    ha-card {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        align-items: center;
+        font-family: Helvetica, sans-serif;
+    }
+
+    .clock {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    .legend {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 0 16px 16px;
+        color: var(--primary-text-color, black);
+        font-size: 0.875rem;
+    }
+
+    .legend-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .legend-group + .legend-group {
+        margin-top: 12px;
+    }
+
+    .legend-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+        gap: 6px 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .legend-swatch {
+        box-sizing: border-box;
+        flex: 0 0 14px;
+        height: 14px;
+        border: 1px solid var(--secondary-text-color, gray);
+        border-radius: 50%;
+    }
+
+    .legend-note {
+        color: var(--secondary-text-color, gray);
+        margin-top: 8px;
+    }
+
+    /* Light mode (default) */
+    .clock-face {
+        fill: var(--card-background-color, whitesmoke);
+        stroke: var(--secondary-text-color, darkslategray);
+        stroke-width: 2.5;
+    }
+
+    .hour-digits {
+        fill: var(--primary-text-color, black);
+    }
+
+    .hour-hand {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: center;
+        z-index: 2;
+        stroke: #333;
+    }
+
+    .minute-hand {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-origin: center;
+        z-index: 2;
+        stroke: #333;
+    }
+
+    .center-dot {
+        fill: #333;
+    }
+
+    /* Dark mode overrides */
+    :host(.dark) .clock-face {
+        fill: var(--secondary-text-color, gray);
+        stroke: #333;
+    }
+
+    :host(.dark) .hour-digits {
+        fill: #222;
+    }
+
+    :host(.dark) .hour-hand {
+        stroke: var(--card-background-color, whitesmoke);
+    }
+
+    :host(.dark) .minute-hand {
+        stroke: var(--card-background-color, whitesmoke);
+    }
+
+    :host(.dark) .center-dot {
+        fill: var(--card-background-color, whitesmoke);
+    }
+`;
+
+
+// Utility functions for LevelIndicatorClock
+function $60b09ee0d5d2adab$export$ea51778fdc018295(minutes) {
+    let angle = minutes / 2;
+    while(angle < 0)angle += 360;
+    while(angle > 360)angle -= 360;
+    return angle;
+}
+const $60b09ee0d5d2adab$export$a05a539118602648 = {
+    minutes_since_midnight: 0,
+    level_length: 0,
+    passed_levels: '',
+    future_levels: ''
+};
+function $60b09ee0d5d2adab$export$c46cf0b3c9436807(compactLevels) {
+    // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
+    if (!compactLevels) return $60b09ee0d5d2adab$export$a05a539118602648;
+    const parts = compactLevels.split(":");
+    if (parts.length < 4) {
+        console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
+        return $60b09ee0d5d2adab$export$a05a539118602648;
+    }
+    const minutesSinceMidnight = parseInt(parts[0], 10);
+    const levelLength = parseInt(parts[1], 10);
+    if (isNaN(minutesSinceMidnight) || isNaN(levelLength)) {
+        console.error('[ClockCard] Invalid numeric values in compactLevels:', compactLevels);
+        return $60b09ee0d5d2adab$export$a05a539118602648;
+    }
+    const passedLevels = parts[2];
+    const futureLevels = parts[3];
+    return {
+        minutes_since_midnight: minutesSinceMidnight,
+        level_length: levelLength,
+        passed_levels: passedLevels,
+        future_levels: futureLevels
+    };
+}
+function $60b09ee0d5d2adab$export$615f3482ca768fa4() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+function $60b09ee0d5d2adab$export$e7b2f2483b2cae25(modes) {
+    const levels = {
+        S: 'B',
+        P: 'F',
+        E: 'T',
+        M: 'X'
+    };
+    return modes.replace(/[SPEM]/gi, (mode)=>{
+        const level = levels[mode.toUpperCase()];
+        return mode === mode.toLowerCase() ? level.toLowerCase() : level;
+    });
+}
+function $60b09ee0d5d2adab$export$398e9b43dc594d8e(level) {
+    switch(level){
+        case "A":
+            return "#0080ff";
+        case "a":
+            return "#001e3c";
+        case "B":
+            return "#00665e";
+        case "b":
+            return "#001816";
+        case "C":
+            return "#00d9ff";
+        case "c":
+            return "#00333c";
+        case "D":
+            return "#c2185b";
+        case "d":
+            return "#2e0615";
+        case "F":
+            return "#00a88f";
+        case "f":
+            return "#002822";
+        case "I":
+            return "#ffb000";
+        case "i":
+            return "#3c2900";
+        case "L":
+            return "#00c853";
+        case "l":
+            return "#002f14";
+        case "M":
+            return "#ffd600";
+        case "m":
+            return "#3c3200";
+        case "H":
+            return "#ff0000";
+        case "h":
+            return "#3c0000";
+        case "S":
+            return "#0066ff";
+        case "s":
+            return "#00183c";
+        case "U":
+            return "#808080";
+        case "u":
+            return "#202020";
+        case "E":
+            return "#ff00ff";
+        case "e":
+            return "#3c003c";
+        case "O":
+        case "o":
+            return "black";
+        case "P":
+            return "white";
+        case "p":
+            return "#3c3c3c";
+        case "T":
+            return "#9370db";
+        case "t":
+            return "#231a34";
+        case "V":
+            return "#8000ff";
+        case "v":
+            return "#1e003c";
+        case "X":
+            return "#ff8c00";
+        case "x":
+            return "#3c2100";
+        default:
+            console.debug(`Unknown level character '${level}', defaulting to black.`);
+            return "black";
+    }
+}
+
+
+class $c0718f6920ed4f91$export$e85a5502f4e59624 {
+    constructor(color, start, end){
+        this.color = void 0;
+        this.start = void 0;
+        this.end = void 0;
+        this.color = color;
+        this.start = start;
+        this.end = end;
+    }
+    arcToPath(cx, cy, r) {
+        let angleDiff = Math.abs(this.end - this.start);
+        // If the arc is a full circle or nearly so, extend the end angle slightly
+        if (angleDiff >= 360 || angleDiff === 0) {
+            // Draw two arcs to make a full circle
+            const path1 = $c0718f6920ed4f91$export$e85a5502f4e59624.describeArcSegment(cx, cy, r, this.start, this.start + 180);
+            const path2 = $c0718f6920ed4f91$export$e85a5502f4e59624.describeArcSegment(cx, cy, r, this.start + 180, this.end);
+            return `${path1} ${path2}`;
+        } else return $c0718f6920ed4f91$export$e85a5502f4e59624.describeArcSegment(cx, cy, r, this.start, this.end);
+    }
+    static polarToCartesian(cx, cy, r, angleRad) {
+        return {
+            x: cx + r * Math.cos(angleRad - Math.PI / 2),
+            y: cy + r * Math.sin(angleRad - Math.PI / 2)
+        };
+    }
+    static describeArcSegment(cx, cy, r, startAngle, endAngle) {
+        const OVERLAP = 0.12;
+        const start = startAngle == 0 ? -OVERLAP : startAngle;
+        const end = endAngle == 360 ? 360 + OVERLAP : endAngle;
+        const arcStart = $c0718f6920ed4f91$export$e85a5502f4e59624.polarToCartesian(cx, cy, r, end * (Math.PI / 180));
+        const arcEnd = $c0718f6920ed4f91$export$e85a5502f4e59624.polarToCartesian(cx, cy, r, start * (Math.PI / 180));
+        const largeArcFlag = Math.abs(end - start) > 180 ? '1' : '0';
+        return `M ${arcStart.x} ${arcStart.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${arcEnd.x} ${arcEnd.y}`;
+    }
+}
+class $c0718f6920ed4f91$export$aa6be83ed25c328c {
+    constructor(initialLevel = 'U'){
+        this.arcs = [];
+        this.arcs = [
+            new $c0718f6920ed4f91$export$e85a5502f4e59624((0, $60b09ee0d5d2adab$export$398e9b43dc594d8e)(initialLevel), 0, 360)
+        ];
+    }
+    getArcs() {
+        return this.arcs;
+    }
+    insertLevelArc(color, startAngle, endAngle) {
+        //console.debug(`Inserting level arc: color=${color}, startAngle=${startAngle}, endAngle=${endAngle}`);
+        if (startAngle >= 0 && startAngle <= 360 && endAngle >= 0 && endAngle <= 360) {
+            if (startAngle < endAngle) this.insertAndMergeLevelArc(color, startAngle, endAngle);
+            else if (startAngle > endAngle) {
+                if (startAngle < 360) this.insertAndMergeLevelArc(color, startAngle, 360);
+                if (endAngle > 0) this.insertAndMergeLevelArc(color, 0, endAngle);
+            }
+        }
+    }
+    insertLevelAtMinute(startMinute, lengthMinutes, level) {
+        const startAngle = (0, $60b09ee0d5d2adab$export$ea51778fdc018295)(startMinute);
+        const endAngle = (0, $60b09ee0d5d2adab$export$ea51778fdc018295)(startMinute + lengthMinutes);
+        this.insertLevelArc((0, $60b09ee0d5d2adab$export$398e9b43dc594d8e)(level), startAngle, endAngle);
+    }
+    insertAndMergeLevelArc(color, startAngle, endAngle) {
+        let i = 0;
+        while(i < this.arcs.length){
+            const arc = this.arcs[i];
+            if (startAngle >= arc.end || endAngle <= arc.start) {
+                i++;
+                continue;
+            }
+            const originalEnd = arc.end;
+            if (startAngle > arc.start && endAngle < originalEnd) {
+                arc.end = startAngle;
+                const newArc = new $c0718f6920ed4f91$export$e85a5502f4e59624(color, startAngle, endAngle);
+                const afterArc = new $c0718f6920ed4f91$export$e85a5502f4e59624(arc.color, endAngle, originalEnd);
+                this.arcs.splice(i + 1, 0, newArc, afterArc);
                 break;
             }
-            parents.push(...p);
+            if (startAngle <= arc.start && endAngle < originalEnd && endAngle > arc.start) {
+                arc.start = endAngle;
+                const newArc = new $c0718f6920ed4f91$export$e85a5502f4e59624(color, startAngle, endAngle);
+                this.arcs.splice(i, 0, newArc);
+                break;
+            }
+            if (startAngle > arc.start && endAngle >= originalEnd) {
+                arc.end = startAngle;
+                const newArc = new $c0718f6920ed4f91$export$e85a5502f4e59624(color, startAngle, endAngle);
+                this.arcs.splice(i + 1, 0, newArc);
+                i++;
+                continue;
+            }
+            if (startAngle <= arc.start && endAngle >= originalEnd) {
+                this.arcs.splice(i, 1);
+                continue;
+            }
+            throw new Error('Unreachable');
+        //i++;
         }
-    }
-    return accepted;
-}
-function hmrAcceptCheckOne(bundle /*: ParcelRequire */ , id /*: string */ , depsByBundle /*: ?{ [string]: { [string]: string } }*/ ) {
-    var modules = bundle.modules;
-    if (!modules) return;
-    if (depsByBundle && !depsByBundle[bundle.HMR_BUNDLE_ID]) {
-        // If we reached the root bundle without finding where the asset should go,
-        // there's nothing to do. Mark as "accepted" so we don't reload the page.
-        if (!bundle.parent) return true;
-        return hmrAcceptCheck(bundle.parent, id, depsByBundle);
-    }
-    if (checkedAssets[id]) return true;
-    checkedAssets[id] = true;
-    var cached = bundle.cache[id];
-    assetsToDispose.push([
-        bundle,
-        id
-    ]);
-    if (!cached || cached.hot && cached.hot._acceptCallbacks.length) {
-        assetsToAccept.push([
-            bundle,
-            id
-        ]);
-        return true;
-    }
-}
-function hmrDisposeQueue() {
-    // Dispose all old assets.
-    for(let i = 0; i < assetsToDispose.length; i++){
-        let id = assetsToDispose[i][1];
-        if (!disposedAssets[id]) {
-            hmrDispose(assetsToDispose[i][0], id);
-            disposedAssets[id] = true;
+        let inserted = this.arcs.some((g)=>g.start === startAngle && g.end === endAngle);
+        if (!inserted) {
+            let insertedInLoop = false;
+            for(let j = 0; j < this.arcs.length; j++)if (startAngle < this.arcs[j].start) {
+                this.arcs.splice(j, 0, new $c0718f6920ed4f91$export$e85a5502f4e59624(color, startAngle, endAngle));
+                insertedInLoop = true;
+                break;
+            }
+            if (!insertedInLoop) this.arcs.push(new $c0718f6920ed4f91$export$e85a5502f4e59624(color, startAngle, endAngle));
         }
-    }
-    assetsToDispose = [];
-}
-function hmrDispose(bundle /*: ParcelRequire */ , id /*: string */ ) {
-    var cached = bundle.cache[id];
-    bundle.hotData[id] = {};
-    if (cached && cached.hot) cached.hot.data = bundle.hotData[id];
-    if (cached && cached.hot && cached.hot._disposeCallbacks.length) cached.hot._disposeCallbacks.forEach(function(cb) {
-        cb(bundle.hotData[id]);
-    });
-    delete bundle.cache[id];
-}
-function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
-    // Execute the module.
-    bundle(id);
-    // Run the accept callbacks in the new version of the module.
-    var cached = bundle.cache[id];
-    if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
-        let assetsToAlsoAccept = [];
-        cached.hot._acceptCallbacks.forEach(function(cb) {
-            let additionalAssets = cb(function() {
-                return getParents(module.bundle.root, id);
-            });
-            if (Array.isArray(additionalAssets) && additionalAssets.length) assetsToAlsoAccept.push(...additionalAssets);
-        });
-        if (assetsToAlsoAccept.length) {
-            let handled = assetsToAlsoAccept.every(function(a) {
-                return hmrAcceptCheck(a[0], a[1]);
-            });
-            if (!handled) return fullReload();
-            hmrDisposeQueue();
+        i = 0;
+        while(i < this.arcs.length - 1){
+            const current = this.arcs[i];
+            const next = this.arcs[i + 1];
+            if (current.color === next.color && current.end === next.start) {
+                current.end = next.end;
+                this.arcs.splice(i + 1, 1);
+            } else i++;
         }
     }
 }
 
-},{}],"h7u1C":[function(require,module,exports,__globalThis) {
-var _levelIndicatorClockCardJs = require("./LevelIndicatorClockCard.js");
-var _levelindicatorclockcardStylesTs = require("./levelindicatorclockcard.styles.ts");
-customElements.define("level-indicator-clock", (0, _levelIndicatorClockCardJs.LevelIndicatorClockCard));
-window.customCards = window.customCards || [];
-window.customCards.push({
-    type: "level-indicator-clock",
-    name: "LevelIndicatorClock",
-    description: "Clock with level indicators",
-    preview: true
-});
 
-},{"./LevelIndicatorClockCard.js":"2rXwx","./levelindicatorclockcard.styles.ts":"aTxNe"}],"2rXwx":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "LevelIndicatorClockCard", ()=>LevelIndicatorClockCard);
-var _lit = require("lit");
-var _decoratorsJs = require("lit/decorators.js");
-var _levelindicatorclockcardStyles = require("./levelindicatorclockcard.styles");
-var _levelindicatorclockcardStylesDefault = parcelHelpers.interopDefault(_levelindicatorclockcardStyles);
-var _levelArcs = require("./LevelArcs");
-var _utils = require("./utils");
-var _dec, _dec2, _dec3, _dec4, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _LevelIndicatorClockCard;
-function _initializerDefineProperty(e, i, r, l) {
+
+var $dc03dc8aeb30ad35$var$_dec, $dc03dc8aeb30ad35$var$_dec2, $dc03dc8aeb30ad35$var$_dec3, $dc03dc8aeb30ad35$var$_dec4, $dc03dc8aeb30ad35$var$_class, $dc03dc8aeb30ad35$var$_descriptor, $dc03dc8aeb30ad35$var$_descriptor2, $dc03dc8aeb30ad35$var$_descriptor3, $dc03dc8aeb30ad35$var$_descriptor4, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard;
+function $dc03dc8aeb30ad35$var$_initializerDefineProperty(e, i, r, l) {
     r && Object.defineProperty(e, i, {
         enumerable: r.enumerable,
         configurable: r.configurable,
@@ -626,7 +1187,7 @@ function _initializerDefineProperty(e, i, r, l) {
         value: r.initializer ? r.initializer.call(l) : void 0
     });
 }
-function _applyDecoratedDescriptor(i, e, r, n, l) {
+function $dc03dc8aeb30ad35$var$_applyDecoratedDescriptor(i, e, r, n, l) {
     var a = {};
     return Object.keys(n).forEach(function(i) {
         a[i] = n[i];
@@ -634,12 +1195,70 @@ function _applyDecoratedDescriptor(i, e, r, n, l) {
         return n(i, e, r) || r;
     }, a), l && void 0 !== a.initializer && (a.value = a.initializer ? a.initializer.call(l) : void 0, a.initializer = void 0), void 0 === a.initializer ? (Object.defineProperty(i, e, a), null) : a;
 }
-function _initializerWarningHelper(r, e) {
+function $dc03dc8aeb30ad35$var$_initializerWarningHelper(r, e) {
     throw Error("Decorating class property failed. Please ensure that transform-class-properties is enabled and runs after the decorators transform.");
 }
-let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
+const $dc03dc8aeb30ad35$var$PRICE_LEGEND = [
+    {
+        level: 'L',
+        label: 'Low'
+    },
+    {
+        level: 'M',
+        label: 'Medium'
+    },
+    {
+        level: 'H',
+        label: 'High'
+    },
+    {
+        level: 'S',
+        label: 'Solar'
+    }
+];
+const $dc03dc8aeb30ad35$var$BATTERY_LEGEND = [
+    {
+        level: 'B',
+        label: 'Standby'
+    },
+    {
+        level: 'C',
+        label: 'Charging'
+    },
+    {
+        level: 'D',
+        label: 'Discharging'
+    },
+    {
+        level: 'F',
+        label: 'PV charging'
+    },
+    {
+        level: 'T',
+        label: 'Selling'
+    },
+    {
+        level: 'X',
+        label: 'Maxuse'
+    }
+];
+const $dc03dc8aeb30ad35$var$COMMON_LEGEND = [
+    {
+        level: 'E',
+        label: 'Error'
+    },
+    {
+        level: 'U',
+        label: 'Unknown or missing'
+    },
+    {
+        level: 'P',
+        label: 'Time marker'
+    }
+];
+let $dc03dc8aeb30ad35$export$b085454a5d0b0b56 = ($dc03dc8aeb30ad35$var$_dec = (0, $9cd908ed2625c047$export$d541bacb2bda4494)({
     type: String
-}), _dec2 = (0, _decoratorsJs.state)(), _dec3 = (0, _decoratorsJs.state)(), _dec4 = (0, _decoratorsJs.state)(), _class = (_LevelIndicatorClockCard = class LevelIndicatorClockCard extends (0, _lit.LitElement) {
+}), $dc03dc8aeb30ad35$var$_dec2 = (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)(), $dc03dc8aeb30ad35$var$_dec3 = (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)(), $dc03dc8aeb30ad35$var$_dec4 = (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)(), $dc03dc8aeb30ad35$var$_class = ($dc03dc8aeb30ad35$var$_LevelIndicatorClockCard = class LevelIndicatorClockCard extends (0, $ab210b2da7b39b9d$export$3f2f9f5909897157) {
     constructor(...args){
         super(...args);
         this.intervalId = void 0;
@@ -648,13 +1267,14 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         this.SIMULATION_STEP_MINUTES = 1;
         this.SIMULATION_UPDATE_PERIOD_MS = 200;
         this.currentTimeMinutes = 0;
-        _initializerDefineProperty(this, "compactLevels", _descriptor, this);
+        $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "compactLevels", $dc03dc8aeb30ad35$var$_descriptor, this);
         this.compactLevelsEntity = '';
         this.hasReceivedData = false;
         this._hass = void 0;
-        _initializerDefineProperty(this, "dependencyMet", _descriptor2, this);
-        _initializerDefineProperty(this, "hourHandEnd", _descriptor3, this);
-        _initializerDefineProperty(this, "minuteHandEnd", _descriptor4, this);
+        $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "dependencyMet", $dc03dc8aeb30ad35$var$_descriptor2, this);
+        this.showLegend = false;
+        $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "hourHandEnd", $dc03dc8aeb30ad35$var$_descriptor3, this);
+        $dc03dc8aeb30ad35$var$_initializerDefineProperty(this, "minuteHandEnd", $dc03dc8aeb30ad35$var$_descriptor4, this);
         this.levelLength = 0;
         this.currentLevels = '';
         this.currentStartMinute = 0;
@@ -664,17 +1284,27 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         // New: ticker for advancing the clock every minute (real mode)
         this.minuteTickerId = void 0;
         // Level to show for passed and future levels. requestUpdate() must be called to display any changes.
-        this.levelArcs = new (0, _levelArcs.LevelArcs)('U');
+        this.levelArcs = new (0, $c0718f6920ed4f91$export$aa6be83ed25c328c)('U');
     }
     setConfig(config) {
         if (!config) throw new Error('No configuration provided.');
+        const showLegend = config.show_legend === true;
+        if (showLegend !== this.showLegend) {
+            this.showLegend = showLegend;
+            this.requestUpdate();
+        }
         const newEntity = config.compact_levels ?? '';
         if (newEntity !== this.compactLevelsEntity) {
+            const wasBattery = this.isBatterySensor();
             this.compactLevelsEntity = newEntity;
+            if (wasBattery !== this.isBatterySensor()) this.requestUpdate();
             this.compactLevels = '';
             this.hasReceivedData = false;
             if (this._hass && this.compactLevelsEntity) this.updateFromHass(this._hass);
         }
+    }
+    isBatterySensor() {
+        return this.compactLevelsEntity.toLowerCase().includes('battery');
     }
     set hass(hass) {
         this._hass = hass;
@@ -696,18 +1326,18 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             this.hasReceivedData = true;
             this.compactLevels = compactLevels ?? '';
             console.debug(`[ClockCard] ${this.compactLevelsEntity} state:`, this.compactLevels);
-            const result = (0, _utils.compactToLevels)(compactLevels);
+            const result = (0, $60b09ee0d5d2adab$export$c46cf0b3c9436807)(compactLevels);
             this.updateLevels(result);
         }
     }
     getCardSize() {
         console.debug("[ClockCard] getCardSize()");
-        return 5;
+        return this.showLegend ? 8 : 5;
     }
     getLayoutOptions() {
         console.debug("[ClockCard] getLayoutOptions");
         return {
-            grid_rows: 8,
+            grid_rows: this.showLegend ? 13 : 8,
             grid_columns: 12
         };
     }
@@ -735,7 +1365,7 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         const now = new Date();
         const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
         this.minuteTickerId = window.setTimeout(()=>{
-            this.setCurrentMinute((0, _utils.getCurrentMinutesSinceMidnight)());
+            this.setCurrentMinute((0, $60b09ee0d5d2adab$export$615f3482ca768fa4)());
             this.scheduleNextMinuteTick();
         }, msUntilNextMinute);
     }
@@ -747,7 +1377,12 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
    * @param levels
    * @private
    */ updateLevels(levels) {
-        this.currentTimeMinutes = this.isFirstUpdate ? (0, _utils.getCurrentMinutesSinceMidnight)() : levels.minutes_since_midnight;
+        if (this.isBatterySensor()) levels = {
+            ...levels,
+            passed_levels: (0, $60b09ee0d5d2adab$export$e7b2f2483b2cae25)(levels.passed_levels),
+            future_levels: (0, $60b09ee0d5d2adab$export$e7b2f2483b2cae25)(levels.future_levels)
+        };
+        this.currentTimeMinutes = this.isFirstUpdate ? (0, $60b09ee0d5d2adab$export$615f3482ca768fa4)() : levels.minutes_since_midnight;
         if (this.isFirstUpdate) {
             console.debug('[ClockCard] First update - using actual current time:', this.currentTimeMinutes, 'instead of levels time:', levels.minutes_since_midnight);
             this.isFirstUpdate = false;
@@ -853,17 +1488,17 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     render() {
         const arcPaths = this.levelArcs.getArcs().map((levelArc)=>{
             const path = levelArc.arcToPath(LevelIndicatorClockCard.CENTER_X, LevelIndicatorClockCard.CENTER_Y, LevelIndicatorClockCard.ARC_RADIUS);
-            return (0, _lit.svg)`<path d="${path}" stroke="${levelArc.color}" stroke-width="${LevelIndicatorClockCard.ARC_STROKE_WIDTH}" fill="none" />`;
+            return (0, $f58f44579a4747ac$export$7ed1367e7fa1ad68)`<path d="${path}" stroke="${levelArc.color}" stroke-width="${LevelIndicatorClockCard.ARC_STROKE_WIDTH}" fill="none" />`;
         });
-        return (0, _lit.html)`
+        return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
             <ha-card>
-                ${!this.dependencyMet ? (0, _lit.html)`
+                ${!this.dependencyMet ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
                             <div class="error">
                                 <p>HACS integration 'energyadvisor' is not installed or loaded.</p>
                             </div>
                         ` : ''}
-                ${(0, _lit.svg)`
-                <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                ${(0, $f58f44579a4747ac$export$7ed1367e7fa1ad68)`
+                <svg class="clock" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="100" cy="100" r="95" class="clock-face" />
 
                     ${arcPaths}
@@ -879,6 +1514,33 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
                     <circle cx="100" cy="100" r="4" class="center-dot" />
                 </svg>
             `}
+                ${this.showLegend ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                    <div class="legend">
+                        ${[
+            {
+                title: this.isBatterySensor() ? 'Battery modes' : 'Electricity prices',
+                levels: this.isBatterySensor() ? $dc03dc8aeb30ad35$var$BATTERY_LEGEND : $dc03dc8aeb30ad35$var$PRICE_LEGEND
+            },
+            {
+                title: 'Other colours',
+                levels: $dc03dc8aeb30ad35$var$COMMON_LEGEND
+            }
+        ].map((group)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                            <div class="legend-group">
+                                <div class="legend-title">${group.title}</div>
+                                <div class="legend-items">
+                                    ${group.levels.map(({ level: level, label: label })=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                                        <div class="legend-item">
+                                            <span class="legend-swatch" style="background-color: ${(0, $60b09ee0d5d2adab$export$398e9b43dc594d8e)(level)}"></span>
+                                            <span>${label}</span>
+                                        </div>
+                                    `)}
+                                </div>
+                            </div>
+                        `)}
+                        <div class="legend-note">Past levels are shown in darker shades.</div>
+                    </div>
+                ` : ''}
             </ha-card>
         `;
     }
@@ -891,6 +1553,13 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
                         entity: {
                             domain: 'sensor'
                         }
+                    }
+                },
+                {
+                    name: 'show_legend',
+                    label: 'Show colour legend',
+                    selector: {
+                        boolean: {}
                     }
                 }
             ]
@@ -929,13 +1598,13 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             startTime.setHours(0, 0, 0, 0);
             this.currentTimeMinutes = startTime.getHours() * 60 + startTime.getMinutes();
             const levels = this.generateCompactLevels(this.currentTimeMinutes);
-            const result = (0, _utils.compactToLevels)(levels);
+            const result = (0, $60b09ee0d5d2adab$export$c46cf0b3c9436807)(levels);
             this.updateLevels(result);
             const scheduleNextTick = ()=>{
                 this.setCurrentMinute(this.currentTimeMinutes + this.SIMULATION_STEP_MINUTES);
                 if (this.currentTimeMinutes % 60 === 0) {
                     const levels = this.generateCompactLevels(this.currentTimeMinutes);
-                    const result = (0, _utils.compactToLevels)(levels);
+                    const result = (0, $60b09ee0d5d2adab$export$c46cf0b3c9436807)(levels);
                     this.updateLevels(result);
                 }
                 this.intervalId = window.setTimeout(()=>{
@@ -945,22 +1614,22 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             scheduleNextTick();
         } else if (!this.hasReceivedData) {
             // No real sensor data yet (e.g. card picker preview). Show demo arcs.
-            const now = (0, _utils.getCurrentMinutesSinceMidnight)();
+            const now = (0, $60b09ee0d5d2adab$export$615f3482ca768fa4)();
             const demoLevelLength = 60;
-            const pattern = 'LLLMMHHMMMHMMMLLLLMHMLLL';
+            const pattern = this.isBatterySensor() ? 'SSSCCCPPDDDEEMMMSSSCCCPP' : 'LLLMMHHMMMHMMMLLLLMHMLLL';
             const numPassed = Math.ceil(60 / demoLevelLength);
             const numFuture = Math.ceil(720 / demoLevelLength);
             const passed = pattern.substring(0, numPassed);
             const future = pattern.substring(0, numFuture);
             const demoCompact = `${now}:${demoLevelLength}:${passed}:${future}`;
-            const result = (0, _utils.compactToLevels)(demoCompact);
+            const result = (0, $60b09ee0d5d2adab$export$c46cf0b3c9436807)(demoCompact);
             this.updateLevels(result);
         } else this.setCurrentMinute(this.currentTimeMinutes);
     }
     connectedCallback() {
         super.connectedCallback();
         // Restart the minute ticker when the card is reconnected (e.g. tab switch)
-        if (!this.isSimulating && this.currentTimeMinutes > 0) this.startMinuteTicker((0, _utils.getCurrentMinutesSinceMidnight)());
+        if (!this.isSimulating && this.currentTimeMinutes > 0) this.startMinuteTicker((0, $60b09ee0d5d2adab$export$615f3482ca768fa4)());
     }
     disconnectedCallback() {
         if (this.intervalId) clearTimeout(this.intervalId);
@@ -968,16 +1637,16 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
         this.stopMinuteTicker();
         super.disconnectedCallback();
     }
-}, _LevelIndicatorClockCard.CENTER_X = 100, _LevelIndicatorClockCard.CENTER_Y = 100, _LevelIndicatorClockCard.HOUR_DIGITS_RADIUS = 82, _LevelIndicatorClockCard.hourDigits = Array.from({
+}, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.CENTER_X = 100, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.CENTER_Y = 100, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.HOUR_DIGITS_RADIUS = 82, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.hourDigits = Array.from({
     length: 12
 }, (_, i)=>{
     const hour = i + 1;
     const angle = (hour - 3) * Math.PI * 2 / 12;
-    const x = _LevelIndicatorClockCard.CENTER_X + _LevelIndicatorClockCard.HOUR_DIGITS_RADIUS * Math.cos(angle);
-    const y = _LevelIndicatorClockCard.CENTER_Y + _LevelIndicatorClockCard.HOUR_DIGITS_RADIUS * Math.sin(angle);
-    return (0, _lit.svg)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
-}), _LevelIndicatorClockCard.ARC_RADIUS = _LevelIndicatorClockCard.HOUR_DIGITS_RADIUS + 1, _LevelIndicatorClockCard.ARC_STROKE_WIDTH = 22, _LevelIndicatorClockCard.MARKER_WIDTH_MINUTES = 3, _LevelIndicatorClockCard.HISTORY_LENGTH_MINUTES = 60, _LevelIndicatorClockCard.styles = (0, _levelindicatorclockcardStylesDefault.default), _LevelIndicatorClockCard), _descriptor = _applyDecoratedDescriptor(_class.prototype, "compactLevels", [
-    _dec
+    const x = $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.CENTER_X + $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.HOUR_DIGITS_RADIUS * Math.cos(angle);
+    const y = $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.CENTER_Y + $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.HOUR_DIGITS_RADIUS * Math.sin(angle);
+    return (0, $f58f44579a4747ac$export$7ed1367e7fa1ad68)`<text x="${x}" y="${y}" font-weight="bold">${hour}</text>`;
+}), $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.ARC_RADIUS = $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.HOUR_DIGITS_RADIUS + 1, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.ARC_STROKE_WIDTH = 22, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.MARKER_WIDTH_MINUTES = 3, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.HISTORY_LENGTH_MINUTES = 60, $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard.styles = (0, $af2e54d923abca22$export$2e2bcd8739ae039), $dc03dc8aeb30ad35$var$_LevelIndicatorClockCard), $dc03dc8aeb30ad35$var$_descriptor = $dc03dc8aeb30ad35$var$_applyDecoratedDescriptor($dc03dc8aeb30ad35$var$_class.prototype, "compactLevels", [
+    $dc03dc8aeb30ad35$var$_dec
 ], {
     configurable: true,
     enumerable: true,
@@ -985,8 +1654,8 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     initializer: function() {
         return '';
     }
-}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, "dependencyMet", [
-    _dec2
+}), $dc03dc8aeb30ad35$var$_descriptor2 = $dc03dc8aeb30ad35$var$_applyDecoratedDescriptor($dc03dc8aeb30ad35$var$_class.prototype, "dependencyMet", [
+    $dc03dc8aeb30ad35$var$_dec2
 ], {
     configurable: true,
     enumerable: true,
@@ -994,8 +1663,8 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
     initializer: function() {
         return false;
     }
-}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, "hourHandEnd", [
-    _dec3
+}), $dc03dc8aeb30ad35$var$_descriptor3 = $dc03dc8aeb30ad35$var$_applyDecoratedDescriptor($dc03dc8aeb30ad35$var$_class.prototype, "hourHandEnd", [
+    $dc03dc8aeb30ad35$var$_dec3
 ], {
     configurable: true,
     enumerable: true,
@@ -1006,8 +1675,8 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             y: 55
         };
     }
-}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, "minuteHandEnd", [
-    _dec4
+}), $dc03dc8aeb30ad35$var$_descriptor4 = $dc03dc8aeb30ad35$var$_applyDecoratedDescriptor($dc03dc8aeb30ad35$var$_class.prototype, "minuteHandEnd", [
+    $dc03dc8aeb30ad35$var$_dec4
 ], {
     configurable: true,
     enumerable: true,
@@ -1018,1242 +1687,18 @@ let LevelIndicatorClockCard = (_dec = (0, _decoratorsJs.property)({
             y: 40
         };
     }
-}), _class);
+}), $dc03dc8aeb30ad35$var$_class);
 
-},{"lit":"4antt","lit/decorators.js":"bCPKi","./levelindicatorclockcard.styles":"aTxNe","./LevelArcs":"bxZMu","./utils":"dsXzW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4antt":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _reactiveElement = require("@lit/reactive-element");
-var _litHtml = require("lit-html");
-var _litElementJs = require("lit-element/lit-element.js");
-parcelHelpers.exportAll(_litElementJs, exports);
-var _isServerJs = require("lit-html/is-server.js");
-parcelHelpers.exportAll(_isServerJs, exports);
 
-},{"@lit/reactive-element":"hypet","lit-html":"1cmQt","lit-element/lit-element.js":"9YxkX","lit-html/is-server.js":"e2OXP","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hypet":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CSSResult", ()=>(0, _cssTagJs.CSSResult));
-parcelHelpers.export(exports, "adoptStyles", ()=>(0, _cssTagJs.adoptStyles));
-parcelHelpers.export(exports, "css", ()=>(0, _cssTagJs.css));
-parcelHelpers.export(exports, "getCompatibleStyle", ()=>(0, _cssTagJs.getCompatibleStyle));
-parcelHelpers.export(exports, "supportsAdoptingStyleSheets", ()=>(0, _cssTagJs.supportsAdoptingStyleSheets));
-parcelHelpers.export(exports, "unsafeCSS", ()=>(0, _cssTagJs.unsafeCSS));
-parcelHelpers.export(exports, "ReactiveElement", ()=>b);
-parcelHelpers.export(exports, "defaultConverter", ()=>u);
-parcelHelpers.export(exports, "notEqual", ()=>f);
-var _cssTagJs = require("./css-tag.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const { is: i, defineProperty: e, getOwnPropertyDescriptor: r, getOwnPropertyNames: h, getOwnPropertySymbols: o, getPrototypeOf: n } = Object, a = globalThis, c = a.trustedTypes, l = c ? c.emptyScript : "", p = a.reactiveElementPolyfillSupport, d = (t, s)=>t, u = {
-    toAttribute (t, s) {
-        switch(s){
-            case Boolean:
-                t = t ? l : null;
-                break;
-            case Object:
-            case Array:
-                t = null == t ? t : JSON.stringify(t);
-        }
-        return t;
-    },
-    fromAttribute (t, s) {
-        let i = t;
-        switch(s){
-            case Boolean:
-                i = null !== t;
-                break;
-            case Number:
-                i = null === t ? null : Number(t);
-                break;
-            case Object:
-            case Array:
-                try {
-                    i = JSON.parse(t);
-                } catch (t) {
-                    i = null;
-                }
-        }
-        return i;
-    }
-}, f = (t, s)=>!i(t, s), y = {
-    attribute: !0,
-    type: String,
-    converter: u,
-    reflect: !1,
-    hasChanged: f
-};
-Symbol.metadata ??= Symbol("metadata"), a.litPropertyMetadata ??= new WeakMap;
-class b extends HTMLElement {
-    static addInitializer(t) {
-        this._$Ei(), (this.l ??= []).push(t);
-    }
-    static get observedAttributes() {
-        return this.finalize(), this._$Eh && [
-            ...this._$Eh.keys()
-        ];
-    }
-    static createProperty(t, s = y) {
-        if (s.state && (s.attribute = !1), this._$Ei(), this.elementProperties.set(t, s), !s.noAccessor) {
-            const i = Symbol(), r = this.getPropertyDescriptor(t, i, s);
-            void 0 !== r && e(this.prototype, t, r);
-        }
-    }
-    static getPropertyDescriptor(t, s, i) {
-        const { get: e, set: h } = r(this.prototype, t) ?? {
-            get () {
-                return this[s];
-            },
-            set (t) {
-                this[s] = t;
-            }
-        };
-        return {
-            get () {
-                return e?.call(this);
-            },
-            set (s) {
-                const r = e?.call(this);
-                h.call(this, s), this.requestUpdate(t, r, i);
-            },
-            configurable: !0,
-            enumerable: !0
-        };
-    }
-    static getPropertyOptions(t) {
-        return this.elementProperties.get(t) ?? y;
-    }
-    static _$Ei() {
-        if (this.hasOwnProperty(d("elementProperties"))) return;
-        const t = n(this);
-        t.finalize(), void 0 !== t.l && (this.l = [
-            ...t.l
-        ]), this.elementProperties = new Map(t.elementProperties);
-    }
-    static finalize() {
-        if (this.hasOwnProperty(d("finalized"))) return;
-        if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(d("properties"))) {
-            const t = this.properties, s = [
-                ...h(t),
-                ...o(t)
-            ];
-            for (const i of s)this.createProperty(i, t[i]);
-        }
-        const t = this[Symbol.metadata];
-        if (null !== t) {
-            const s = litPropertyMetadata.get(t);
-            if (void 0 !== s) for (const [t, i] of s)this.elementProperties.set(t, i);
-        }
-        this._$Eh = new Map;
-        for (const [t, s] of this.elementProperties){
-            const i = this._$Eu(t, s);
-            void 0 !== i && this._$Eh.set(i, t);
-        }
-        this.elementStyles = this.finalizeStyles(this.styles);
-    }
-    static finalizeStyles(s) {
-        const i = [];
-        if (Array.isArray(s)) {
-            const e = new Set(s.flat(1 / 0).reverse());
-            for (const s of e)i.unshift((0, _cssTagJs.getCompatibleStyle)(s));
-        } else void 0 !== s && i.push((0, _cssTagJs.getCompatibleStyle)(s));
-        return i;
-    }
-    static _$Eu(t, s) {
-        const i = s.attribute;
-        return !1 === i ? void 0 : "string" == typeof i ? i : "string" == typeof t ? t.toLowerCase() : void 0;
-    }
-    constructor(){
-        super(), this._$Ep = void 0, this.isUpdatePending = !1, this.hasUpdated = !1, this._$Em = null, this._$Ev();
-    }
-    _$Ev() {
-        this._$ES = new Promise((t)=>this.enableUpdating = t), this._$AL = new Map, this._$E_(), this.requestUpdate(), this.constructor.l?.forEach((t)=>t(this));
-    }
-    addController(t) {
-        (this._$EO ??= new Set).add(t), void 0 !== this.renderRoot && this.isConnected && t.hostConnected?.();
-    }
-    removeController(t) {
-        this._$EO?.delete(t);
-    }
-    _$E_() {
-        const t = new Map, s = this.constructor.elementProperties;
-        for (const i of s.keys())this.hasOwnProperty(i) && (t.set(i, this[i]), delete this[i]);
-        t.size > 0 && (this._$Ep = t);
-    }
-    createRenderRoot() {
-        const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-        return (0, _cssTagJs.adoptStyles)(t, this.constructor.elementStyles), t;
-    }
-    connectedCallback() {
-        this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t)=>t.hostConnected?.());
-    }
-    enableUpdating(t) {}
-    disconnectedCallback() {
-        this._$EO?.forEach((t)=>t.hostDisconnected?.());
-    }
-    attributeChangedCallback(t, s, i) {
-        this._$AK(t, i);
-    }
-    _$EC(t, s) {
-        const i = this.constructor.elementProperties.get(t), e = this.constructor._$Eu(t, i);
-        if (void 0 !== e && !0 === i.reflect) {
-            const r = (void 0 !== i.converter?.toAttribute ? i.converter : u).toAttribute(s, i.type);
-            this._$Em = t, null == r ? this.removeAttribute(e) : this.setAttribute(e, r), this._$Em = null;
-        }
-    }
-    _$AK(t, s) {
-        const i = this.constructor, e = i._$Eh.get(t);
-        if (void 0 !== e && this._$Em !== e) {
-            const t = i.getPropertyOptions(e), r = "function" == typeof t.converter ? {
-                fromAttribute: t.converter
-            } : void 0 !== t.converter?.fromAttribute ? t.converter : u;
-            this._$Em = e, this[e] = r.fromAttribute(s, t.type), this._$Em = null;
-        }
-    }
-    requestUpdate(t, s, i) {
-        if (void 0 !== t) {
-            if (i ??= this.constructor.getPropertyOptions(t), !(i.hasChanged ?? f)(this[t], s)) return;
-            this.P(t, s, i);
-        }
-        !1 === this.isUpdatePending && (this._$ES = this._$ET());
-    }
-    P(t, s, i) {
-        this._$AL.has(t) || this._$AL.set(t, s), !0 === i.reflect && this._$Em !== t && (this._$Ej ??= new Set).add(t);
-    }
-    async _$ET() {
-        this.isUpdatePending = !0;
-        try {
-            await this._$ES;
-        } catch (t) {
-            Promise.reject(t);
-        }
-        const t = this.scheduleUpdate();
-        return null != t && await t, !this.isUpdatePending;
-    }
-    scheduleUpdate() {
-        return this.performUpdate();
-    }
-    performUpdate() {
-        if (!this.isUpdatePending) return;
-        if (!this.hasUpdated) {
-            if (this.renderRoot ??= this.createRenderRoot(), this._$Ep) {
-                for (const [t, s] of this._$Ep)this[t] = s;
-                this._$Ep = void 0;
-            }
-            const t = this.constructor.elementProperties;
-            if (t.size > 0) for (const [s, i] of t)!0 !== i.wrapped || this._$AL.has(s) || void 0 === this[s] || this.P(s, this[s], i);
-        }
-        let t = !1;
-        const s = this._$AL;
-        try {
-            t = this.shouldUpdate(s), t ? (this.willUpdate(s), this._$EO?.forEach((t)=>t.hostUpdate?.()), this.update(s)) : this._$EU();
-        } catch (s) {
-            throw t = !1, this._$EU(), s;
-        }
-        t && this._$AE(s);
-    }
-    willUpdate(t) {}
-    _$AE(t) {
-        this._$EO?.forEach((t)=>t.hostUpdated?.()), this.hasUpdated || (this.hasUpdated = !0, this.firstUpdated(t)), this.updated(t);
-    }
-    _$EU() {
-        this._$AL = new Map, this.isUpdatePending = !1;
-    }
-    get updateComplete() {
-        return this.getUpdateComplete();
-    }
-    getUpdateComplete() {
-        return this._$ES;
-    }
-    shouldUpdate(t) {
-        return !0;
-    }
-    update(t) {
-        this._$Ej &&= this._$Ej.forEach((t)=>this._$EC(t, this[t])), this._$EU();
-    }
-    updated(t) {}
-    firstUpdated(t) {}
-}
-b.elementStyles = [], b.shadowRootOptions = {
-    mode: "open"
-}, b[d("elementProperties")] = new Map, b[d("finalized")] = new Map, p?.({
-    ReactiveElement: b
-}), (a.reactiveElementVersions ??= []).push("2.0.4");
 
-},{"./css-tag.js":"gkZsf","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkZsf":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CSSResult", ()=>n);
-parcelHelpers.export(exports, "adoptStyles", ()=>S);
-parcelHelpers.export(exports, "css", ()=>i);
-parcelHelpers.export(exports, "getCompatibleStyle", ()=>c);
-parcelHelpers.export(exports, "supportsAdoptingStyleSheets", ()=>e);
-parcelHelpers.export(exports, "unsafeCSS", ()=>r);
-const t = globalThis, e = t.ShadowRoot && (void 0 === t.ShadyCSS || t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, s = Symbol(), o = new WeakMap;
-class n {
-    constructor(t, e, o){
-        if (this._$cssResult$ = !0, o !== s) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
-        this.cssText = t, this.t = e;
-    }
-    get styleSheet() {
-        let t = this.o;
-        const s = this.t;
-        if (e && void 0 === t) {
-            const e = void 0 !== s && 1 === s.length;
-            e && (t = o.get(s)), void 0 === t && ((this.o = t = new CSSStyleSheet).replaceSync(this.cssText), e && o.set(s, t));
-        }
-        return t;
-    }
-    toString() {
-        return this.cssText;
-    }
-}
-const r = (t)=>new n("string" == typeof t ? t : t + "", void 0, s), i = (t, ...e)=>{
-    const o = 1 === t.length ? t[0] : e.reduce((e, s, o)=>e + ((t)=>{
-            if (!0 === t._$cssResult$) return t.cssText;
-            if ("number" == typeof t) return t;
-            throw Error("Value passed to 'css' function must be a 'css' function result: " + t + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
-        })(s) + t[o + 1], t[0]);
-    return new n(o, t, s);
-}, S = (s, o)=>{
-    if (e) s.adoptedStyleSheets = o.map((t)=>t instanceof CSSStyleSheet ? t : t.styleSheet);
-    else for (const e of o){
-        const o = document.createElement("style"), n = t.litNonce;
-        void 0 !== n && o.setAttribute("nonce", n), o.textContent = e.cssText, s.appendChild(o);
-    }
-}, c = e ? (t)=>t : (t)=>t instanceof CSSStyleSheet ? ((t)=>{
-        let e = "";
-        for (const s of t.cssRules)e += s.cssText;
-        return r(e);
-    })(t) : t;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule' || Object.prototype.hasOwnProperty.call(dest, key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"1cmQt":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "_$LH", ()=>Z);
-parcelHelpers.export(exports, "html", ()=>x);
-parcelHelpers.export(exports, "mathml", ()=>w);
-parcelHelpers.export(exports, "noChange", ()=>T);
-parcelHelpers.export(exports, "nothing", ()=>E);
-parcelHelpers.export(exports, "render", ()=>B);
-parcelHelpers.export(exports, "svg", ()=>b);
-const t = globalThis, i = t.trustedTypes, s = i ? i.createPolicy("lit-html", {
-    createHTML: (t)=>t
-}) : void 0, e = "$lit$", h = `lit$${Math.random().toFixed(9).slice(2)}$`, o = "?" + h, n = `<${o}>`, r = document, l = ()=>r.createComment(""), c = (t)=>null === t || "object" != typeof t && "function" != typeof t, a = Array.isArray, u = (t)=>a(t) || "function" == typeof t?.[Symbol.iterator], d = "[ \t\n\f\r]", f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, v = /-->/g, _ = />/g, m = RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), p = /'/g, g = /"/g, $ = /^(?:script|style|textarea|title)$/i, y = (t)=>(i, ...s)=>({
-            _$litType$: t,
-            strings: i,
-            values: s
-        }), x = y(1), b = y(2), w = y(3), T = Symbol.for("lit-noChange"), E = Symbol.for("lit-nothing"), A = new WeakMap, C = r.createTreeWalker(r, 129);
-function P(t, i) {
-    if (!a(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
-    return void 0 !== s ? s.createHTML(i) : i;
-}
-const V = (t, i)=>{
-    const s = t.length - 1, o = [];
-    let r, l = 2 === i ? "<svg>" : 3 === i ? "<math>" : "", c = f;
-    for(let i = 0; i < s; i++){
-        const s = t[i];
-        let a, u, d = -1, y = 0;
-        for(; y < s.length && (c.lastIndex = y, u = c.exec(s), null !== u);)y = c.lastIndex, c === f ? "!--" === u[1] ? c = v : void 0 !== u[1] ? c = _ : void 0 !== u[2] ? ($.test(u[2]) && (r = RegExp("</" + u[2], "g")), c = m) : void 0 !== u[3] && (c = m) : c === m ? ">" === u[0] ? (c = r ?? f, d = -1) : void 0 === u[1] ? d = -2 : (d = c.lastIndex - u[2].length, a = u[1], c = void 0 === u[3] ? m : '"' === u[3] ? g : p) : c === g || c === p ? c = m : c === v || c === _ ? c = f : (c = m, r = void 0);
-        const x = c === m && t[i + 1].startsWith("/>") ? " " : "";
-        l += c === f ? s + n : d >= 0 ? (o.push(a), s.slice(0, d) + e + s.slice(d) + h + x) : s + h + (-2 === d ? i : x);
-    }
-    return [
-        P(t, l + (t[s] || "<?>") + (2 === i ? "</svg>" : 3 === i ? "</math>" : "")),
-        o
-    ];
-};
-class N {
-    constructor({ strings: t, _$litType$: s }, n){
-        let r;
-        this.parts = [];
-        let c = 0, a = 0;
-        const u = t.length - 1, d = this.parts, [f, v] = V(t, s);
-        if (this.el = N.createElement(f, n), C.currentNode = this.el.content, 2 === s || 3 === s) {
-            const t = this.el.content.firstChild;
-            t.replaceWith(...t.childNodes);
-        }
-        for(; null !== (r = C.nextNode()) && d.length < u;){
-            if (1 === r.nodeType) {
-                if (r.hasAttributes()) for (const t of r.getAttributeNames())if (t.endsWith(e)) {
-                    const i = v[a++], s = r.getAttribute(t).split(h), e = /([.?@])?(.*)/.exec(i);
-                    d.push({
-                        type: 1,
-                        index: c,
-                        name: e[2],
-                        strings: s,
-                        ctor: "." === e[1] ? H : "?" === e[1] ? I : "@" === e[1] ? L : k
-                    }), r.removeAttribute(t);
-                } else t.startsWith(h) && (d.push({
-                    type: 6,
-                    index: c
-                }), r.removeAttribute(t));
-                if ($.test(r.tagName)) {
-                    const t = r.textContent.split(h), s = t.length - 1;
-                    if (s > 0) {
-                        r.textContent = i ? i.emptyScript : "";
-                        for(let i = 0; i < s; i++)r.append(t[i], l()), C.nextNode(), d.push({
-                            type: 2,
-                            index: ++c
-                        });
-                        r.append(t[s], l());
-                    }
-                }
-            } else if (8 === r.nodeType) {
-                if (r.data === o) d.push({
-                    type: 2,
-                    index: c
-                });
-                else {
-                    let t = -1;
-                    for(; -1 !== (t = r.data.indexOf(h, t + 1));)d.push({
-                        type: 7,
-                        index: c
-                    }), t += h.length - 1;
-                }
-            }
-            c++;
-        }
-    }
-    static createElement(t, i) {
-        const s = r.createElement("template");
-        return s.innerHTML = t, s;
-    }
-}
-function S(t, i, s = t, e) {
-    if (i === T) return i;
-    let h = void 0 !== e ? s._$Co?.[e] : s._$Cl;
-    const o = c(i) ? void 0 : i._$litDirective$;
-    return h?.constructor !== o && (h?._$AO?.(!1), void 0 === o ? h = void 0 : (h = new o(t), h._$AT(t, s, e)), void 0 !== e ? (s._$Co ??= [])[e] = h : s._$Cl = h), void 0 !== h && (i = S(t, h._$AS(t, i.values), h, e)), i;
-}
-class M {
-    constructor(t, i){
-        this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
-    }
-    get parentNode() {
-        return this._$AM.parentNode;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    u(t) {
-        const { el: { content: i }, parts: s } = this._$AD, e = (t?.creationScope ?? r).importNode(i, !0);
-        C.currentNode = e;
-        let h = C.nextNode(), o = 0, n = 0, l = s[0];
-        for(; void 0 !== l;){
-            if (o === l.index) {
-                let i;
-                2 === l.type ? i = new R(h, h.nextSibling, this, t) : 1 === l.type ? i = new l.ctor(h, l.name, l.strings, this, t) : 6 === l.type && (i = new z(h, this, t)), this._$AV.push(i), l = s[++n];
-            }
-            o !== l?.index && (h = C.nextNode(), o++);
-        }
-        return C.currentNode = r, e;
-    }
-    p(t) {
-        let i = 0;
-        for (const s of this._$AV)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
-    }
-}
-class R {
-    get _$AU() {
-        return this._$AM?._$AU ?? this._$Cv;
-    }
-    constructor(t, i, s, e){
-        this.type = 2, this._$AH = E, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cv = e?.isConnected ?? !0;
-    }
-    get parentNode() {
-        let t = this._$AA.parentNode;
-        const i = this._$AM;
-        return void 0 !== i && 11 === t?.nodeType && (t = i.parentNode), t;
-    }
-    get startNode() {
-        return this._$AA;
-    }
-    get endNode() {
-        return this._$AB;
-    }
-    _$AI(t, i = this) {
-        t = S(this, t, i), c(t) ? t === E || null == t || "" === t ? (this._$AH !== E && this._$AR(), this._$AH = E) : t !== this._$AH && t !== T && this._(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : u(t) ? this.k(t) : this._(t);
-    }
-    O(t) {
-        return this._$AA.parentNode.insertBefore(t, this._$AB);
-    }
-    T(t) {
-        this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
-    }
-    _(t) {
-        this._$AH !== E && c(this._$AH) ? this._$AA.nextSibling.data = t : this.T(r.createTextNode(t)), this._$AH = t;
-    }
-    $(t) {
-        const { values: i, _$litType$: s } = t, e = "number" == typeof s ? this._$AC(t) : (void 0 === s.el && (s.el = N.createElement(P(s.h, s.h[0]), this.options)), s);
-        if (this._$AH?._$AD === e) this._$AH.p(i);
-        else {
-            const t = new M(e, this), s = t.u(this.options);
-            t.p(i), this.T(s), this._$AH = t;
-        }
-    }
-    _$AC(t) {
-        let i = A.get(t.strings);
-        return void 0 === i && A.set(t.strings, i = new N(t)), i;
-    }
-    k(t) {
-        a(this._$AH) || (this._$AH = [], this._$AR());
-        const i = this._$AH;
-        let s, e = 0;
-        for (const h of t)e === i.length ? i.push(s = new R(this.O(l()), this.O(l()), this, this.options)) : s = i[e], s._$AI(h), e++;
-        e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
-    }
-    _$AR(t = this._$AA.nextSibling, i) {
-        for(this._$AP?.(!1, !0, i); t && t !== this._$AB;){
-            const i = t.nextSibling;
-            t.remove(), t = i;
-        }
-    }
-    setConnected(t) {
-        void 0 === this._$AM && (this._$Cv = t, this._$AP?.(t));
-    }
-}
-class k {
-    get tagName() {
-        return this.element.tagName;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    constructor(t, i, s, e, h){
-        this.type = 1, this._$AH = E, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = h, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = E;
-    }
-    _$AI(t, i = this, s, e) {
-        const h = this.strings;
-        let o = !1;
-        if (void 0 === h) t = S(this, t, i, 0), o = !c(t) || t !== this._$AH && t !== T, o && (this._$AH = t);
-        else {
-            const e = t;
-            let n, r;
-            for(t = h[0], n = 0; n < h.length - 1; n++)r = S(this, e[s + n], i, n), r === T && (r = this._$AH[n]), o ||= !c(r) || r !== this._$AH[n], r === E ? t = E : t !== E && (t += (r ?? "") + h[n + 1]), this._$AH[n] = r;
-        }
-        o && !e && this.j(t);
-    }
-    j(t) {
-        t === E ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
-    }
-}
-class H extends k {
-    constructor(){
-        super(...arguments), this.type = 3;
-    }
-    j(t) {
-        this.element[this.name] = t === E ? void 0 : t;
-    }
-}
-class I extends k {
-    constructor(){
-        super(...arguments), this.type = 4;
-    }
-    j(t) {
-        this.element.toggleAttribute(this.name, !!t && t !== E);
-    }
-}
-class L extends k {
-    constructor(t, i, s, e, h){
-        super(t, i, s, e, h), this.type = 5;
-    }
-    _$AI(t, i = this) {
-        if ((t = S(this, t, i, 0) ?? E) === T) return;
-        const s = this._$AH, e = t === E && s !== E || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, h = t !== E && (s === E || e);
-        e && this.element.removeEventListener(this.name, this, s), h && this.element.addEventListener(this.name, this, t), this._$AH = t;
-    }
-    handleEvent(t) {
-        "function" == typeof this._$AH ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
-    }
-}
-class z {
-    constructor(t, i, s){
-        this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    _$AI(t) {
-        S(this, t);
-    }
-}
-const Z = {
-    M: e,
-    P: h,
-    A: o,
-    C: 1,
-    L: V,
-    R: M,
-    D: u,
-    V: S,
-    I: R,
-    H: k,
-    N: I,
-    U: L,
-    B: H,
-    F: z
-}, j = t.litHtmlPolyfillSupport;
-j?.(N, R), (t.litHtmlVersions ??= []).push("3.2.1");
-const B = (t, i, s)=>{
-    const e = s?.renderBefore ?? i;
-    let h = e._$litPart$;
-    if (void 0 === h) {
-        const t = s?.renderBefore ?? null;
-        e._$litPart$ = h = new R(i.insertBefore(l(), t), t, void 0, s ?? {});
-    }
-    return h._$AI(t), h;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9YxkX":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "LitElement", ()=>r);
-parcelHelpers.export(exports, "_$LE", ()=>o);
-var _reactiveElement = require("@lit/reactive-element");
-parcelHelpers.exportAll(_reactiveElement, exports);
-var _litHtml = require("lit-html");
-parcelHelpers.exportAll(_litHtml, exports);
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ class r extends (0, _reactiveElement.ReactiveElement) {
-    constructor(){
-        super(...arguments), this.renderOptions = {
-            host: this
-        }, this._$Do = void 0;
-    }
-    createRenderRoot() {
-        const t = super.createRenderRoot();
-        return this.renderOptions.renderBefore ??= t.firstChild, t;
-    }
-    update(t) {
-        const s = this.render();
-        this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = (0, _litHtml.render)(s, this.renderRoot, this.renderOptions);
-    }
-    connectedCallback() {
-        super.connectedCallback(), this._$Do?.setConnected(!0);
-    }
-    disconnectedCallback() {
-        super.disconnectedCallback(), this._$Do?.setConnected(!1);
-    }
-    render() {
-        return 0, _litHtml.noChange;
-    }
-}
-r._$litElement$ = !0, r["finalized"] = !0, globalThis.litElementHydrateSupport?.({
-    LitElement: r
+customElements.define("level-indicator-clock", (0, $dc03dc8aeb30ad35$export$b085454a5d0b0b56));
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "level-indicator-clock",
+    name: "LevelIndicatorClock",
+    description: "Clock with level indicators",
+    preview: true
 });
-const i = globalThis.litElementPolyfillSupport;
-i?.({
-    LitElement: r
-});
-const o = {
-    _$AK: (t, e, s)=>{
-        t._$AK(e, s);
-    },
-    _$AL: (t)=>t._$AL
-};
-(globalThis.litElementVersions ??= []).push("4.1.1");
 
-},{"@lit/reactive-element":"hypet","lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e2OXP":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2022 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isServer", ()=>o);
-const o = !1;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bCPKi":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _customElementJs = require("@lit/reactive-element/decorators/custom-element.js");
-parcelHelpers.exportAll(_customElementJs, exports);
-var _propertyJs = require("@lit/reactive-element/decorators/property.js");
-parcelHelpers.exportAll(_propertyJs, exports);
-var _stateJs = require("@lit/reactive-element/decorators/state.js");
-parcelHelpers.exportAll(_stateJs, exports);
-var _eventOptionsJs = require("@lit/reactive-element/decorators/event-options.js");
-parcelHelpers.exportAll(_eventOptionsJs, exports);
-var _queryJs = require("@lit/reactive-element/decorators/query.js");
-parcelHelpers.exportAll(_queryJs, exports);
-var _queryAllJs = require("@lit/reactive-element/decorators/query-all.js");
-parcelHelpers.exportAll(_queryAllJs, exports);
-var _queryAsyncJs = require("@lit/reactive-element/decorators/query-async.js");
-parcelHelpers.exportAll(_queryAsyncJs, exports);
-var _queryAssignedElementsJs = require("@lit/reactive-element/decorators/query-assigned-elements.js");
-parcelHelpers.exportAll(_queryAssignedElementsJs, exports);
-var _queryAssignedNodesJs = require("@lit/reactive-element/decorators/query-assigned-nodes.js");
-parcelHelpers.exportAll(_queryAssignedNodesJs, exports);
-
-},{"@lit/reactive-element/decorators/custom-element.js":"cMf50","@lit/reactive-element/decorators/property.js":"ipYYa","@lit/reactive-element/decorators/state.js":"goyf7","@lit/reactive-element/decorators/event-options.js":"8b5ex","@lit/reactive-element/decorators/query.js":"kzuRy","@lit/reactive-element/decorators/query-all.js":"krNkJ","@lit/reactive-element/decorators/query-async.js":"a6gRJ","@lit/reactive-element/decorators/query-assigned-elements.js":"kKpwU","@lit/reactive-element/decorators/query-assigned-nodes.js":"2F824","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMf50":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "customElement", ()=>t);
-const t = (t)=>(e, o)=>{
-        void 0 !== o ? o.addInitializer(()=>{
-            customElements.define(t, e);
-        }) : customElements.define(t, e);
-    };
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ipYYa":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "property", ()=>n);
-parcelHelpers.export(exports, "standardProperty", ()=>r);
-var _reactiveElementJs = require("../reactive-element.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const o = {
-    attribute: !0,
-    type: String,
-    converter: (0, _reactiveElementJs.defaultConverter),
-    reflect: !1,
-    hasChanged: (0, _reactiveElementJs.notEqual)
-}, r = (t = o, e, r)=>{
-    const { kind: n, metadata: i } = r;
-    let s = globalThis.litPropertyMetadata.get(i);
-    if (void 0 === s && globalThis.litPropertyMetadata.set(i, s = new Map), s.set(r.name, t), "accessor" === n) {
-        const { name: o } = r;
-        return {
-            set (r) {
-                const n = e.get.call(this);
-                e.set.call(this, r), this.requestUpdate(o, n, t);
-            },
-            init (e) {
-                return void 0 !== e && this.P(o, void 0, t), e;
-            }
-        };
-    }
-    if ("setter" === n) {
-        const { name: o } = r;
-        return function(r) {
-            const n = this[o];
-            e.call(this, r), this.requestUpdate(o, n, t);
-        };
-    }
-    throw Error("Unsupported decorator location: " + n);
-};
-function n(t) {
-    return (e, o)=>"object" == typeof o ? r(t, e, o) : ((t, e, o)=>{
-            const r = e.hasOwnProperty(o);
-            return e.constructor.createProperty(o, r ? {
-                ...t,
-                wrapped: !0
-            } : t), r ? Object.getOwnPropertyDescriptor(e, o) : void 0;
-        })(t, e, o);
-}
-
-},{"../reactive-element.js":"hypet","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"goyf7":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "state", ()=>r);
-var _propertyJs = require("./property.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function r(r) {
-    return (0, _propertyJs.property)({
-        ...r,
-        state: !0,
-        attribute: !1
-    });
-}
-
-},{"./property.js":"ipYYa","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8b5ex":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "eventOptions", ()=>t);
-function t(t) {
-    return (n, o)=>{
-        const c = "function" == typeof n ? n : n[o];
-        Object.assign(c, t);
-    };
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kzuRy":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "query", ()=>e);
-var _baseJs = require("./base.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function e(e, r) {
-    return (n, s, i)=>{
-        const o = (t)=>t.renderRoot?.querySelector(e) ?? null;
-        if (r) {
-            const { get: e, set: r } = "object" == typeof s ? n : i ?? (()=>{
-                const t = Symbol();
-                return {
-                    get () {
-                        return this[t];
-                    },
-                    set (e) {
-                        this[t] = e;
-                    }
-                };
-            })();
-            return (0, _baseJs.desc)(n, s, {
-                get () {
-                    let t = e.call(this);
-                    return void 0 === t && (t = o(this), (null !== t || this.hasUpdated) && r.call(this, t)), t;
-                }
-            });
-        }
-        return (0, _baseJs.desc)(n, s, {
-            get () {
-                return o(this);
-            }
-        });
-    };
-}
-
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"d0R9Y":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "desc", ()=>e);
-const e = (e, t, c)=>(c.configurable = !0, c.enumerable = !0, Reflect.decorate && "object" != typeof t && Object.defineProperty(e, t, c), c);
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"krNkJ":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "queryAll", ()=>r);
-var _baseJs = require("./base.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ let e;
-function r(r) {
-    return (n, o)=>(0, _baseJs.desc)(n, o, {
-            get () {
-                return (this.renderRoot ?? (e ??= document.createDocumentFragment())).querySelectorAll(r);
-            }
-        });
-}
-
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a6gRJ":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "queryAsync", ()=>r);
-var _baseJs = require("./base.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function r(r) {
-    return (n, e)=>(0, _baseJs.desc)(n, e, {
-            async get () {
-                return await this.updateComplete, this.renderRoot?.querySelector(r) ?? null;
-            }
-        });
-}
-
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKpwU":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "queryAssignedElements", ()=>o);
-var _baseJs = require("./base.js");
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function o(o) {
-    return (e, n)=>{
-        const { slot: r, selector: s } = o ?? {}, c = "slot" + (r ? `[name=${r}]` : ":not([name])");
-        return (0, _baseJs.desc)(e, n, {
-            get () {
-                const t = this.renderRoot?.querySelector(c), e = t?.assignedElements(o) ?? [];
-                return void 0 === s ? e : e.filter((t)=>t.matches(s));
-            }
-        });
-    };
-}
-
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2F824":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "queryAssignedNodes", ()=>n);
-var _baseJs = require("./base.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function n(n) {
-    return (o, r)=>{
-        const { slot: e } = n ?? {}, s = "slot" + (e ? `[name=${e}]` : ":not([name])");
-        return (0, _baseJs.desc)(o, r, {
-            get () {
-                const t = this.renderRoot?.querySelector(s);
-                return t?.assignedNodes(n) ?? [];
-            }
-        });
-    };
-}
-
-},{"./base.js":"d0R9Y","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aTxNe":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _lit = require("lit");
-exports.default = (0, _lit.css)`
-    .error {
-        color: var(--error-color, crimson);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
-        text-align: center;
-        background-color: var(--card-background-color, rgba(255, 255, 255, 0.7));
-        padding: 1em;
-        border-radius: 1em;
-    }
-
-    ha-card {
-        display: flex;
-        position: relative;
-        flex-direction: column;
-        align-items: center;
-        font-family: Helvetica, sans-serif;
-        aspect-ratio: 1 / 1;
-    }
-
-    /* Light mode (default) */
-    .clock-face {
-        fill: var(--card-background-color, whitesmoke);
-        stroke: var(--secondary-text-color, darkslategray);
-        stroke-width: 2.5;
-    }
-
-    .hour-digits {
-        fill: var(--primary-text-color, black);
-    }
-
-    .hour-hand {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        transform-origin: center;
-        z-index: 2;
-        stroke: #333;
-    }
-
-    .minute-hand {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        transform-origin: center;
-        z-index: 2;
-        stroke: #333;
-    }
-
-    .center-dot {
-        fill: #333;
-    }
-
-    /* Dark mode overrides */
-    :host(.dark) .clock-face {
-        fill: var(--secondary-text-color, gray);
-        stroke: #333;
-    }
-
-    :host(.dark) .hour-digits {
-        fill: #222;
-    }
-
-    :host(.dark) .hour-hand {
-        stroke: var(--card-background-color, whitesmoke);
-    }
-
-    :host(.dark) .minute-hand {
-        stroke: var(--card-background-color, whitesmoke);
-    }
-
-    :host(.dark) .center-dot {
-        fill: var(--card-background-color, whitesmoke);
-    }
-`;
-
-},{"lit":"4antt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bxZMu":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "LevelArc", ()=>LevelArc);
-parcelHelpers.export(exports, "LevelArcs", ()=>LevelArcs);
-var _utils = require("./utils");
-class LevelArc {
-    constructor(color, start, end){
-        this.color = void 0;
-        this.start = void 0;
-        this.end = void 0;
-        this.color = color;
-        this.start = start;
-        this.end = end;
-    }
-    arcToPath(cx, cy, r) {
-        let angleDiff = Math.abs(this.end - this.start);
-        // If the arc is a full circle or nearly so, extend the end angle slightly
-        if (angleDiff >= 360 || angleDiff === 0) {
-            // Draw two arcs to make a full circle
-            const path1 = LevelArc.describeArcSegment(cx, cy, r, this.start, this.start + 180);
-            const path2 = LevelArc.describeArcSegment(cx, cy, r, this.start + 180, this.end);
-            return `${path1} ${path2}`;
-        } else return LevelArc.describeArcSegment(cx, cy, r, this.start, this.end);
-    }
-    static polarToCartesian(cx, cy, r, angleRad) {
-        return {
-            x: cx + r * Math.cos(angleRad - Math.PI / 2),
-            y: cy + r * Math.sin(angleRad - Math.PI / 2)
-        };
-    }
-    static describeArcSegment(cx, cy, r, startAngle, endAngle) {
-        const OVERLAP = 0.12;
-        const start = startAngle == 0 ? -OVERLAP : startAngle;
-        const end = endAngle == 360 ? 360 + OVERLAP : endAngle;
-        const arcStart = LevelArc.polarToCartesian(cx, cy, r, end * (Math.PI / 180));
-        const arcEnd = LevelArc.polarToCartesian(cx, cy, r, start * (Math.PI / 180));
-        const largeArcFlag = Math.abs(end - start) > 180 ? '1' : '0';
-        return `M ${arcStart.x} ${arcStart.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${arcEnd.x} ${arcEnd.y}`;
-    }
-}
-class LevelArcs {
-    constructor(initialLevel = 'U'){
-        this.arcs = [];
-        this.arcs = [
-            new LevelArc((0, _utils.getLevelColor)(initialLevel), 0, 360)
-        ];
-    }
-    getArcs() {
-        return this.arcs;
-    }
-    insertLevelArc(color, startAngle, endAngle) {
-        //console.debug(`Inserting level arc: color=${color}, startAngle=${startAngle}, endAngle=${endAngle}`);
-        if (startAngle >= 0 && startAngle <= 360 && endAngle >= 0 && endAngle <= 360) {
-            if (startAngle < endAngle) this.insertAndMergeLevelArc(color, startAngle, endAngle);
-            else if (startAngle > endAngle) {
-                if (startAngle < 360) this.insertAndMergeLevelArc(color, startAngle, 360);
-                if (endAngle > 0) this.insertAndMergeLevelArc(color, 0, endAngle);
-            }
-        }
-    }
-    insertLevelAtMinute(startMinute, lengthMinutes, level) {
-        const startAngle = (0, _utils.minutesToAngle)(startMinute);
-        const endAngle = (0, _utils.minutesToAngle)(startMinute + lengthMinutes);
-        this.insertLevelArc((0, _utils.getLevelColor)(level), startAngle, endAngle);
-    }
-    insertAndMergeLevelArc(color, startAngle, endAngle) {
-        let i = 0;
-        while(i < this.arcs.length){
-            const arc = this.arcs[i];
-            if (startAngle >= arc.end || endAngle <= arc.start) {
-                i++;
-                continue;
-            }
-            const originalEnd = arc.end;
-            if (startAngle > arc.start && endAngle < originalEnd) {
-                arc.end = startAngle;
-                const newArc = new LevelArc(color, startAngle, endAngle);
-                const afterArc = new LevelArc(arc.color, endAngle, originalEnd);
-                this.arcs.splice(i + 1, 0, newArc, afterArc);
-                break;
-            }
-            if (startAngle <= arc.start && endAngle < originalEnd && endAngle > arc.start) {
-                arc.start = endAngle;
-                const newArc = new LevelArc(color, startAngle, endAngle);
-                this.arcs.splice(i, 0, newArc);
-                break;
-            }
-            if (startAngle > arc.start && endAngle >= originalEnd) {
-                arc.end = startAngle;
-                const newArc = new LevelArc(color, startAngle, endAngle);
-                this.arcs.splice(i + 1, 0, newArc);
-                i++;
-                continue;
-            }
-            if (startAngle <= arc.start && endAngle >= originalEnd) {
-                this.arcs.splice(i, 1);
-                continue;
-            }
-            throw new Error('Unreachable');
-        //i++;
-        }
-        let inserted = this.arcs.some((g)=>g.start === startAngle && g.end === endAngle);
-        if (!inserted) {
-            let insertedInLoop = false;
-            for(let j = 0; j < this.arcs.length; j++)if (startAngle < this.arcs[j].start) {
-                this.arcs.splice(j, 0, new LevelArc(color, startAngle, endAngle));
-                insertedInLoop = true;
-                break;
-            }
-            if (!insertedInLoop) this.arcs.push(new LevelArc(color, startAngle, endAngle));
-        }
-        i = 0;
-        while(i < this.arcs.length - 1){
-            const current = this.arcs[i];
-            const next = this.arcs[i + 1];
-            if (current.color === next.color && current.end === next.start) {
-                current.end = next.end;
-                this.arcs.splice(i + 1, 1);
-            } else i++;
-        }
-    }
-}
-
-},{"./utils":"dsXzW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dsXzW":[function(require,module,exports,__globalThis) {
-// Utility functions for LevelIndicatorClock
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "minutesToAngle", ()=>minutesToAngle);
-parcelHelpers.export(exports, "DEFAULT_LEVELS_RESPONSE", ()=>DEFAULT_LEVELS_RESPONSE);
-parcelHelpers.export(exports, "compactToLevels", ()=>compactToLevels);
-parcelHelpers.export(exports, "getCurrentMinutesSinceMidnight", ()=>getCurrentMinutesSinceMidnight);
-parcelHelpers.export(exports, "getLevelColor", ()=>getLevelColor);
-function minutesToAngle(minutes) {
-    let angle = minutes / 2;
-    while(angle < 0)angle += 360;
-    while(angle > 360)angle -= 360;
-    return angle;
-}
-const DEFAULT_LEVELS_RESPONSE = {
-    minutes_since_midnight: 0,
-    level_length: 0,
-    passed_levels: '',
-    future_levels: ''
-};
-function compactToLevels(compactLevels) {
-    // Expecting format: "minutes_since_midnight:level_length:passed_levels:future_levels"
-    if (!compactLevels) return DEFAULT_LEVELS_RESPONSE;
-    const parts = compactLevels.split(":");
-    if (parts.length < 4) {
-        console.error('[ClockCard] Invalid compactLevels format:', compactLevels);
-        return DEFAULT_LEVELS_RESPONSE;
-    }
-    const minutesSinceMidnight = parseInt(parts[0], 10);
-    const levelLength = parseInt(parts[1], 10);
-    if (isNaN(minutesSinceMidnight) || isNaN(levelLength)) {
-        console.error('[ClockCard] Invalid numeric values in compactLevels:', compactLevels);
-        return DEFAULT_LEVELS_RESPONSE;
-    }
-    const passedLevels = parts[2];
-    const futureLevels = parts[3];
-    return {
-        minutes_since_midnight: minutesSinceMidnight,
-        level_length: levelLength,
-        passed_levels: passedLevels,
-        future_levels: futureLevels
-    };
-}
-function getCurrentMinutesSinceMidnight() {
-    const now = new Date();
-    return now.getHours() * 60 + now.getMinutes();
-}
-function getLevelColor(level) {
-    switch(level){
-        case "L":
-            return "green";
-        // Green for low
-        case "l":
-            return "darkgreen";
-        // Dark green for low
-        case "M":
-            return "yellow";
-        // Yellow for medium
-        case "m":
-            return "olive";
-        // Dark yellow for medium
-        case "H":
-            return "red";
-        // Red for high
-        case "h":
-            return "maroon";
-        // Dark red for high
-        case "S":
-            return "blue";
-        // Blue for solar
-        case "s":
-            return "navy";
-        // Dark blue for solar
-        case "U":
-            return "magenta";
-        // Magenta for unknown
-        case "u":
-            return "purple";
-        // Dark magenta for unknown
-        case "E":
-            return "cyan";
-        // Cyan for error
-        case "e":
-            return "teal";
-        // Dark cyan for error
-        case "P":
-            return "transparent";
-        case "p":
-            return "transparent";
-        default:
-            console.debug(`Unknown level character '${level}', defaulting to black.`);
-            return "black";
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["bTHtU","h7u1C"], "h7u1C", "parcelRequire94c2")
 
 //# sourceMappingURL=LevelIndicatorClock.js.map

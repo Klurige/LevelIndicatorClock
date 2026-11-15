@@ -56,37 +56,84 @@ export function getCurrentMinutesSinceMidnight(): number {
     return now.getHours() * 60 + now.getMinutes();
 }
 
+export function batteryModesToLevels(modes: string): string {
+    const levels: Record<string, string> = {S: 'B', P: 'F', E: 'T', M: 'X'};
+    return modes.replace(/[SPEM]/gi, mode => {
+        const level = levels[mode.toUpperCase()];
+        return mode === mode.toLowerCase() ? level.toLowerCase() : level;
+    });
+}
+
 
 export function getLevelColor(level: string): string {
      switch (level) {
+        case "A":
+            return "#0080ff";
+        case "a":
+            return "#001e3c";
+        case "B":
+            return "#00665e";
+        case "b":
+            return "#001816";
+        case "C":
+            return "#00d9ff";
+        case "c":
+            return "#00333c";
+        case "D":
+            return "#c2185b";
+        case "d":
+            return "#2e0615";
+        case "F":
+            return "#00a88f";
+        case "f":
+            return "#002822";
+        case "I":
+            return "#ffb000";
+        case "i":
+            return "#3c2900";
         case "L":
-            return "green"; // Green for low
+            return "#00c853";
         case "l":
-            return "darkgreen"; // Dark green for low
+            return "#002f14";
         case "M":
-            return "yellow"; // Yellow for medium
+            return "#ffd600";
         case "m":
-            return "olive"; // Dark yellow for medium
+            return "#3c3200";
         case "H":
-            return "red"; // Red for high
+            return "#ff0000";
         case "h":
-            return "maroon"; // Dark red for high
+            return "#3c0000";
         case "S":
-            return "blue"; // Blue for solar
+            return "#0066ff";
         case "s":
-            return "navy"; // Dark blue for solar
+            return "#00183c";
         case "U":
-            return "magenta"; // Magenta for unknown
+            return "#808080";
         case "u":
-            return "purple"; // Dark magenta for unknown
+            return "#202020";
         case "E":
-            return "cyan"; // Cyan for error
+            return "#ff00ff";
         case "e":
-            return "teal"; // Dark cyan for error
+            return "#3c003c";
+        case "O":
+        case "o":
+            return "black";
         case "P":
-            return "transparent";
+            return "white";
         case "p":
-            return "transparent";
+            return "#3c3c3c";
+        case "T":
+            return "#9370db";
+        case "t":
+            return "#231a34";
+        case "V":
+            return "#8000ff";
+        case "v":
+            return "#1e003c";
+        case "X":
+            return "#ff8c00";
+        case "x":
+            return "#3c2100";
         default:
             console.debug(`Unknown level character '${level}', defaulting to black.`);
             return "black"; // Black for other
