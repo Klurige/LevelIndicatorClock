@@ -21,23 +21,23 @@ The sensor's compact levels use the following uppercase symbols. Past levels are
 
 | Symbol | Colour | RGB | Meaning |
 |--------|--------|-----|---------|
-| `A` | Azure | `#0080ff` | Minutes indicator |
-| `B` | Teal | `#00665e` | Battery standby |
-| `C` | Cyan | `#00d9ff` | Battery charging |
-| `D` | Raspberry | `#c2185b` | Battery discharging |
+| `A` | Royal blue | `#4169e1` | Minutes indicator |
+| `B` | Teal | `#008080` | Battery standby |
+| `C` | Sky blue | `#87ceeb` | Battery charging |
+| `D` | Crimson | `#dc143c` | Battery discharging |
 | `E` | Magenta | `#ff00ff` | Error |
-| `F` | Turquoise | `#00a88f` | Battery PV charging |
+| `F` | Light sea green | `#20b2aa` | Battery PV charging |
 | `H` | Red | `#ff0000` | High electricity price |
-| `I` | Amber | `#ffb000` | Seconds indicator |
-| `L` | Green | `#00c853` | Low electricity price |
-| `M` | Yellow | `#ffd600` | Medium electricity price |
+| `I` | Orange | `#ffa500` | Seconds indicator |
+| `L` | Lime green | `#32cd32` | Low electricity price |
+| `M` | Gold | `#ffd700` | Medium electricity price |
 | `O` | Black | `#000000` | Off |
 | `P` | White | `#ffffff` | Current-time marker |
-| `S` | Blue | `#0066ff` | Solar electricity price |
+| `S` | Blue | `#0000ff` | Solar electricity price |
 | `T` | Medium purple | `#9370db` | Battery selling |
 | `U` | Grey | `#808080` | Unknown or missing level |
-| `V` | Violet | `#8000ff` | Hours indicator |
-| `X` | Orange | `#ff8c00` | Battery maxuse |
+| `V` | Medium slate blue | `#7b68ee` | Hours indicator |
+| `X` | Dark orange | `#ff8c00` | Battery maxuse |
 
 ## Prerequisites
 This card is tightly coupled with the **[energyadvisor](https://github.com/Klurige/energyadvisor)** integration.
@@ -135,6 +135,20 @@ Unit tests are written using [Jest](https://jestjs.io/).
 ```bash
 npm test
 ```
+
+The palette test compares the card's colours with the ESPHome `colours.h` header,
+including the lowercase historical colours and the fallback for unrecognised
+symbols. It checks `../esphome/devices/electricitypricelevelclock/colours.h` first,
+then `../esphome_devices/electricitypricelevelclock/colours.h`. If neither is
+present, only the palette test is skipped. To require the check or use a
+different checkout, set the path explicitly:
+
+```bash
+ESPHOME_COLOURS_HEADER=/path/to/colours.h npm test
+```
+
+The test reads the existing C++ `{symbol, red, green, blue}` initialisers; no
+changes to the ESPHome header are needed.
 
 ## Code Quality
 

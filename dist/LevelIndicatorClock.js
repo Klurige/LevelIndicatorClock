@@ -982,79 +982,46 @@ function $60b09ee0d5d2adab$export$e7b2f2483b2cae25(modes) {
         return mode === mode.toLowerCase() ? level.toLowerCase() : level;
     });
 }
+const $60b09ee0d5d2adab$export$f80cbab743a07297 = {
+    A: '#4169e1',
+    a: '#0f1935',
+    B: '#008080',
+    b: '#001e1e',
+    C: '#87ceeb',
+    c: '#203037',
+    D: '#dc143c',
+    d: '#34050e',
+    E: '#ff00ff',
+    e: '#3c003c',
+    F: '#20b2aa',
+    f: '#082a28',
+    H: '#ff0000',
+    h: '#3c0000',
+    I: '#ffa500',
+    i: '#3c2700',
+    L: '#32cd32',
+    l: '#0c300c',
+    M: '#ffd700',
+    m: '#3c3300',
+    O: '#000000',
+    o: '#000000',
+    P: '#ffffff',
+    p: '#3c3c3c',
+    S: '#0000ff',
+    s: '#00003c',
+    T: '#9370db',
+    t: '#231a34',
+    U: '#808080',
+    u: '#202020',
+    V: '#7b68ee',
+    v: '#1d1838',
+    X: '#ff8c00',
+    x: '#3c2100'
+};
 function $60b09ee0d5d2adab$export$398e9b43dc594d8e(level) {
-    switch(level){
-        case "A":
-            return "#0080ff";
-        case "a":
-            return "#001e3c";
-        case "B":
-            return "#00665e";
-        case "b":
-            return "#001816";
-        case "C":
-            return "#00d9ff";
-        case "c":
-            return "#00333c";
-        case "D":
-            return "#c2185b";
-        case "d":
-            return "#2e0615";
-        case "F":
-            return "#00a88f";
-        case "f":
-            return "#002822";
-        case "I":
-            return "#ffb000";
-        case "i":
-            return "#3c2900";
-        case "L":
-            return "#00c853";
-        case "l":
-            return "#002f14";
-        case "M":
-            return "#ffd600";
-        case "m":
-            return "#3c3200";
-        case "H":
-            return "#ff0000";
-        case "h":
-            return "#3c0000";
-        case "S":
-            return "#0066ff";
-        case "s":
-            return "#00183c";
-        case "U":
-            return "#808080";
-        case "u":
-            return "#202020";
-        case "E":
-            return "#ff00ff";
-        case "e":
-            return "#3c003c";
-        case "O":
-        case "o":
-            return "black";
-        case "P":
-            return "white";
-        case "p":
-            return "#3c3c3c";
-        case "T":
-            return "#9370db";
-        case "t":
-            return "#231a34";
-        case "V":
-            return "#8000ff";
-        case "v":
-            return "#1e003c";
-        case "X":
-            return "#ff8c00";
-        case "x":
-            return "#3c2100";
-        default:
-            console.debug(`Unknown level character '${level}', defaulting to black.`);
-            return "black";
-    }
+    if (Object.prototype.hasOwnProperty.call($60b09ee0d5d2adab$export$f80cbab743a07297, level)) return $60b09ee0d5d2adab$export$f80cbab743a07297[level];
+    console.debug(`Unknown level character '${level}', defaulting to dark gray.`);
+    return '#1e1e1e';
 }
 
 
